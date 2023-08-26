@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-
 #include <vulkan/vulkan.h>
+
+#include <vector>
 
 namespace Vulkan {
 
@@ -24,6 +24,7 @@ public:
   operator VkInstance() const { return _instance; }
 
   bool isValidationLayersEnabled() const { return _enableValidation; }
+  static const std::vector<const char*> validationLayers;
 
 private:
   bool checkValidationLayerSupport() const;

@@ -38,6 +38,8 @@ set(MYVULKAN_SRC_FILES
   Instance.h
   PhysicalDevice.cpp
   PhysicalDevice.h
+  Device.cpp
+  Device.h
 )
 
 set(SRC_FILES

@@ -13,13 +13,11 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 
   return VK_FALSE;
 }
-
-const std::vector<const char*> validationLayers = {
-    "VK_LAYER_KHRONOS_validation"
-};
 }
 
 using namespace Vulkan;
+
+const std::vector<const char*> Instance::validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
 Instance::Instance(int versionMajor, int versionMinor,
                    std::vector<const char*> extensions,

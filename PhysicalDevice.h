@@ -41,10 +41,14 @@ public:
 
   static QueueFamilies findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 
+  const Instance* instance() const { return _instance; }
+
 private:
   bool isDeviceSuitable(VkPhysicalDevice device);
 
 private:
+  const Instance* _instance = nullptr;
+
   VkPhysicalDevice _device = VK_NULL_HANDLE;
 
   QueueFamilies _queueFamilies;

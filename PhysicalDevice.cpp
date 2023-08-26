@@ -13,12 +13,12 @@ PhysicalDevice::PhysicalDevice(
 PhysicalDevice::~PhysicalDevice() { release(); }
 
 void PhysicalDevice::init(
-    const Instance &instance,
-    const std::function<bool(VkPhysicalDevice)> &isDeviceSuitable) {
+    const Instance& instance,
+    const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable) {
   if (_device != VK_NULL_HANDLE) {
-    throw std::runtime_error(
-        "Vulkan physical device has been initialized already!");
+    throw std::runtime_error("Vulkan physical device has been initialized already!");
   }
+  _instance = &instance;
 
   uint32_t deviceCount = 0;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -48,6 +48,8 @@ void PhysicalDevice::initQueueFamilies(VkSurfaceKHR surface) {
 
 void PhysicalDevice::release() {
   // Phyiscal device is not created or allocated so nothing to do here
+
+  _instance = nullptr;
 }
 
 PhysicalDevice::QueueFamilies
