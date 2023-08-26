@@ -33,8 +33,16 @@ pkg_get_variable(STB_INCLUDE_DIR stb includedir)
 
 find_package(Vulkan REQUIRED COMPONENTS glslangValidator)
 
+set(MYVULKAN_SRC_FILES
+  Instance.cpp
+  Instance.h
+  PhysicalDevice.cpp
+  PhysicalDevice.h
+)
+
 set(SRC_FILES
   testbed.cpp
+  ${MYVULKAN_SRC_FILES}
 )
 set(SHADER_FILES
   shader.vert
