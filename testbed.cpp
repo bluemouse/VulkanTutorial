@@ -17,7 +17,6 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <optional>
 #include <set>
 #include <stdexcept>
 #include <vector>
@@ -41,15 +40,6 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
-
-struct QueueFamilyIndices {
-  std::optional<uint32_t> graphicsFamily;
-  std::optional<uint32_t> presentFamily;
-
-  bool isComplete() {
-    return graphicsFamily.has_value() && presentFamily.has_value();
-  }
-};
 
 struct SwapChainSupportDetails {
   VkSurfaceCapabilitiesKHR capabilities;
@@ -308,14 +298,13 @@ private:
 
   void pickPhysicalDevice() {
     _physicalDevice.init(_instance, [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
+    _physicalDevice.initQueueFamilies(surface);
   }
 
   void createLogicalDevice() {
-    QueueFamilyIndices indices = findQueueFamilies(_physicalDevice);
-
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(),
-                                              indices.presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies = {_physicalDevice.graphicsFamilyIndex(),
+                                              _physicalDevice.presentFamilyIndex()};
 
     float queuePriority = 1.0f;
     for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -356,8 +345,8 @@ private:
       throw std::runtime_error("failed to create logical device!");
     }
 
-    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-    vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+    vkGetDeviceQueue(device, _physicalDevice.graphicsFamilyIndex(), 0, &graphicsQueue);
+    vkGetDeviceQueue(device, _physicalDevice.presentFamilyIndex(), 0, &presentQueue);
   }
 
   void createSwapChain() {
@@ -387,11 +376,10 @@ private:
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(_physicalDevice);
-    uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(),
-                                     indices.presentFamily.value()};
+    uint32_t queueFamilyIndices[] = {_physicalDevice.graphicsFamilyIndex(),
+                                     _physicalDevice.presentFamilyIndex()};
 
-    if (indices.graphicsFamily != indices.presentFamily) {
+    if (queueFamilyIndices[0] != queueFamilyIndices[1]) {
       createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
       createInfo.queueFamilyIndexCount = 2;
       createInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -648,12 +636,10 @@ private:
   }
 
   void createCommandPool() {
-    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
-
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+    poolInfo.queueFamilyIndex = _physicalDevice.graphicsFamilyIndex();
 
     if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) !=
         VK_SUCCESS) {
@@ -1370,7 +1356,7 @@ private:
   }
 
   bool isDeviceSuitable(VkPhysicalDevice device) {
-    QueueFamilyIndices indices = findQueueFamilies(device);
+    auto queueFamilies = Vulkan::PhysicalDevice::findQueueFamilies(device, surface);
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);
 
@@ -1384,7 +1370,7 @@ private:
     VkPhysicalDeviceFeatures supportedFeatures;
     vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-    return indices.isComplete() && extensionsSupported && swapChainAdequate &&
+    return queueFamilies.isComplete() && extensionsSupported && swapChainAdequate &&
            supportedFeatures.samplerAnisotropy;
   }
 
@@ -1405,40 +1391,6 @@ private:
     }
 
     return requiredExtensions.empty();
-  }
-
-  QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
-    QueueFamilyIndices indices;
-
-    uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
-                                             nullptr);
-
-    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
-                                             queueFamilies.data());
-
-    int i = 0;
-    for (const auto &queueFamily : queueFamilies) {
-      if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-        indices.graphicsFamily = i;
-      }
-
-      VkBool32 presentSupport = false;
-      vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-
-      if (presentSupport) {
-        indices.presentFamily = i;
-      }
-
-      if (indices.isComplete()) {
-        break;
-      }
-
-      i++;
-    }
-
-    return indices;
   }
 
   std::vector<const char *> getRequiredExtensions() {
