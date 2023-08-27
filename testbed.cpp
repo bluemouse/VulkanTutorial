@@ -115,7 +115,6 @@ private:
   Vulkan::Device _device;
   Vulkan::Swapchain _swapchain;
 
-  std::vector<VkImageView> swapChainImageViews;
   std::vector<VkFramebuffer> swapChainFramebuffers;
 
   VkRenderPass renderPass;
@@ -173,7 +172,6 @@ private:
     pickPhysicalDevice();
     createLogicalDevice();
     createSwapChain();
-    createImageViews();
     createRenderPass();
     createDescriptorSetLayout();
     createGraphicsPipeline();
@@ -203,10 +201,6 @@ private:
   void cleanupSwapChain() {
     for (auto framebuffer : swapChainFramebuffers) {
       vkDestroyFramebuffer(_device, framebuffer, nullptr);
-    }
-
-    for (auto imageView : swapChainImageViews) {
-      vkDestroyImageView(_device, imageView, nullptr);
     }
 
     _swapchain.release();
@@ -270,7 +264,6 @@ private:
     cleanupSwapChain();
 
     createSwapChain();
-    createImageViews();
     createFramebuffers();
   }
 
@@ -304,16 +297,6 @@ private:
       return chooseSwapExtent(caps);
     };
     _swapchain.init(_device, chooseSwapSurfaceFormatFuc, chooseSwapPresentModeFunc, chooseSwapExtentFuc);
-  }
-
-  void createImageViews() {
-    auto images = _swapchain.images();
-    swapChainImageViews.resize(images.size());
-
-    for (size_t i = 0; i < images.size(); i++) {
-      swapChainImageViews[i] =
-          createImageView(images[i], images[i].format());
-    }
   }
 
   void createRenderPass() {
@@ -515,6 +498,7 @@ private:
   }
 
   void createFramebuffers() {
+    auto& swapChainImageViews = _swapchain.imageViews();
     swapChainFramebuffers.resize(swapChainImageViews.size());
 
     auto extent = _swapchain.imageExtent();

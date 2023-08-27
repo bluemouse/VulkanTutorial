@@ -1,7 +1,6 @@
 #include "Device.h"
 #include "helpers.h"
 
-#include <stdexcept>
 #include <set>
 
 using namespace Vulkan;

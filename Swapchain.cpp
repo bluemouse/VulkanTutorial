@@ -3,8 +3,6 @@
 
 #include "helpers.h"
 
-#include <stdexcept>
-
 using namespace Vulkan;
 
 Swapchain::Swapchain(const Device &device,
@@ -82,8 +80,16 @@ void Swapchain::init(const Device &device,
   std::vector<VkImage> imgs(imageCount);
   vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, imgs.data());
 
-  for (auto img : imgs) {
+  // We need to reserve the space first to avoid resizing (which triggers the destructor)
+  _images.reserve(imageCount);
+  for (auto& img : imgs) {
     _images.emplace_back(img, surfaceFormat.format, extent);
+  }
+
+  // We need to reserve the space first to avoid resizing (which triggers the destructor)
+  _imageViews.reserve(imageCount);
+  for (auto& image : _images) {
+    _imageViews.emplace_back(image, device);
   }
 }
 
@@ -92,9 +98,12 @@ void Swapchain::release() {
     throw std::runtime_error("Vulkan null swap chain cannot be released!");
   }
 
+  // Be careful about changing the release order.
+  _imageViews.clear();
+  _images.clear();
+
   vkDestroySwapchainKHR(device(), _swapchain, nullptr);
 
-  _images.clear();
   _swapchain = VK_NULL_HANDLE;
   _device = nullptr;
 }

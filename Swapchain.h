@@ -7,6 +7,7 @@
 
 #include "Device.h"
 #include "Image.h"
+#include "ImageView.h"
 
 namespace Vulkan {
 
@@ -31,6 +32,8 @@ public:
   VkFormat imageFormat() const { return _images[0].format(); }
   VkExtent2D imageExtent() const { return _images[0].extent(); }
 
+  const std::vector<ImageView>& imageViews() const { return _imageViews; }
+
   const Device& device() const { return *_device; }
 
 private:
@@ -39,6 +42,7 @@ private:
   VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 
   std::vector<Image> _images;
+  std::vector<ImageView> _imageViews;
 };
 
 } // namespace Vulkan

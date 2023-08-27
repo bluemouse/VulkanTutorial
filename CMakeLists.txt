@@ -35,6 +35,7 @@ find_package(Vulkan REQUIRED COMPONENTS glslangValidator)
 
 set(MYVULKAN_SRC_FILES
   helpers.h
+  helpers.cpp
   Instance.cpp
   Instance.h
   PhysicalDevice.cpp
@@ -45,6 +46,8 @@ set(MYVULKAN_SRC_FILES
   Swapchain.h
   Image.cpp
   Image.h
+  ImageView.cpp
+  ImageView.h
 )
 
 set(SRC_FILES
