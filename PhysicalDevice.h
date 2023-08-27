@@ -11,14 +11,20 @@
 namespace Vulkan {
 
 class PhysicalDevice {
-  public:
-    struct QueueFamilies {
+public:
+  struct QueueFamilies {
     std::optional<uint32_t> graphicsFamily;
     std::optional<uint32_t> presentFamily;
 
     bool isComplete() {
       return graphicsFamily.has_value() && presentFamily.has_value();
     }
+  };
+
+  struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
   };
 
 public:
@@ -39,9 +45,10 @@ public:
   uint32_t graphicsFamilyIndex() const { return _queueFamilies.graphicsFamily.value(); }
   uint32_t presentFamilyIndex() const { return _queueFamilies.presentFamily.value(); }
 
-  static QueueFamilies findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+  const Instance& instance() const { return *_instance; }
 
-  const Instance* instance() const { return _instance; }
+  static QueueFamilies findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+  static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 private:
   bool isDeviceSuitable(VkPhysicalDevice device);

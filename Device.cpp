@@ -52,11 +52,11 @@ void Device::init(const PhysicalDevice& physicalDevice, std::vector<const char*>
   createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
   createInfo.ppEnabledExtensionNames = extensions.data();
 
-  auto instance = physicalDevice.instance();
-  if (instance->isValidationLayersEnabled()) {
+  const auto& instance = physicalDevice.instance();
+  if (instance.isValidationLayersEnabled()) {
     createInfo.enabledLayerCount =
-        static_cast<uint32_t>(instance->validationLayers.size());
-    createInfo.ppEnabledLayerNames = instance->validationLayers.data();
+        static_cast<uint32_t>(instance.validationLayers.size());
+    createInfo.ppEnabledLayerNames = instance.validationLayers.data();
   } else {
     createInfo.enabledLayerCount = 0;
   }
