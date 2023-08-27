@@ -43,6 +43,8 @@ set(MYVULKAN_SRC_FILES
   Device.h
   Swapchain.cpp
   Swapchain.h
+  Image.cpp
+  Image.h
 )
 
 set(SRC_FILES

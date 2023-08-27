@@ -79,19 +79,22 @@ void Swapchain::init(const Device &device,
   VK_VERIFY(vkCreateSwapchainKHR(device, &createInfo, nullptr, &_swapchain));
 
   vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, nullptr);
-  _images.resize(imageCount);
-  vkGetSwapchainImagesKHR(device, _swapchain, &imageCount,_images.data());
+  std::vector<VkImage> imgs(imageCount);
+  vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, imgs.data());
 
-  _imageFormat = surfaceFormat.format;
-  _extent = extent;
+  for (auto img : imgs) {
+    _images.emplace_back(img, surfaceFormat.format, extent);
+  }
 }
 
 void Swapchain::release() {
   if (_swapchain == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null swap chain cannot be released!");
   }
+
   vkDestroySwapchainKHR(device(), _swapchain, nullptr);
 
+  _images.clear();
   _swapchain = VK_NULL_HANDLE;
   _device = nullptr;
 }

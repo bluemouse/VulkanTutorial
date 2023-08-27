@@ -24,6 +24,7 @@ public:
   //     vkCreateXcbSurfaceKHR. For now, we'll just take the surface
   //     created by glfw.
   void initSurface(VkSurfaceKHR surface);
+
   void release();
 
   operator VkInstance() const { return _instance; }

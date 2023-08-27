@@ -312,7 +312,7 @@ private:
 
     for (size_t i = 0; i < images.size(); i++) {
       swapChainImageViews[i] =
-          createImageView(images[i], _swapchain.imageFormat());
+          createImageView(images[i], images[i].format());
     }
   }
 
@@ -517,7 +517,7 @@ private:
   void createFramebuffers() {
     swapChainFramebuffers.resize(swapChainImageViews.size());
 
-    auto extent = _swapchain.extent();
+    auto extent = _swapchain.imageExtent();
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
       VkImageView attachments[] = {swapChainImageViews[i]};
 
@@ -999,7 +999,7 @@ private:
       throw std::runtime_error("failed to begin recording command buffer!");
     }
 
-    auto extent = _swapchain.extent();
+    auto extent = _swapchain.imageExtent();
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1085,7 +1085,7 @@ private:
                      currentTime - startTime)
                      .count();
 
-    auto extent = _swapchain.extent();
+    auto extent = _swapchain.imageExtent();
 
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f),

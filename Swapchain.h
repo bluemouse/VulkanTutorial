@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "Device.h"
+#include "Image.h"
 
 namespace Vulkan {
 
@@ -26,9 +27,9 @@ public:
 
   operator VkSwapchainKHR() const { return _swapchain; }
 
-  const std::vector<VkImage>& images() const { return _images; }
-  VkFormat imageFormat() const { return _imageFormat; }
-  VkExtent2D extent() const { return _extent; }
+  const std::vector<Image>& images() const { return _images; }
+  VkFormat imageFormat() const { return _images[0].format(); }
+  VkExtent2D imageExtent() const { return _images[0].extent(); }
 
   const Device& device() const { return *_device; }
 
@@ -37,9 +38,7 @@ private:
 
   VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 
-  std::vector<VkImage> _images;
-  VkFormat _imageFormat;
-  VkExtent2D _extent;
+  std::vector<Image> _images;
 };
 
 } // namespace Vulkan
