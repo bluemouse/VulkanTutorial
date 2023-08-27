@@ -1,6 +1,8 @@
 #include "Swapchain.h"
 #include "PhysicalDevice.h"
 
+#include "helpers.h"
+
 #include <stdexcept>
 
 using namespace Vulkan;
@@ -65,6 +67,8 @@ void Swapchain::init(const Device &device,
     createInfo.pQueueFamilyIndices = queueFamilyIndices;
   } else {
     createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createInfo.queueFamilyIndexCount = 0; // Optional
+    createInfo.pQueueFamilyIndices = nullptr; // Optional
   }
 
   createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
@@ -72,9 +76,7 @@ void Swapchain::init(const Device &device,
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
 
-  if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &_swapchain) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create swap chain!");
-  }
+  VK_VERIFY(vkCreateSwapchainKHR(device, &createInfo, nullptr, &_swapchain));
 
   vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, nullptr);
   _images.resize(imageCount);

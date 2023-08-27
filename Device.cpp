@@ -1,4 +1,5 @@
 #include "Device.h"
+#include "helpers.h"
 
 #include <stdexcept>
 #include <set>
@@ -61,9 +62,7 @@ void Device::init(const PhysicalDevice& physicalDevice, std::vector<const char*>
     createInfo.enabledLayerCount = 0;
   }
 
-  if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) {
-    throw std::runtime_error("Failed to create logical device!");
-  }
+  VK_VERIFY(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
 
   vkGetDeviceQueue(_device, physicalDevice.graphicsFamilyIndex(), 0, &_graphicsQueue);
   vkGetDeviceQueue(_device, physicalDevice.presentFamilyIndex(), 0, &_presentQueue);
