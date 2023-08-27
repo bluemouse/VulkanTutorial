@@ -86,9 +86,20 @@ void Instance::init(int versionMajor, int versionMinor,
   }
 }
 
+void Instance::initSurface(VkSurfaceKHR surface) {
+  if (_surface != VK_NULL_HANDLE) {
+    throw std::runtime_error("Vulkan surface has been initialized already!");
+  }
+  _surface = surface;
+}
+
 void Instance::release() {
   if (_instance == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null instance cannot be released!");
+  }
+
+  if (_surface != VK_NULL_HANDLE) {
+    vkDestroySurfaceKHR(_instance, _surface, nullptr);
   }
 
   if (_enableValidation) {

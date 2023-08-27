@@ -12,13 +12,13 @@ namespace Vulkan {
 class Swapchain {
 public:
   Swapchain() = default;
-  Swapchain(const Device& device, VkSurfaceKHR surface,
+  Swapchain(const Device& device,
             const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
             const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);
   ~Swapchain();
 
-  void init(const Device& device, VkSurfaceKHR surface,
+  void init(const Device& device,
             const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
             const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);

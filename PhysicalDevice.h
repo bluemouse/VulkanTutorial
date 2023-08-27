@@ -37,7 +37,7 @@ public:
   void init(const Instance& instance,
             const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable =
               [](VkPhysicalDevice) -> bool { return true; });
-  void initQueueFamilies(VkSurfaceKHR surface);
+  void initQueueFamilies();
   void release();
 
   operator VkPhysicalDevice() const { return _device; }

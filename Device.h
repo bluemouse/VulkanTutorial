@@ -17,6 +17,7 @@ public:
 
   operator VkDevice() const { return _device; }
 
+  const Instance& instance() const { return physicalDevice().instance(); }
   const PhysicalDevice& physicalDevice() const { return *_physicalDevice; }
 
   VkQueue graphicsQueue() const { return _graphicsQueue; }

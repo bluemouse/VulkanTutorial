@@ -111,8 +111,6 @@ private:
 
   Vulkan::Instance _instance;
 
-  VkSurfaceKHR surface;
-
   Vulkan::PhysicalDevice _physicalDevice;
   Vulkan::Device _device;
   Vulkan::Swapchain _swapchain;
@@ -172,7 +170,6 @@ private:
 
   void initVulkan() {
     createInstance();
-    createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
     createSwapChain();
@@ -253,8 +250,6 @@ private:
 
     _device.release();
     _physicalDevice.release();
-
-    vkDestroySurfaceKHR(_instance, surface, nullptr);
     _instance.release();
 
     glfwDestroyWindow(window);
@@ -281,18 +276,17 @@ private:
 
   void createInstance() {
     _instance.init(1, 0, getRequiredExtensions(), nullptr, enableValidationLayers);
-  }
 
-  void createSurface() {
-    if (glfwCreateWindowSurface(_instance, window, nullptr, &surface) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to create window surface!");
+    VkSurfaceKHR surface;
+    if (glfwCreateWindowSurface(_instance, window, nullptr, &surface) != VK_SUCCESS) {
+      throw std::runtime_error("Failed to create window surface!");
     }
+    _instance.initSurface(surface);
   }
 
   void pickPhysicalDevice() {
     _physicalDevice.init(_instance, [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
-    _physicalDevice.initQueueFamilies(surface);
+    _physicalDevice.initQueueFamilies();
   }
 
   void createLogicalDevice() {
@@ -309,7 +303,7 @@ private:
     auto chooseSwapExtentFuc = [this](const VkSurfaceCapabilitiesKHR& caps) -> VkExtent2D {
       return chooseSwapExtent(caps);
     };
-    _swapchain.init(_device, surface, chooseSwapSurfaceFormatFuc, chooseSwapPresentModeFunc, chooseSwapExtentFuc);
+    _swapchain.init(_device, chooseSwapSurfaceFormatFuc, chooseSwapPresentModeFunc, chooseSwapExtentFuc);
   }
 
   void createImageViews() {
@@ -1239,6 +1233,7 @@ private:
   }
 
   SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
+    auto surface = _instance.surface();
     SwapChainSupportDetails details;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
@@ -1268,7 +1263,7 @@ private:
   }
 
   bool isDeviceSuitable(VkPhysicalDevice device) {
-    auto queueFamilies = Vulkan::PhysicalDevice::findQueueFamilies(device, surface);
+    auto queueFamilies = Vulkan::PhysicalDevice::findQueueFamilies(device, _instance.surface());
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);
 

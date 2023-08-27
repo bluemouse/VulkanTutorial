@@ -5,11 +5,11 @@
 
 using namespace Vulkan;
 
-Swapchain::Swapchain(const Device &device, VkSurfaceKHR surface,
+Swapchain::Swapchain(const Device &device,
             const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
             const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
-  init(device, surface, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
+  init(device, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
 }
 
 Swapchain::~Swapchain() {
@@ -18,7 +18,7 @@ Swapchain::~Swapchain() {
   }
 }
 
-void Swapchain::init(const Device &device, VkSurfaceKHR surface,
+void Swapchain::init(const Device &device,
                      const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
                      const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
                      const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
@@ -26,6 +26,8 @@ void Swapchain::init(const Device &device, VkSurfaceKHR surface,
     throw std::runtime_error("Vulkan swap chain has been initialized already!");
   }
   _device = &device;
+
+  auto surface = device.instance().surface();
 
   const auto& physicalDevice = device.physicalDevice();
   PhysicalDevice::SwapChainSupportDetails swapChainSupport =

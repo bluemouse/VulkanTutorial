@@ -42,8 +42,8 @@ void PhysicalDevice::init(
   }
 }
 
-void PhysicalDevice::initQueueFamilies(VkSurfaceKHR surface) {
-  _queueFamilies = findQueueFamilies(_device, surface);
+void PhysicalDevice::initQueueFamilies() {
+  _queueFamilies = findQueueFamilies(_device, _instance->surface());
 }
 
 void PhysicalDevice::release() {

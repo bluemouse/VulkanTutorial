@@ -19,9 +19,15 @@ public:
             std::vector<const char*> extensions,
             const char* name = nullptr,
             bool enableValidation = false);
+  //TODO we should be able to create the surface using functions such
+  //     as vkCreateWin32SurfaceKHRvkCreateWin32SurfaceKHR and
+  //     vkCreateXcbSurfaceKHR. For now, we'll just take the surface
+  //     created by glfw.
+  void initSurface(VkSurfaceKHR surface);
   void release();
 
   operator VkInstance() const { return _instance; }
+  VkSurfaceKHR surface() const { return _surface; }
 
   bool isValidationLayersEnabled() const { return _enableValidation; }
   static const std::vector<const char*> validationLayers;
@@ -44,6 +50,7 @@ private:
 
 private:
   VkInstance _instance = VK_NULL_HANDLE;
+  VkSurfaceKHR _surface = VK_NULL_HANDLE;
 
   bool _enableValidation = false;
   VkDebugUtilsMessengerEXT _debugMessenger;
