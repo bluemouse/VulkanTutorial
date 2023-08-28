@@ -52,6 +52,8 @@ set(MYVULKAN_SRC_FILES
   RenderPass.h
   Framebuffer.cpp
   Framebuffer.h
+  ShaderModule.cpp
+  ShaderModule.h
 )
 
 set(SRC_FILES
