@@ -1,4 +1,5 @@
 #include "PhysicalDevice.h"
+#include "Instance.h"
 
 #include "helpers.h"
 

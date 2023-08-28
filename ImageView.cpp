@@ -1,11 +1,13 @@
 #include "ImageView.h"
+#include "Device.h"
+#include "Image.h"
 
 #include "helpers.h"
 
 using namespace Vulkan;
 
-ImageView::ImageView(const Image& image, const Device& device)
-  : _image(&image), _device(&device) {
+ImageView::ImageView(const Device& device, const Image& image)
+  : _device(&device), _image(&image) {
   VkImageViewCreateInfo viewInfo{};
   viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   viewInfo.image = image;

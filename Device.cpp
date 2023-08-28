@@ -1,4 +1,6 @@
 #include "Device.h"
+#include "Instance.h"
+
 #include "helpers.h"
 
 #include <set>

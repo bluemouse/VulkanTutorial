@@ -2,21 +2,21 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Device.h"
-#include "Image.h"
-
 namespace Vulkan {
+
+class Device;
+class Image;
 
 class ImageView {
 public:
-  ImageView(const Image& image, const Device& device);
+  ImageView(const Device& device, const Image& image);
   ~ImageView();
 
   operator VkImageView() const { return _view; }
 
 private:
-  const Image* _image;
   const Device* _device;
+  const Image* _image;
 
   VkImageView _view;
 };

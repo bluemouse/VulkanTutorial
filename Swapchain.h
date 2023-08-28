@@ -5,12 +5,12 @@
 #include <vector>
 #include <functional>
 
-#include "Device.h"
 #include "Image.h"
 #include "ImageView.h"
 
 namespace Vulkan {
 
+class Device;
 class Swapchain {
 public:
   Swapchain() = default;

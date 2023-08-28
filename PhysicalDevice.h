@@ -5,10 +5,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include "Instance.h"
-
-
 namespace Vulkan {
+
+class Instance;
 
 class PhysicalDevice {
 public:

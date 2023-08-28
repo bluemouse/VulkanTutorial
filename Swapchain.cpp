@@ -1,5 +1,7 @@
 #include "Swapchain.h"
+#include "Instance.h"
 #include "PhysicalDevice.h"
+#include "Device.h"
 
 #include "helpers.h"
 
@@ -89,7 +91,7 @@ void Swapchain::init(const Device &device,
   // We need to reserve the space first to avoid resizing (which triggers the destructor)
   _imageViews.reserve(imageCount);
   for (auto& image : _images) {
-    _imageViews.emplace_back(image, device);
+    _imageViews.emplace_back(device, image);
   }
 }
 
