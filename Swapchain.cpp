@@ -2,6 +2,7 @@
 #include "Instance.h"
 #include "PhysicalDevice.h"
 #include "Device.h"
+#include "RenderPass.h"
 
 #include "helpers.h"
 
@@ -95,12 +96,25 @@ void Swapchain::init(const Device &device,
   }
 }
 
+void Swapchain::initFramebuffers(const RenderPass& renderPass) {
+  if (_swapchain == VK_NULL_HANDLE) {
+    throw std::runtime_error("Can not create swapchain framebuffers without a valid swapchain!");
+  }
+
+  // Reserve enough space to avoid resizing that can trigger destructing
+  _framebuffers.reserve(_imageViews.size());
+  for (auto& view : _imageViews) {
+    _framebuffers.emplace_back(device(), renderPass, view);
+  }
+}
+
 void Swapchain::release() {
   if (_swapchain == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null swap chain cannot be released!");
   }
 
   // Be careful about changing the release order.
+  _framebuffers.clear();
   _imageViews.clear();
   _images.clear();
 

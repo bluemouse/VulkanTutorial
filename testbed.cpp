@@ -116,8 +116,6 @@ private:
   Vulkan::Device _device;
   Vulkan::Swapchain _swapchain;
 
-  std::vector<VkFramebuffer> swapChainFramebuffers;
-
   Vulkan::RenderPass _renderPass;
   VkDescriptorSetLayout descriptorSetLayout;
   VkPipelineLayout pipelineLayout;
@@ -200,10 +198,6 @@ private:
   }
 
   void cleanupSwapChain() {
-    for (auto framebuffer : swapChainFramebuffers) {
-      vkDestroyFramebuffer(_device, framebuffer, nullptr);
-    }
-
     _swapchain.release();
   }
 
@@ -460,27 +454,7 @@ private:
   }
 
   void createFramebuffers() {
-    auto& swapChainImageViews = _swapchain.imageViews();
-    swapChainFramebuffers.resize(swapChainImageViews.size());
-
-    auto extent = _swapchain.imageExtent();
-    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-      VkImageView attachments[] = {swapChainImageViews[i]};
-
-      VkFramebufferCreateInfo framebufferInfo{};
-      framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      framebufferInfo.renderPass = _renderPass;
-      framebufferInfo.attachmentCount = 1;
-      framebufferInfo.pAttachments = attachments;
-      framebufferInfo.width = extent.width;
-      framebufferInfo.height = extent.height;
-      framebufferInfo.layers = 1;
-
-      if (vkCreateFramebuffer(_device, &framebufferInfo, nullptr,
-                              &swapChainFramebuffers[i]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create framebuffer!");
-      }
-    }
+    _swapchain.initFramebuffers(_renderPass);
   }
 
   void createCommandPool() {
@@ -950,7 +924,7 @@ private:
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = _renderPass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+    renderPassInfo.framebuffer = _swapchain.framebuffer(imageIndex);
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = extent;
 

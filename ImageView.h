@@ -14,6 +14,8 @@ public:
 
   operator VkImageView() const { return _view; }
 
+  const Image& image() const { return *_image; }
+
 private:
   const Device* _device;
   const Image* _image;

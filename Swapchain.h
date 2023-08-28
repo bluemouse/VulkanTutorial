@@ -7,10 +7,12 @@
 
 #include "Image.h"
 #include "ImageView.h"
+#include "Framebuffer.h"
 
 namespace Vulkan {
 
 class Device;
+class RenderPass;
 class Swapchain {
 public:
   Swapchain() = default;
@@ -24,6 +26,7 @@ public:
             const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
             const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);
+  void initFramebuffers(const RenderPass& renderPass);
   void release();
 
   operator VkSwapchainKHR() const { return _swapchain; }
@@ -33,6 +36,10 @@ public:
   VkExtent2D imageExtent() const { return _images[0].extent(); }
 
   const std::vector<ImageView>& imageViews() const { return _imageViews; }
+  const ImageView& imageView(size_t i) const { return _imageViews[i]; }
+
+  const std::vector<Framebuffer>& framebuffers() const { return _framebuffers; }
+  const Framebuffer& framebuffer(size_t i) const { return _framebuffers[i]; }
 
   const Device& device() const { return *_device; }
 
@@ -43,6 +50,7 @@ private:
 
   std::vector<Image> _images;
   std::vector<ImageView> _imageViews;
+  std::vector<Framebuffer> _framebuffers;
 };
 
 } // namespace Vulkan
