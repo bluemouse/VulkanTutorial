@@ -56,6 +56,8 @@ set(MYVULKAN_SRC_FILES
   ShaderModule.h
   Pipeline.cpp
   Pipeline.h
+  CommandPool.cpp
+  CommandPool.h
 )
 
 set(SRC_FILES

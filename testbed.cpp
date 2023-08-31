@@ -27,6 +27,7 @@
 #include "RenderPass.h"
 #include "ShaderModule.h"
 #include "Pipeline.h"
+#include "CommandPool.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -121,7 +122,7 @@ private:
   VkDescriptorSetLayout descriptorSetLayout;
   Vulkan::Pipeline _graphicsPipeline;
 
-  VkCommandPool commandPool;
+  Vulkan::CommandPool _commandPool;
 
   VkImage textureImage;
   VkDeviceMemory textureImageMemory;
@@ -234,8 +235,7 @@ private:
       vkDestroyFence(_device, inFlightFences[i], nullptr);
     }
 
-    vkDestroyCommandPool(_device, commandPool, nullptr);
-
+    _commandPool.release();
     _device.release();
     _physicalDevice.release();
     _instance.release();
@@ -344,15 +344,7 @@ private:
   }
 
   void createCommandPool() {
-    VkCommandPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    poolInfo.queueFamilyIndex = _physicalDevice.graphicsFamilyIndex();
-
-    if (vkCreateCommandPool(_device, &poolInfo, nullptr, &commandPool) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to create graphics command pool!");
-    }
+    _commandPool.init(_device, _physicalDevice.graphicsFamilyIndex());
   }
 
   void createTextureImage() {
@@ -727,7 +719,7 @@ private:
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = _commandPool;
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
@@ -753,7 +745,7 @@ private:
     vkQueueSubmit(_device.graphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(_device.graphicsQueue());
 
-    vkFreeCommandBuffers(_device, commandPool, 1, &commandBuffer);
+    vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer);
   }
 
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -787,7 +779,7 @@ private:
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = _commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
