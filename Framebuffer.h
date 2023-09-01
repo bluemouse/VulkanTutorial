@@ -15,6 +15,8 @@ public:
 
   operator VkFramebuffer() const { return _buffer; }
 
+  VkExtent2D extent() const;
+
 private:
   const Device* _device;
   const RenderPass* _renderPass;

@@ -28,3 +28,7 @@ Framebuffer::Framebuffer(const Device& device, const RenderPass& renderPass,
 Framebuffer::~Framebuffer() {
   vkDestroyFramebuffer(*_device, _buffer, nullptr);
 }
+
+VkExtent2D Framebuffer::extent() const {
+  return _imageView->image().extent();
+}

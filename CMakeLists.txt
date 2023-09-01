@@ -58,6 +58,8 @@ set(MYVULKAN_SRC_FILES
   Pipeline.h
   CommandPool.cpp
   CommandPool.h
+  CommandBuffer.cpp
+  CommandBuffer.h
 )
 
 set(SRC_FILES
