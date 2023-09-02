@@ -60,6 +60,10 @@ set(MYVULKAN_SRC_FILES
   CommandPool.h
   CommandBuffer.cpp
   CommandBuffer.h
+  Buffer.cpp
+  Buffer.h
+  StagingBuffer.cpp
+  StagingBuffer.h
 )
 
 set(SRC_FILES
