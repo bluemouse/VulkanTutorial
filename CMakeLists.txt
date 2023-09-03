@@ -64,6 +64,10 @@ set(MYVULKAN_SRC_FILES
   Buffer.h
   StagingBuffer.cpp
   StagingBuffer.h
+  VertexBuffer.cpp
+  VertexBuffer.h
+  IndexBuffer.cpp
+  IndexBuffer.h
 )
 
 set(SRC_FILES

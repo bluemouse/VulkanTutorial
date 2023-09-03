@@ -31,6 +31,8 @@
 #include "CommandBuffer.h"
 #include "Buffer.h"
 #include "StagingBuffer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -132,8 +134,8 @@ private:
   VkImageView textureImageView;
   VkSampler textureSampler;
 
-  Vulkan::Buffer _vertexBuffer;
-  Vulkan::Buffer _indexBuffer;
+  Vulkan::VertexBuffer _vertexBuffer;
+  Vulkan::IndexBuffer _indexBuffer;
 
   std::vector<Vulkan::Buffer> _uniformBuffers;
   std::vector<void *> uniformBuffersMapped;
@@ -533,9 +535,7 @@ private:
     Vulkan::StagingBuffer stagingBuffer(_device, bufferSize);
     stagingBuffer.copyFromHost(vertices.data(), (size_t)bufferSize);
 
-    _vertexBuffer.allocate(_device,
-                           bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _vertexBuffer.allocate(_device, bufferSize);
 
     copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
   }
@@ -546,9 +546,7 @@ private:
     Vulkan::StagingBuffer stagingBuffer(_device, bufferSize);
     stagingBuffer.copyFromHost(indices.data(), (size_t)bufferSize);
 
-    _indexBuffer.allocate(_device,
-                          bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    _indexBuffer.allocate(_device, bufferSize);
 
     copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
   }

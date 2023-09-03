@@ -5,9 +5,8 @@
 
 using namespace Vulkan;
 
-Buffer::Buffer(const Device& device,
-              VkDeviceSize size, VkBufferUsageFlags usage,
-              VkMemoryPropertyFlags properties) {
+Buffer::Buffer(const Device& device, size_t size,
+               VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) {
   allocate(device, size, usage, properties);
 }
 
@@ -41,13 +40,14 @@ void Buffer::moveFrom(Buffer& rhs) {
   }
 }
 
-void Buffer::allocate(const Device& device,
-                      VkDeviceSize size, VkBufferUsageFlags usage,
-                      VkMemoryPropertyFlags properties) {
+void Buffer::allocate(const Device& device, size_t size,
+                      VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) {
   if (isAllocated()) {
     throw std::runtime_error("Vulkan buffer has been allocated already!");
   }
   _device = &device;
+
+  _size = size;
 
   VkBufferCreateInfo bufferInfo{};
   bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -80,6 +80,7 @@ void Buffer::release() {
   _device = nullptr;
   _buffer = VK_NULL_HANDLE;
   _memory = VK_NULL_HANDLE;
+  _size = 0;
 }
 
 uint32_t Buffer::findMemoryType(uint32_t typeFilter,
