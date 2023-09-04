@@ -33,6 +33,7 @@
 #include "StagingBuffer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "DescriptorSetLayout.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -124,7 +125,7 @@ private:
   Vulkan::Swapchain _swapchain;
 
   Vulkan::RenderPass _renderPass;
-  VkDescriptorSetLayout descriptorSetLayout;
+  Vulkan::DescriptorSetLayout _descriptorSetLayout;
   Vulkan::Pipeline _graphicsPipeline;
 
   Vulkan::CommandPool _commandPool;
@@ -200,12 +201,8 @@ private:
     vkDeviceWaitIdle(_device);
   }
 
-  void cleanupSwapChain() {
-    _swapchain.release();
-  }
-
   void cleanup() {
-    cleanupSwapChain();
+    _swapchain.release();
 
     _graphicsPipeline.release();
     _renderPass.release();
@@ -220,7 +217,7 @@ private:
     vkDestroyImage(_device, textureImage, nullptr);
     vkFreeMemory(_device, textureImageMemory, nullptr);
 
-    vkDestroyDescriptorSetLayout(_device, descriptorSetLayout, nullptr);
+    _descriptorSetLayout.release();
 
     _indexBuffer.release();
     _vertexBuffer.release();
@@ -231,6 +228,7 @@ private:
       vkDestroyFence(_device, inFlightFences[i], nullptr);
     }
 
+    _commandBuffers.clear();
     _commandPool.release();
     _device.release();
     _physicalDevice.release();
@@ -251,7 +249,7 @@ private:
 
     vkDeviceWaitIdle(_device);
 
-    cleanupSwapChain();
+    _swapchain.release();
 
     createSwapChain();
     createFramebuffers();
@@ -304,22 +302,11 @@ private:
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 1;
     samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType =
-        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     samplerLayoutBinding.pImmutableSamplers = nullptr;
     samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {
-        uboLayoutBinding, samplerLayoutBinding};
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
-
-    if (vkCreateDescriptorSetLayout(_device, &layoutInfo, nullptr,
-                                    &descriptorSetLayout) != VK_SUCCESS) {
-      throw std::runtime_error("failed to create descriptor set layout!");
-    }
+    _descriptorSetLayout.init(_device, {uboLayoutBinding, samplerLayoutBinding});
   }
 
   void createGraphicsPipeline() {
@@ -331,7 +318,7 @@ private:
                            {fragShaderModule, "main"},
                            Vertex::getBindingDescription(),
                            Vertex::getAttributeDescriptions(),
-                           descriptorSetLayout);
+                           _descriptorSetLayout);
 
   }
 
@@ -589,7 +576,7 @@ private:
 
   void createDescriptorSets() {
     std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT,
-                                               descriptorSetLayout);
+                                               _descriptorSetLayout);
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;

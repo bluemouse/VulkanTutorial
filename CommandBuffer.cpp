@@ -69,14 +69,16 @@ void CommandBuffer::executeCommand(const std::function<void(const CommandBuffer&
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &_buffer;
 
-  VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-  submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waits.size());
-  submitInfo.pWaitSemaphores = waits.data();
-  submitInfo.pWaitDstStageMask = waitStages;
-
-  submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
-  submitInfo.pSignalSemaphores = signals.data();
-
+  if (!waits.empty()) {
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waits.size());
+    submitInfo.pWaitSemaphores = waits.data();
+    submitInfo.pWaitDstStageMask = waitStages;
+  }
+  if (!signals.empty()) {
+    submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
+    submitInfo.pSignalSemaphores = signals.data();
+  }
   auto queue = _pool->queue();
   VK_VERIFY(vkQueueSubmit(queue, 1, &submitInfo, fence));
 }
