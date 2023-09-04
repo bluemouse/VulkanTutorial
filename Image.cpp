@@ -24,6 +24,8 @@ void Image::init(const Device& device, VkFormat format, VkExtent2D extent) {
     throw std::runtime_error("Vulkan image has been initialized and its memory allocated already!");
   }
   _device = &device;
+  _format = format;
+  _extent = extent;
 
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

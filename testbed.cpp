@@ -131,8 +131,8 @@ private:
   Vulkan::CommandPool _commandPool;
 
   Vulkan::Image _textureImage;
+  Vulkan::ImageView _textureImageView;
 
-  VkImageView textureImageView;
   VkSampler textureSampler;
 
   Vulkan::VertexBuffer _vertexBuffer;
@@ -212,8 +212,7 @@ private:
     vkDestroyDescriptorPool(_device, descriptorPool, nullptr);
 
     vkDestroySampler(_device, textureSampler, nullptr);
-    vkDestroyImageView(_device, textureImageView, nullptr);
-
+    _textureImageView.release();
     _textureImage.release();
 
     _descriptorSetLayout.release();
@@ -359,7 +358,7 @@ private:
   }
 
   void createTextureImageView() {
-    textureImageView = createImageView(_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+    _textureImageView.init(_device, _textureImage);
   }
 
   void createTextureSampler() {
@@ -554,7 +553,7 @@ private:
 
       VkDescriptorImageInfo imageInfo{};
       imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-      imageInfo.imageView = textureImageView;
+      imageInfo.imageView = _textureImageView;
       imageInfo.sampler = textureSampler;
 
       std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
