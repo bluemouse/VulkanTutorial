@@ -16,11 +16,15 @@ public:
   void release();
 
   operator VkCommandPool() const { return _pool; }
+  VkQueue queue() const { return _queue; }
+
+  const Device& device() const { return *_device; }
 
 private:
   const Device* _device = nullptr;
 
   VkCommandPool _pool = VK_NULL_HANDLE;
+  VkQueue _queue = VK_NULL_HANDLE;
 };
 
 } //namespace Vulkan

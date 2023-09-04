@@ -28,6 +28,8 @@ void CommandPool::init(const Device& device, uint32_t queueFamilyIndex) {
   poolInfo.queueFamilyIndex = queueFamilyIndex;
 
   VK_VERIFY(vkCreateCommandPool(device, &poolInfo, nullptr, &_pool));
+
+  vkGetDeviceQueue(device, queueFamilyIndex, 0, &_queue);
 }
 
 void CommandPool::release() {
@@ -37,6 +39,6 @@ void CommandPool::release() {
 
   vkDestroyCommandPool(*_device, _pool, nullptr);
   _pool = VK_NULL_HANDLE;
+  _queue = VK_NULL_HANDLE;
   _device = nullptr;
 }
-

@@ -9,10 +9,21 @@
 
 using namespace Vulkan;
 
-void CommandBuffer::allocate(const Device& device, const CommandPool& commandPool) {
+CommandBuffer::CommandBuffer(const CommandPool& commandPool) {
+  allocate(commandPool);
+}
+
+CommandBuffer::~CommandBuffer() {
   if (_buffer != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan command pool has been initialized already!");
+    free();
   }
+}
+
+void CommandBuffer::allocate(const CommandPool& commandPool) {
+  if (_buffer != VK_NULL_HANDLE) {
+    throw std::runtime_error("Vulkan command buffer has been initialized already!");
+  }
+  _pool = &commandPool;
 
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -20,61 +31,79 @@ void CommandBuffer::allocate(const Device& device, const CommandPool& commandPoo
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = 1;
 
-  VK_VERIFY(vkAllocateCommandBuffers(device, &allocInfo, &_buffer));
+  VK_VERIFY(vkAllocateCommandBuffers(commandPool.device(), &allocInfo, &_buffer));
 }
 
 void CommandBuffer::reset() {
   vkResetCommandBuffer(_buffer, /*VkCommandBufferResetFlagBits*/ 0);
 }
 
-void CommandBuffer::record(const Framebuffer& framebuffer, const Pipeline& pipeline, const RenderPass& renderPass,
-                           VkBuffer vertexBuffer, VkBuffer indexBuffer, uint32_t numIndices,
-                           VkDescriptorSet descriptorSet) {
+void CommandBuffer::free() {
+  if (_buffer == VK_NULL_HANDLE) {
+    throw std::runtime_error("Vulkan null command buffer cannot be freed!");
+  }
+
+  vkFreeCommandBuffers(_pool->device(), *_pool, 1, &_buffer);
+
+  _buffer = VK_NULL_HANDLE;
+  _pool = nullptr;
+}
+
+void CommandBuffer::recordCommand(const std::function<void(const CommandBuffer& buffer)>& command) const {
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   VK_VERIFY(vkBeginCommandBuffer(_buffer, &beginInfo));
 
-  auto extent = framebuffer.extent();
-
-  VkRenderPassBeginInfo renderPassInfo{};
-  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = renderPass;
-  renderPassInfo.framebuffer = framebuffer;
-  renderPassInfo.renderArea.offset = {0, 0};
-  renderPassInfo.renderArea.extent = extent;
-
-  VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-  renderPassInfo.clearValueCount = 1;
-  renderPassInfo.pClearValues = &clearColor;
-
-  vkCmdBeginRenderPass(_buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-  vkCmdBindPipeline(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
-  VkViewport viewport{};
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = (float)extent.width;
-  viewport.height = (float)extent.height;
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
-  vkCmdSetViewport(_buffer, 0, 1, &viewport);
-
-  VkRect2D scissor{};
-  scissor.offset = {0, 0};
-  scissor.extent = extent;
-  vkCmdSetScissor(_buffer, 0, 1, &scissor);
-
-  VkBuffer vertexBuffers[] = {vertexBuffer};
-  VkDeviceSize offsets[] = {0};
-  vkCmdBindVertexBuffers(_buffer, 0, 1, vertexBuffers, offsets);
-  vkCmdBindIndexBuffer(_buffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-  vkCmdBindDescriptorSets(_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          pipeline.layout(), 0, 1, &descriptorSet,
-                          0, nullptr);
-
-  vkCmdDrawIndexed(_buffer, numIndices, 1, 0, 0, 0);
-
-  vkCmdEndRenderPass(_buffer);
+  command(*this);
 
   VK_VERIFY(vkEndCommandBuffer(_buffer));
+}
+
+void CommandBuffer::executeCommand(const std::function<void(const CommandBuffer& buffer)>& command,
+                                   std::vector<VkSemaphore> waits, std::vector<VkSemaphore> signals,
+                                   VkFence fence) const {
+  recordCommand(command);
+
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &_buffer;
+
+  VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waits.size());
+  submitInfo.pWaitSemaphores = waits.data();
+  submitInfo.pWaitDstStageMask = waitStages;
+
+  submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
+  submitInfo.pSignalSemaphores = signals.data();
+
+  auto queue = _pool->queue();
+  VK_VERIFY(vkQueueSubmit(queue, 1, &submitInfo, fence));
+}
+
+void CommandBuffer::recordSingleTimeCommand(const std::function<void(const CommandBuffer&)>& command) const {
+  VkCommandBufferBeginInfo beginInfo{};
+  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+  VK_VERIFY(vkBeginCommandBuffer(_buffer, &beginInfo));
+
+  command(*this);
+
+  VK_VERIFY(vkEndCommandBuffer(_buffer));
+}
+
+void CommandBuffer::executeSingleTimeCommand(const std::function<void(const CommandBuffer&)>& command, bool blocking) const {
+  recordSingleTimeCommand(command);
+
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &_buffer;
+
+  auto queue = _pool->queue();
+  vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+  if (blocking) {
+    vkQueueWaitIdle(queue);
+  }
 }
