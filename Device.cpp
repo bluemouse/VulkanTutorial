@@ -8,16 +8,16 @@
 using namespace Vulkan;
 
 Device::Device(const PhysicalDevice &physicalDevice, std::vector<const char*> extensions) {
-  init(physicalDevice, extensions);
+  create(physicalDevice, extensions);
 }
 
 Device::~Device() {
   if (_device != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void Device::init(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
+void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
   if (_device != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan logical device has been initialized already!");
   }
@@ -69,7 +69,7 @@ void Device::init(const PhysicalDevice& physicalDevice, std::vector<const char*>
   vkGetDeviceQueue(_device, physicalDevice.presentFamilyIndex(), 0, &_presentQueue);
 }
 
-void Device::release() {
+void Device::destroy() {
   if (_device == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null logical device cannot be released!");
   }

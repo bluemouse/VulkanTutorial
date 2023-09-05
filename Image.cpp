@@ -6,7 +6,7 @@
 using namespace Vulkan;
 
 Image::Image(const Device& device, VkFormat format, VkExtent2D extent) {
-  init(device, format, extent);
+  allocate(device, format, extent);
 }
 
 Image::Image(VkImage image, VkFormat format, VkExtent2D extent)
@@ -15,11 +15,11 @@ Image::Image(VkImage image, VkFormat format, VkExtent2D extent)
 
 Image::~Image() {
   if (isAllocated()) {
-    release();
+    free();
   }
 }
 
-void Image::init(const Device& device, VkFormat format, VkExtent2D extent) {
+void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
   if (isAllocated()) {
     throw std::runtime_error("Vulkan image has been initialized and its memory allocated already!");
   }
@@ -58,7 +58,7 @@ void Image::init(const Device& device, VkFormat format, VkExtent2D extent) {
   vkBindImageMemory(device, _image, _memory, 0);
 }
 
-void Image::release() {
+void Image::free() {
   if (!isAllocated()) {
     throw std::runtime_error("Vulkan null image and its memory cannot be released!");
   }

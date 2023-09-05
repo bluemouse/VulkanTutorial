@@ -12,8 +12,8 @@ public:
   Sampler(const Device& device, VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode mode);
   ~Sampler();
 
-  void init(const Device& device, VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode mode);
-  void release();
+  void create(const Device& device, VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode mode);
+  void destroy();
 
   operator VkSampler() const { return _sampler; }
 

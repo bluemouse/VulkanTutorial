@@ -13,8 +13,8 @@ public:
   Image(VkImage image, VkFormat format, VkExtent2D extent);
   ~Image();
 
-  void init(const Device& device, VkFormat format, VkExtent2D extent);
-  void release();
+  void allocate(const Device& device, VkFormat format, VkExtent2D extent);
+  void free();
 
   operator VkImage() const { return _image; }
 

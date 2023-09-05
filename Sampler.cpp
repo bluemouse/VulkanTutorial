@@ -8,16 +8,16 @@ using namespace Vulkan;
 Sampler::Sampler(const Device& device,
                  VkFilter magFilter, VkFilter minFilter,
                  VkSamplerAddressMode mode) {
-  init(device, magFilter, minFilter, mode);
+  create(device, magFilter, minFilter, mode);
 }
 
 Sampler::~Sampler() {
   if (_sampler != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void Sampler::init(const Device& device,
+void Sampler::create(const Device& device,
                    VkFilter magFilter, VkFilter minFilter,
                    VkSamplerAddressMode mode) {
   if (_sampler != VK_NULL_HANDLE) {
@@ -46,7 +46,7 @@ void Sampler::init(const Device& device,
   VK_VERIFY(vkCreateSampler(device, &samplerInfo, nullptr, &_sampler));
 }
 
-void Sampler::release() {
+void Sampler::destroy() {
   if (_sampler == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null sampler cannot be released!");
   }

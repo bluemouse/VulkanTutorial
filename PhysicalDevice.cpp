@@ -10,11 +10,11 @@ using namespace Vulkan;
 PhysicalDevice::PhysicalDevice(
     const Instance &instance,
     const std::function<bool(VkPhysicalDevice)> &isDeviceSuitable) {
-  init(instance, isDeviceSuitable);
+  create(instance, isDeviceSuitable);
 }
-PhysicalDevice::~PhysicalDevice() { release(); }
+PhysicalDevice::~PhysicalDevice() { destroy(); }
 
-void PhysicalDevice::init(
+void PhysicalDevice::create(
     const Instance& instance,
     const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable) {
   if (_device != VK_NULL_HANDLE) {
@@ -48,7 +48,7 @@ void PhysicalDevice::initQueueFamilies() {
   _queueFamilies = findQueueFamilies(_device, _instance->surface());
 }
 
-void PhysicalDevice::release() {
+void PhysicalDevice::destroy() {
   // Phyiscal device is not created or allocated so nothing to do here
 
   _instance = nullptr;

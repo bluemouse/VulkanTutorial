@@ -6,16 +6,16 @@
 using namespace Vulkan;
 
 CommandPool::CommandPool(const Device& device, uint32_t queueFamilyIndex) {
-  init(device, queueFamilyIndex);
+  create(device, queueFamilyIndex);
 }
 
 CommandPool::~CommandPool() {
   if (_pool != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void CommandPool::init(const Device& device, uint32_t queueFamilyIndex) {
+void CommandPool::create(const Device& device, uint32_t queueFamilyIndex) {
   if (_pool != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan command pool has been initialized already!");
   }
@@ -32,7 +32,7 @@ void CommandPool::init(const Device& device, uint32_t queueFamilyIndex) {
   vkGetDeviceQueue(device, queueFamilyIndex, 0, &_queue);
 }
 
-void CommandPool::release() {
+void CommandPool::destroy() {
   if (_pool == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null command pool cannot be released!");
   }

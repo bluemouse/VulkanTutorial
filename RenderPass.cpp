@@ -6,16 +6,16 @@
 using namespace Vulkan;
 
 RenderPass::RenderPass(const Device& device, VkFormat format) {
-  init(device, format);
+  create(device, format);
 }
 
 RenderPass::~RenderPass() {
   if (_renderPass != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void RenderPass::init(const Device& device, VkFormat format) {
+void RenderPass::create(const Device& device, VkFormat format) {
   _device = &device;
 
   VkAttachmentDescription colorAttachment{};
@@ -57,7 +57,7 @@ void RenderPass::init(const Device& device, VkFormat format) {
   VK_VERIFY(vkCreateRenderPass(device, &renderPassInfo, nullptr, &_renderPass));
 }
 
-void RenderPass::release() {
+void RenderPass::destroy() {
   if (_renderPass == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null render pass cannot be released!");
   }

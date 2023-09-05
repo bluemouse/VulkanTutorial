@@ -24,16 +24,16 @@ Instance::Instance(int versionMajor, int versionMinor,
                    std::vector<const char*> extensions,
                    const char* name,
                    bool enableValidation) {
-  init(versionMajor, versionMinor, extensions, name, enableValidation);
+  create(versionMajor, versionMinor, extensions, name, enableValidation);
 }
 
 Instance::~Instance() {
   if (_instance != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void Instance::init(int versionMajor, int versionMinor,
+void Instance::create(int versionMajor, int versionMinor,
                     std::vector<const char*> extensions,
                     const char* name,
                     bool enableValidation) {
@@ -92,7 +92,7 @@ void Instance::initSurface(VkSurfaceKHR surface) {
   _surface = surface;
 }
 
-void Instance::release() {
+void Instance::destroy() {
   if (_instance == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null instance cannot be released!");
   }

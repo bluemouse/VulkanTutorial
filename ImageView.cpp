@@ -7,16 +7,16 @@
 using namespace Vulkan;
 
 ImageView::ImageView(const Device& device, const Image& image) {
-  init(device, image);
+  create(device, image);
 }
 
 ImageView::~ImageView() {
   if (_view != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void ImageView::init(const Device& device, const Image& image) {
+void ImageView::create(const Device& device, const Image& image) {
   if (_view != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan image view has been initialized already!");
   }
@@ -37,7 +37,7 @@ void ImageView::init(const Device& device, const Image& image) {
   VK_VERIFY(vkCreateImageView(*_device, &viewInfo, nullptr, &_view));
 }
 
-void ImageView::release() {
+void ImageView::destroy() {
   if (_view == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null image view cannot be released!");
   }

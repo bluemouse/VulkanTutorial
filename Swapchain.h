@@ -22,12 +22,12 @@ public:
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);
   ~Swapchain();
 
-  void init(const Device& device,
+  void create(const Device& device,
             const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
             const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);
-  void initFramebuffers(const RenderPass& renderPass);
-  void release();
+  void createFramebuffers(const RenderPass& renderPass);
+  void destroy();
 
   operator VkSwapchainKHR() const { return _swapchain; }
 

@@ -33,11 +33,11 @@ public:
                    [](VkPhysicalDevice) -> bool { return true; });
   ~PhysicalDevice();
 
-  void init(const Instance& instance,
+  void create(const Instance& instance,
             const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable =
               [](VkPhysicalDevice) -> bool { return true; });
   void initQueueFamilies();
-  void release();
+  void destroy();
 
   operator VkPhysicalDevice() const { return _device; }
 

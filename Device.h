@@ -12,8 +12,8 @@ public:
   Device(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions = {});
   ~Device();
 
-  void init(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions = {});
-  void release();
+  void create(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions = {});
+  void destroy();
 
   operator VkDevice() const { return _device; }
 

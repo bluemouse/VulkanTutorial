@@ -12,16 +12,16 @@ Swapchain::Swapchain(const Device &device,
             const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
             const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
-  init(device, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
+  create(device, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
 }
 
 Swapchain::~Swapchain() {
   if (_swapchain != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void Swapchain::init(const Device &device,
+void Swapchain::create(const Device &device,
                      const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
                      const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
                      const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
@@ -96,7 +96,7 @@ void Swapchain::init(const Device &device,
   }
 }
 
-void Swapchain::initFramebuffers(const RenderPass& renderPass) {
+void Swapchain::createFramebuffers(const RenderPass& renderPass) {
   if (_swapchain == VK_NULL_HANDLE) {
     throw std::runtime_error("Can not create swapchain framebuffers without a valid swapchain!");
   }
@@ -108,7 +108,7 @@ void Swapchain::initFramebuffers(const RenderPass& renderPass) {
   }
 }
 
-void Swapchain::release() {
+void Swapchain::destroy() {
   if (_swapchain == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null swap chain cannot be released!");
   }

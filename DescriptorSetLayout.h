@@ -14,8 +14,8 @@ public:
   DescriptorSetLayout(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
   ~DescriptorSetLayout();
 
-  void init(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
-  void release();
+  void create(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
+  void destroy();
 
   operator VkDescriptorSetLayout() const { return _layout; }
 

@@ -205,20 +205,20 @@ private:
   }
 
   void cleanup() {
-    _swapchain.release();
+    _swapchain.destroy();
 
-    _graphicsPipeline.release();
-    _renderPass.release();
+    _graphicsPipeline.destroy();
+    _renderPass.destroy();
 
     _uniformBuffers.clear();
 
     vkDestroyDescriptorPool(_device, descriptorPool, nullptr);
 
-    _textureSampler.release();
-    _textureImageView.release();
-    _textureImage.release();
+    _textureSampler.destroy();
+    _textureImageView.destroy();
+    _textureImage.free();
 
-    _descriptorSetLayout.release();
+    _descriptorSetLayout.destroy();
 
     _indexBuffer.free();
     _vertexBuffer.free();
@@ -230,10 +230,10 @@ private:
     }
 
     _commandBuffers.clear();
-    _commandPool.release();
-    _device.release();
-    _physicalDevice.release();
-    _instance.release();
+    _commandPool.destroy();
+    _device.destroy();
+    _physicalDevice.destroy();
+    _instance.destroy();
 
     glfwDestroyWindow(window);
 
@@ -250,14 +250,14 @@ private:
 
     vkDeviceWaitIdle(_device);
 
-    _swapchain.release();
+    _swapchain.destroy();
 
     createSwapChain();
     createFramebuffers();
   }
 
   void createInstance() {
-    _instance.init(1, 0, getRequiredExtensions(), nullptr, enableValidationLayers);
+    _instance.create(1, 0, getRequiredExtensions(), nullptr, enableValidationLayers);
 
     VkSurfaceKHR surface;
     if (glfwCreateWindowSurface(_instance, window, nullptr, &surface) != VK_SUCCESS) {
@@ -267,12 +267,12 @@ private:
   }
 
   void pickPhysicalDevice() {
-    _physicalDevice.init(_instance, [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
+    _physicalDevice.create(_instance, [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
     _physicalDevice.initQueueFamilies();
   }
 
   void createLogicalDevice() {
-    _device.init(_physicalDevice, deviceExtensions);
+    _device.create(_physicalDevice, deviceExtensions);
   }
 
   void createSwapChain() {
@@ -285,11 +285,11 @@ private:
     auto chooseSwapExtentFuc = [this](const VkSurfaceCapabilitiesKHR& caps) -> VkExtent2D {
       return chooseSwapExtent(caps);
     };
-    _swapchain.init(_device, chooseSwapSurfaceFormatFuc, chooseSwapPresentModeFunc, chooseSwapExtentFuc);
+    _swapchain.create(_device, chooseSwapSurfaceFormatFuc, chooseSwapPresentModeFunc, chooseSwapExtentFuc);
   }
 
   void createRenderPass() {
-    _renderPass.init(_device, _swapchain.imageFormat());
+    _renderPass.create(_device, _swapchain.imageFormat());
   }
 
   void createDescriptorSetLayout() {
@@ -307,14 +307,14 @@ private:
     samplerLayoutBinding.pImmutableSamplers = nullptr;
     samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    _descriptorSetLayout.init(_device, {uboLayoutBinding, samplerLayoutBinding});
+    _descriptorSetLayout.create(_device, {uboLayoutBinding, samplerLayoutBinding});
   }
 
   void createGraphicsPipeline() {
     Vulkan::ShaderModule vertShaderModule{_device, "shaders/vert.spv"};
     Vulkan::ShaderModule fragShaderModule{_device, "shaders/frag.spv"};
 
-    _graphicsPipeline.init(_device, _renderPass,
+    _graphicsPipeline.create(_device, _renderPass,
                            {vertShaderModule, "main"},
                            {fragShaderModule, "main"},
                            Vertex::getBindingDescription(),
@@ -324,11 +324,11 @@ private:
   }
 
   void createFramebuffers() {
-    _swapchain.initFramebuffers(_renderPass);
+    _swapchain.createFramebuffers(_renderPass);
   }
 
   void createCommandPool() {
-    _commandPool.init(_device, _physicalDevice.graphicsFamilyIndex());
+    _commandPool.create(_device, _physicalDevice.graphicsFamilyIndex());
   }
 
   void createTextureImage() {
@@ -346,7 +346,7 @@ private:
 
     stbi_image_free(pixels);
 
-    _textureImage.init(_device, VK_FORMAT_R8G8B8A8_SRGB,
+    _textureImage.allocate(_device, VK_FORMAT_R8G8B8A8_SRGB,
                        {static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)});
 
     transitionImageLayout(_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
@@ -361,11 +361,11 @@ private:
   }
 
   void createTextureImageView() {
-    _textureImageView.init(_device, _textureImage);
+    _textureImageView.create(_device, _textureImage);
   }
 
   void createTextureSampler() {
-    _textureSampler.init(_device, VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+    _textureSampler.create(_device, VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
   }
 
   VkImageView createImageView(VkImage image, VkFormat format) {

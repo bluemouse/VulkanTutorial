@@ -15,7 +15,7 @@ public:
            bool enableValidation = false);
   ~Instance();
 
-  void init(int versionMajor, int versionMinor,
+  void create(int versionMajor, int versionMinor,
             std::vector<const char*> extensions,
             const char* name = nullptr,
             bool enableValidation = false);
@@ -25,7 +25,7 @@ public:
   //     created by glfw.
   void initSurface(VkSurfaceKHR surface);
 
-  void release();
+  void destroy();
 
   operator VkInstance() const { return _instance; }
   VkSurfaceKHR surface() const { return _surface; }

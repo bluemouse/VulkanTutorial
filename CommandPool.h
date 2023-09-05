@@ -12,8 +12,8 @@ public:
   CommandPool(const Device& device, uint32_t queueFamilyIndex);
   ~CommandPool();
 
-  void init(const Device& device, uint32_t queueFamilyIndex);
-  void release();
+  void create(const Device& device, uint32_t queueFamilyIndex);
+  void destroy();
 
   operator VkCommandPool() const { return _pool; }
   VkQueue queue() const { return _queue; }

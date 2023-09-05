@@ -7,16 +7,16 @@ using namespace Vulkan;
 
 DescriptorSetLayout::DescriptorSetLayout(const Device& device,
                                          std::vector<VkDescriptorSetLayoutBinding> bindings) {
-  init(device, std::move(bindings));
+  create(device, std::move(bindings));
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {
   if (_layout != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void DescriptorSetLayout::init(const Device& device,
+void DescriptorSetLayout::create(const Device& device,
                                std::vector<VkDescriptorSetLayoutBinding> bindings) {
   if (_layout != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan descriptor set layout has been initialized already!");
@@ -32,7 +32,7 @@ void DescriptorSetLayout::init(const Device& device,
   VK_VERIFY(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &_layout));
 }
 
-void DescriptorSetLayout::release() {
+void DescriptorSetLayout::destroy() {
   if (_layout == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null descriptor set layout cannot be released!");
   }

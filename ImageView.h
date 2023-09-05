@@ -13,8 +13,8 @@ public:
   ImageView(const Device& device, const Image& image);
   ~ImageView();
 
-  void init(const Device& device, const Image& image);
-  void release();
+  void create(const Device& device, const Image& image);
+  void destroy();
 
   operator VkImageView() const { return _view; }
 

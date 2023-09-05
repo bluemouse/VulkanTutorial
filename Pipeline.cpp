@@ -12,18 +12,18 @@ Pipeline::Pipeline(const Device &device, const RenderPass& renderPass,
                    VkVertexInputBindingDescription bindingDescription,
                    std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
                    VkDescriptorSetLayout descriptorSetLayout) {
-  init(device, renderPass,
+  create(device, renderPass,
       vertShader, fragShader,
       bindingDescription, attributeDescriptions, descriptorSetLayout);
 }
 
 Pipeline::~Pipeline() {
   if (_pipeline != VK_NULL_HANDLE) {
-    release();
+    destroy();
   }
 }
 
-void Pipeline::init(const Device &device, const RenderPass& renderPass,
+void Pipeline::create(const Device &device, const RenderPass& renderPass,
                     const Shader &vertShader, const Shader &fragShader,
                     VkVertexInputBindingDescription bindingDescription,
                     std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
@@ -131,7 +131,7 @@ void Pipeline::init(const Device &device, const RenderPass& renderPass,
   VK_VERIFY(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline));
 }
 
-void Pipeline::release() {
+void Pipeline::destroy() {
   if (_pipeline == VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan null pipeline cannot be released!");
   }

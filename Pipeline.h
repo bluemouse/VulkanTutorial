@@ -25,12 +25,12 @@ public:
            VkDescriptorSetLayout descriptorSetLayout);
   ~Pipeline();
 
-  void init(const Device& device, const RenderPass& renderPass,
+  void create(const Device& device, const RenderPass& renderPass,
             const Shader& vertShader, const Shader& fragShader,
             VkVertexInputBindingDescription bindingDescription,
             std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
             VkDescriptorSetLayout descriptorSetLayout);
-  void release();
+  void destroy();
 
   operator VkPipeline() const { return _pipeline; }
   VkPipelineLayout layout() const { return _layout; }

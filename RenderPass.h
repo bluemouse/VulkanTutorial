@@ -12,8 +12,8 @@ public:
   RenderPass(const Device& device, VkFormat format);
   ~RenderPass();
 
-  void init(const Device& device, VkFormat format);
-  void release();
+  void create(const Device& device, VkFormat format);
+  void destroy();
 
   operator VkRenderPass() const { return _renderPass; }
 
