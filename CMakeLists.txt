@@ -48,6 +48,8 @@ set(MYVULKAN_SRC_FILES
   Image.h
   ImageView.cpp
   ImageView.h
+  Sampler.cpp
+  Sampler.h
   RenderPass.cpp
   RenderPass.h
   Framebuffer.cpp

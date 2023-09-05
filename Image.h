@@ -5,6 +5,7 @@
 namespace Vulkan {
 
 class Device;
+
 class Image {
 public:
   Image() = default;
