@@ -33,6 +33,7 @@
 #include "StagingBuffer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "UniformBuffer.h"
 #include "DescriptorSetLayout.h"
 #include "Image.h"
 #include "ImageView.h"
@@ -140,8 +141,8 @@ private:
   Vulkan::VertexBuffer _vertexBuffer;
   Vulkan::IndexBuffer _indexBuffer;
 
-  std::vector<Vulkan::Buffer> _uniformBuffers;
-  std::vector<void *> uniformBuffersMapped;
+  std::vector<Vulkan::UniformBuffer> _uniformBuffers;
+  std::vector<void *> _uniformBuffersMapped;
 
   VkDescriptorPool descriptorPool;
   std::vector<VkDescriptorSet> descriptorSets;
@@ -480,15 +481,11 @@ private:
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
     _uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+    _uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      _uniformBuffers[i].allocate(_device,
-                                  bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-      vkMapMemory(_device, _uniformBuffers[i].memory(), 0, bufferSize, 0,
-                  &uniformBuffersMapped[i]);
+      _uniformBuffers[i].allocate(_device, bufferSize);
+      _uniformBuffersMapped[i] = _uniformBuffers[i].map();
     }
   }
 
@@ -626,7 +623,7 @@ private:
         extent.width / (float)extent.height, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
 
-    memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+    memcpy(_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
   }
 
   void drawFrame() {

@@ -72,6 +72,8 @@ set(MYVULKAN_SRC_FILES
   VertexBuffer.h
   IndexBuffer.cpp
   IndexBuffer.h
+  UniformBuffer.cpp
+  UniformBuffer.h
 )
 
 set(SRC_FILES

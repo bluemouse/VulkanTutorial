@@ -83,6 +83,20 @@ void Buffer::release() {
   _size = 0;
 }
 
+void* Buffer::map() {
+  return map(0, size());
+}
+
+void* Buffer::map(size_t offset, size_t size) {
+  void* data;
+  vkMapMemory(*_device, _memory, offset, size, 0, &data);
+  return data;
+}
+
+void Buffer::unmap() {
+  vkUnmapMemory(*_device, _memory);
+}
+
 uint32_t Buffer::findMemoryType(uint32_t typeFilter,
                                 VkMemoryPropertyFlags properties) const {
   VkPhysicalDeviceMemoryProperties memProperties;

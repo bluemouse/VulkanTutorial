@@ -21,6 +21,10 @@ public:
                 VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
   void release();
 
+  void* map();
+  void* map(size_t offset, size_t size);
+  void unmap();
+
   operator VkBuffer() const { return _buffer; }
   VkDeviceMemory memory() const { return _memory; }
 

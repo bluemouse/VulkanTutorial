@@ -18,12 +18,11 @@ public:
 
   void allocate(const Device& device, size_t size);
 
-  void* map(size_t offset, size_t size);
-  void unmap();
-
   void copyFromHost(const void* src, size_t size);
 
   using Buffer::operator VkBuffer;
+  using Buffer::map;
+  using Buffer::unmap;
   using Buffer::size;
 };
 
