@@ -18,12 +18,14 @@ public:
   UniformBuffer& operator=(const UniformBuffer& rhs);
 
   void allocate(const Device& device, size_t size);
-  void release();
+  using Buffer::free;
+
+  using Buffer::map;
+  using Buffer::unmap;
 
   using Buffer::operator VkBuffer;
   using Buffer::memory;
-  using Buffer::map;
-  using Buffer::unmap;
+
   using Buffer::isAllocated;
   using Buffer::size;
 };

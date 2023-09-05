@@ -17,12 +17,14 @@ public:
   StagingBuffer& operator=(const StagingBuffer&) = delete;
 
   void allocate(const Device& device, size_t size);
+  using Buffer::free;
+
+  using Buffer::map;
+  using Buffer::unmap;
 
   void copyFromHost(const void* src, size_t size);
 
   using Buffer::operator VkBuffer;
-  using Buffer::map;
-  using Buffer::unmap;
   using Buffer::size;
 };
 

@@ -11,8 +11,8 @@ Buffer::Buffer(const Device& device, size_t size,
 }
 
 Buffer::~Buffer() {
-  if (_buffer != VK_NULL_HANDLE) {
-    release();
+  if (isAllocated()) {
+    free();
   }
 }
 
@@ -70,7 +70,7 @@ void Buffer::allocate(const Device& device, size_t size,
   vkBindBufferMemory(device, _buffer, _memory, 0);
 }
 
-void Buffer::release() {
+void Buffer::free() {
   if (!isAllocated()) {
     throw std::runtime_error("Vulkan null buffer cannot be released!");
   }

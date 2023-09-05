@@ -220,8 +220,8 @@ private:
 
     _descriptorSetLayout.release();
 
-    _indexBuffer.release();
-    _vertexBuffer.release();
+    _indexBuffer.free();
+    _vertexBuffer.free();
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
       vkDestroySemaphore(_device, renderFinishedSemaphores[i], nullptr);

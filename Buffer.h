@@ -19,7 +19,7 @@ public:
 
   void allocate(const Device& device, size_t size,
                 VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-  void release();
+  void free();
 
   void* map();
   void* map(size_t offset, size_t size);

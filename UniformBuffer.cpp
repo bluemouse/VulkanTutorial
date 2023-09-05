@@ -28,10 +28,3 @@ void UniformBuffer::allocate(const Device& device, size_t size) {
                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
-
-void UniformBuffer::release() {
-  if (!isAllocated()) {
-    throw std::runtime_error("Vulkan null vertex buffer cannot be released!");
-  }
-  Buffer::release();
-}

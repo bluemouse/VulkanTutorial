@@ -18,7 +18,7 @@ public:
   VertexBuffer& operator=(const VertexBuffer& rhs);
 
   void allocate(const Device& device, size_t size);
-  void release();
+  using Buffer::free;
 
   using Buffer::operator VkBuffer;
   using Buffer::isAllocated;
