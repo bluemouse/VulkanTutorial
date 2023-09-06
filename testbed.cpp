@@ -38,6 +38,8 @@
 #include "Image.h"
 #include "ImageView.h"
 #include "Sampler.h"
+#include "Semaphore.h"
+#include "Fence.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -149,9 +151,9 @@ private:
 
   std::vector<Vulkan::CommandBuffer> _commandBuffers;
 
-  std::vector<VkSemaphore> imageAvailableSemaphores;
-  std::vector<VkSemaphore> renderFinishedSemaphores;
-  std::vector<VkFence> inFlightFences;
+  std::vector<Vulkan::Semaphore> _imageAvailableSemaphores;
+  std::vector<Vulkan::Semaphore> _renderFinishedSemaphores;
+  std::vector<Vulkan::Fence> _inFlightFences;
   uint32_t currentFrame = 0;
 
   bool framebufferResized = false;
@@ -223,11 +225,9 @@ private:
     _indexBuffer.free();
     _vertexBuffer.free();
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      vkDestroySemaphore(_device, renderFinishedSemaphores[i], nullptr);
-      vkDestroySemaphore(_device, imageAvailableSemaphores[i], nullptr);
-      vkDestroyFence(_device, inFlightFences[i], nullptr);
-    }
+    _renderFinishedSemaphores.clear();
+    _imageAvailableSemaphores.clear();
+    _inFlightFences.clear();
 
     _commandBuffers.clear();
     _commandPool.destroy();
@@ -578,27 +578,14 @@ private:
   }
 
   void createSyncObjects() {
-    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fenceInfo{};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+    _imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr,
-                            &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-          vkCreateSemaphore(_device, &semaphoreInfo, nullptr,
-                            &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-          vkCreateFence(_device, &fenceInfo, nullptr, &inFlightFences[i]) !=
-              VK_SUCCESS) {
-        throw std::runtime_error(
-            "failed to create synchronization objects for a frame!");
-      }
+      _imageAvailableSemaphores[i].create(_device);
+      _renderFinishedSemaphores[i].create(_device);
+      _inFlightFences[i].create(_device);
     }
   }
 
@@ -627,12 +614,11 @@ private:
   }
 
   void drawFrame() {
-    vkWaitForFences(_device, 1, &inFlightFences[currentFrame], VK_TRUE,
-                    UINT64_MAX);
+    vkWaitForFences(_device, 1, _inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(
-        _device, _swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
+        _device, _swapchain, UINT64_MAX, _imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -644,7 +630,7 @@ private:
 
     updateUniformBuffer(currentFrame);
 
-    vkResetFences(_device, 1, &inFlightFences[currentFrame]);
+    vkResetFences(_device, 1, _inFlightFences[currentFrame]);
 
     _commandBuffers[currentFrame].reset();
     _commandBuffers[currentFrame].executeCommand(
@@ -692,16 +678,16 @@ private:
 
         vkCmdEndRenderPass(commandBuffer);
       },
-      {imageAvailableSemaphores[currentFrame]},
-      {renderFinishedSemaphores[currentFrame]},
-      inFlightFences[currentFrame]
+      {_imageAvailableSemaphores[currentFrame]},
+      {_renderFinishedSemaphores[currentFrame]},
+      _inFlightFences[currentFrame]
     );
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = &renderFinishedSemaphores[currentFrame];
+    presentInfo.pWaitSemaphores = _renderFinishedSemaphores[currentFrame];
 
     VkSwapchainKHR swapChains[] = {_swapchain};
     presentInfo.swapchainCount = 1;

@@ -16,6 +16,9 @@ RenderPass::~RenderPass() {
 }
 
 void RenderPass::create(const Device& device, VkFormat format) {
+  if (_renderPass != VK_NULL_HANDLE) {
+    throw std::runtime_error("Vulkan render pass has been created already!");
+  }
   _device = &device;
 
   VkAttachmentDescription colorAttachment{};

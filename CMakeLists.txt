@@ -74,6 +74,10 @@ set(MYVULKAN_SRC_FILES
   IndexBuffer.h
   UniformBuffer.cpp
   UniformBuffer.h
+  Semaphore.cpp
+  Semaphore.h
+  Fence.cpp
+  Fence.h
 )
 
 set(SRC_FILES
