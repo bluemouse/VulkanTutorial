@@ -32,9 +32,9 @@ public:
   operator const VkCommandBuffer*() const { return &_buffer; }
 
 private:
-  const CommandPool* _pool = nullptr;
-
   VkCommandBuffer _buffer = VK_NULL_HANDLE;
+
+  const CommandPool* _pool = nullptr;
 };
 
 } //namespace Vulkan

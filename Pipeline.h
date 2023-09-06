@@ -36,10 +36,10 @@ public:
   VkPipelineLayout layout() const { return _layout; }
 
 private:
-  const Device* _device = nullptr;
-
   VkPipeline _pipeline = VK_NULL_HANDLE;
   VkPipelineLayout _layout;
+
+  const Device* _device = nullptr;
 };
 
 } //namespace Vulkan

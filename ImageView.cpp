@@ -44,7 +44,7 @@ void ImageView::destroy() {
 
   vkDestroyImageView(*_device, _view, nullptr);
 
+  _view = VK_NULL_HANDLE;
   _device = nullptr;
   _image = nullptr;
-  _view = VK_NULL_HANDLE;
 }

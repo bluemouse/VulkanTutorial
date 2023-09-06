@@ -44,13 +44,13 @@ public:
   const Device& device() const { return *_device; }
 
 private:
-  const Device* _device = nullptr;
-
   VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 
   std::vector<Image> _images;
   std::vector<ImageView> _imageViews;
   std::vector<Framebuffer> _framebuffers;
+
+  const Device* _device = nullptr;
 };
 
 } // namespace Vulkan

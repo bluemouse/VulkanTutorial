@@ -19,9 +19,9 @@ public:
   operator const VkFence*() const { return &_fence; }
 
 private:
-  const Device* _device;
-
   VkFence _fence = VK_NULL_HANDLE;
+
+  const Device* _device;
 };
 
 } //namespace Vulkan

@@ -37,13 +37,14 @@ private:
   bool isAllocated() const { return isOwner() && _image != VK_NULL_HANDLE; }
 
 private:
-  const Device* _device;
-
   VkImage _image = VK_NULL_HANDLE;
+  VkDeviceMemory _memory = VK_NULL_HANDLE;
+
   VkFormat _format;
   VkExtent2D _extent;
 
-  VkDeviceMemory _memory = VK_NULL_HANDLE;
+  const Device* _device;
+
 };
 
 } //namespace Vulkan

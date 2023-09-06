@@ -24,12 +24,12 @@ public:
   VkQueue presentQueue() const { return _presentQueue; }
 
 private:
-  const PhysicalDevice* _physicalDevice = nullptr;
-
   VkDevice _device = VK_NULL_HANDLE;
 
   VkQueue _graphicsQueue = VK_NULL_HANDLE;
   VkQueue _presentQueue = VK_NULL_HANDLE;
+
+  const PhysicalDevice* _physicalDevice = nullptr;
 };
 
 } // namespace Vulkan

@@ -19,9 +19,9 @@ public:
   operator const VkSemaphore*() const { return &_semaphore; }
 
 private:
-  const Device* _device;
-
   VkSemaphore _semaphore = VK_NULL_HANDLE;
+
+  const Device* _device;
 };
 
 } //namespace Vulkan

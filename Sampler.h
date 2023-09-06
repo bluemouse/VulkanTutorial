@@ -18,9 +18,9 @@ public:
   operator VkSampler() const { return _sampler; }
 
 private:
-  const Device* _device;
-
   VkSampler _sampler = VK_NULL_HANDLE;
+
+  const Device* _device;
 };
 
 } //namespace Vulkan

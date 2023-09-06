@@ -66,6 +66,6 @@ void RenderPass::destroy() {
   }
   vkDestroyRenderPass(*_device, _renderPass, nullptr);
 
-  _device = nullptr;
   _renderPass = VK_NULL_HANDLE;
+  _device = nullptr;
 }

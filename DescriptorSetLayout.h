@@ -20,9 +20,9 @@ public:
   operator VkDescriptorSetLayout() const { return _layout; }
 
 private:
-  const Device* _device = nullptr;
-
   VkDescriptorSetLayout _layout = VK_NULL_HANDLE;
+
+  const Device* _device = nullptr;
 };
 
 } //namespace Vulkan

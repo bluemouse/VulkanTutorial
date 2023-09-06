@@ -18,11 +18,11 @@ public:
   VkExtent2D extent() const;
 
 private:
+  VkFramebuffer _buffer = VK_NULL_HANDLE;
+
   const Device* _device;
   const RenderPass* _renderPass;
   const ImageView* _imageView;
-
-  VkFramebuffer _buffer = VK_NULL_HANDLE;
 };
 
 } //namespace Vulkan

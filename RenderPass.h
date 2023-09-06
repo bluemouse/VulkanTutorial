@@ -18,9 +18,9 @@ public:
   operator VkRenderPass() const { return _renderPass; }
 
 private:
-  const Device* _device;
-
   VkRenderPass _renderPass = VK_NULL_HANDLE;
+
+  const Device* _device;
 };
 
 } //namespace Vulkan

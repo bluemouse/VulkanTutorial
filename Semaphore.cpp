@@ -33,6 +33,6 @@ void Semaphore::destroy() {
   }
   vkDestroySemaphore(*_device, _semaphore, nullptr);
 
-  _device = nullptr;
   _semaphore = VK_NULL_HANDLE;
+  _device = nullptr;
 }

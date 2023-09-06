@@ -21,10 +21,10 @@ public:
   const Image& image() const { return *_image; }
 
 private:
+  VkImageView _view = VK_NULL_HANDLE;
+
   const Device* _device = nullptr;
   const Image* _image = nullptr;
-
-  VkImageView _view = VK_NULL_HANDLE;
 };
 
 } //namespace Vulkan

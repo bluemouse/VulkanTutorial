@@ -14,9 +14,9 @@ public:
   operator VkShaderModule() const { return _shader; }
 
 private:
-  const Device* _device;
-
   VkShaderModule _shader = VK_NULL_HANDLE;
+
+  const Device* _device;
 };
 
 } //namespace Vulkan

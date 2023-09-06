@@ -21,10 +21,10 @@ public:
   const Device& device() const { return *_device; }
 
 private:
-  const Device* _device = nullptr;
-
   VkCommandPool _pool = VK_NULL_HANDLE;
   VkQueue _queue = VK_NULL_HANDLE;
+
+  const Device* _device = nullptr;
 };
 
 } //namespace Vulkan

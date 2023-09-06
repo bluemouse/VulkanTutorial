@@ -66,9 +66,9 @@ void Image::free() {
   vkDestroyImage(*_device, _image, nullptr);
   vkFreeMemory(*_device, _memory, nullptr);
 
-  _device = nullptr;
   _image = VK_NULL_HANDLE;
   _memory = VK_NULL_HANDLE;
+  _device = nullptr;
 }
 
 Image::Image(const Image& rhs) {
@@ -85,15 +85,15 @@ Image& Image::operator=(const Image& rhs) {
 
 void Image::moveFrom(Image& rhs) {
   if (this != &rhs) {
-    _device = rhs._device;
     _image = rhs._image;
+    _memory = rhs._memory;
     _format = rhs._format;
     _extent = rhs._extent;
-    _memory = rhs._memory;
+    _device = rhs._device;
 
-    rhs._device = nullptr;
     rhs._image = VK_NULL_HANDLE;
     rhs._memory = VK_NULL_HANDLE;
+    rhs._device = nullptr;
   }
 }
 
