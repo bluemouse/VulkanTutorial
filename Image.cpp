@@ -71,6 +71,32 @@ void Image::free() {
   _memory = VK_NULL_HANDLE;
 }
 
+Image::Image(const Image& rhs) {
+  moveFrom(const_cast<Image&>(rhs));
+}
+
+Image& Image::operator=(const Image& rhs) {
+  if (isAllocated()) {
+    throw std::runtime_error("Vulkan image has been allocated and can not be assigned!");
+  }
+  moveFrom(const_cast<Image&>(rhs));
+  return *this;
+}
+
+void Image::moveFrom(Image& rhs) {
+  if (this != &rhs) {
+    _device = rhs._device;
+    _image = rhs._image;
+    _format = rhs._format;
+    _extent = rhs._extent;
+    _memory = rhs._memory;
+
+    rhs._device = nullptr;
+    rhs._image = VK_NULL_HANDLE;
+    rhs._memory = VK_NULL_HANDLE;
+  }
+}
+
 uint32_t Image::findMemoryType(uint32_t typeFilter,
                                VkMemoryPropertyFlags properties) const {
   VkPhysicalDeviceMemoryProperties memProperties;
