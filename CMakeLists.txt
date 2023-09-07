@@ -62,6 +62,10 @@ set(MYVULKAN_SRC_FILES
   CommandPool.h
   CommandBuffer.cpp
   CommandBuffer.h
+  DescriptorPool.cpp
+  DescriptorPool.h
+  DescriptorSet.cpp
+  DescriptorSet.h
   DescriptorSetLayout.cpp
   DescriptorSetLayout.h
   Buffer.cpp

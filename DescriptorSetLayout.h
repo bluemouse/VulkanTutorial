@@ -18,6 +18,7 @@ public:
   void destroy();
 
   operator VkDescriptorSetLayout() const { return _layout; }
+  operator const VkDescriptorSetLayout*() const { return &_layout; }
 
 private:
   VkDescriptorSetLayout _layout = VK_NULL_HANDLE;

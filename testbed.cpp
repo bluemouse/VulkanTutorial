@@ -34,6 +34,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "UniformBuffer.h"
+#include "DescriptorPool.h"
+#include "DescriptorSet.h"
 #include "DescriptorSetLayout.h"
 #include "Image.h"
 #include "ImageView.h"
@@ -146,8 +148,8 @@ private:
   std::vector<Vulkan::UniformBuffer> _uniformBuffers;
   std::vector<void *> _uniformBuffersMapped;
 
-  VkDescriptorPool descriptorPool;
-  std::vector<VkDescriptorSet> descriptorSets;
+  Vulkan::DescriptorPool _descriptorPool;
+  std::vector<Vulkan::DescriptorSet> _descriptorSets;
 
   std::vector<Vulkan::CommandBuffer> _commandBuffers;
 
@@ -214,7 +216,8 @@ private:
 
     _uniformBuffers.clear();
 
-    vkDestroyDescriptorPool(_device, descriptorPool, nullptr);
+    _descriptorSets.clear();
+    _descriptorPool.destroy();
 
     _textureSampler.destroy();
     _textureImageView.destroy();
@@ -368,27 +371,6 @@ private:
     _textureSampler.create(_device, VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
   }
 
-  VkImageView createImageView(VkImage image, VkFormat format) {
-    VkImageViewCreateInfo viewInfo{};
-    viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image = image;
-    viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format = format;
-    viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = 1;
-    viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount = 1;
-
-    VkImageView imageView;
-    if (vkCreateImageView(_device, &viewInfo, nullptr, &imageView) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to create image view!");
-    }
-
-    return imageView;
-  }
-
   void transitionImageLayout(VkImage image, VkFormat format,
                              VkImageLayout oldLayout, VkImageLayout newLayout) {
     using Vulkan::CommandBuffer;
@@ -490,40 +472,20 @@ private:
   }
 
   void createDescriptorPool() {
-    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+    std::vector<VkDescriptorPoolSize> poolSizes{2};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-    poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-    if (vkCreateDescriptorPool(_device, &poolInfo, nullptr, &descriptorPool) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to create descriptor pool!");
-    }
+    _descriptorPool.create(_device, poolSizes, MAX_FRAMES_IN_FLIGHT);
   }
 
   void createDescriptorSets() {
-    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT,
-                                               _descriptorSetLayout);
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool;
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-    allocInfo.pSetLayouts = layouts.data();
-
-    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-    if (vkAllocateDescriptorSets(_device, &allocInfo, descriptorSets.data()) !=
-        VK_SUCCESS) {
-      throw std::runtime_error("failed to allocate descriptor sets!");
-    }
-
+    _descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+      _descriptorSets[i].allocate(_descriptorPool, _descriptorSetLayout);
+
       VkDescriptorBufferInfo bufferInfo{};
       bufferInfo.buffer = _uniformBuffers[i];
       bufferInfo.offset = 0;
@@ -537,7 +499,7 @@ private:
       std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
       descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      descriptorWrites[0].dstSet = descriptorSets[i];
+      descriptorWrites[0].dstSet = _descriptorSets[i];
       descriptorWrites[0].dstBinding = 0;
       descriptorWrites[0].dstArrayElement = 0;
       descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -545,11 +507,10 @@ private:
       descriptorWrites[0].pBufferInfo = &bufferInfo;
 
       descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      descriptorWrites[1].dstSet = descriptorSets[i];
+      descriptorWrites[1].dstSet = _descriptorSets[i];
       descriptorWrites[1].dstBinding = 1;
       descriptorWrites[1].dstArrayElement = 0;
-      descriptorWrites[1].descriptorType =
-          VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+      descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       descriptorWrites[1].descriptorCount = 1;
       descriptorWrites[1].pImageInfo = &imageInfo;
 
@@ -671,7 +632,7 @@ private:
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                _graphicsPipeline.layout(), 0, 1, &descriptorSets[currentFrame],
+                                _graphicsPipeline.layout(), 0, 1, _descriptorSets[currentFrame],
                                 0, nullptr);
 
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
