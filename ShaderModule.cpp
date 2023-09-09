@@ -1,7 +1,7 @@
 #include "ShaderModule.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 #include <vector>
 #include <fstream>
@@ -38,7 +38,7 @@ ShaderModule::ShaderModule(const Device& device, const char* shaderFile)
   createInfo.codeSize = code.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
-  VK_VERIFY(vkCreateShaderModule(device, &createInfo, nullptr, &_shader));
+  MG_VERIFY_VKCMD(vkCreateShaderModule(device, &createInfo, nullptr, &_shader));
 }
 
 ShaderModule::~ShaderModule() {

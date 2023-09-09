@@ -1,5 +1,5 @@
 #include "Instance.h"
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 #include <cstring>
 #include <iostream>
@@ -78,7 +78,7 @@ void Instance::create(int versionMajor, int versionMinor,
     createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
   }
 
-  VK_VERIFY(vkCreateInstance(&createInfo, nullptr, &_instance));
+  MG_VERIFY_VKCMD(vkCreateInstance(&createInfo, nullptr, &_instance));
 
   if (enableValidation) {
     setupDebugMessenger();
@@ -150,7 +150,7 @@ void Instance::setupDebugMessenger() {
   VkDebugUtilsMessengerCreateInfoEXT createInfo;
   populateDebugMessengerCreateInfo(createInfo);
 
-  VK_VERIFY(CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger));
+  MG_VERIFY_VKCMD(CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger));
 }
 VkResult Instance::CreateDebugUtilsMessengerEXT(
     VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,

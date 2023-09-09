@@ -1,7 +1,7 @@
 #include "RenderPass.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -57,7 +57,7 @@ void RenderPass::create(const Device& device, VkFormat format) {
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
 
-  VK_VERIFY(vkCreateRenderPass(device, &renderPassInfo, nullptr, &_renderPass));
+  MG_VERIFY_VKCMD(vkCreateRenderPass(device, &renderPassInfo, nullptr, &_renderPass));
 }
 
 void RenderPass::destroy() {

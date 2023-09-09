@@ -1,7 +1,7 @@
 #include "Device.h"
 #include "Instance.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 #include <set>
 
@@ -63,7 +63,7 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
     createInfo.enabledLayerCount = 0;
   }
 
-  VK_VERIFY(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
+  MG_VERIFY_VKCMD(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
 
   vkGetDeviceQueue(_device, physicalDevice.graphicsFamilyIndex(), 0, &_graphicsQueue);
   vkGetDeviceQueue(_device, physicalDevice.presentFamilyIndex(), 0, &_presentQueue);

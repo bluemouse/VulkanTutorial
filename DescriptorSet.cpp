@@ -4,7 +4,7 @@
 #include "DescriptorPool.h"
 #include "DescriptorSetLayout.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -30,7 +30,7 @@ void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayo
   allocInfo.descriptorSetCount = 1;
   allocInfo.pSetLayouts = layout;
 
-  VK_VERIFY(vkAllocateDescriptorSets(pool.device(), &allocInfo, &_set));
+  MG_VERIFY_VKCMD(vkAllocateDescriptorSets(pool.device(), &allocInfo, &_set));
 }
 
 void DescriptorSet::free() {

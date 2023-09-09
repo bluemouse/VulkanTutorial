@@ -4,7 +4,7 @@
 #include "Device.h"
 #include "RenderPass.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -77,7 +77,7 @@ void Swapchain::create(const Device &device,
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
 
-  VK_VERIFY(vkCreateSwapchainKHR(device, &createInfo, nullptr, &_swapchain));
+  MG_VERIFY_VKCMD(vkCreateSwapchainKHR(device, &createInfo, nullptr, &_swapchain));
 
   vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, nullptr);
   std::vector<VkImage> imgs(imageCount);

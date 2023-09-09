@@ -1,7 +1,7 @@
 #include "DescriptorPool.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -29,7 +29,7 @@ void DescriptorPool::create(const Device& device,
   poolInfo.pPoolSizes = poolSizes.data();
   poolInfo.maxSets = maxSets;
 
-  VK_VERIFY(vkCreateDescriptorPool(device, &poolInfo, nullptr, &_pool));
+  MG_VERIFY_VKCMD(vkCreateDescriptorPool(device, &poolInfo, nullptr, &_pool));
 }
 
 void DescriptorPool::destroy() {

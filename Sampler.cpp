@@ -1,7 +1,7 @@
 #include "Sampler.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -43,7 +43,7 @@ void Sampler::create(const Device& device,
   samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
   samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-  VK_VERIFY(vkCreateSampler(device, &samplerInfo, nullptr, &_sampler));
+  MG_VERIFY_VKCMD(vkCreateSampler(device, &samplerInfo, nullptr, &_sampler));
 }
 
 void Sampler::destroy() {

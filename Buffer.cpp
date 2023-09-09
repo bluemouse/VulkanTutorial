@@ -1,7 +1,7 @@
 #include "Buffer.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -55,7 +55,7 @@ void Buffer::allocate(const Device& device, size_t size,
   bufferInfo.usage = usage;
   bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-  VK_VERIFY(vkCreateBuffer(device, &bufferInfo, nullptr, &_buffer));
+  MG_VERIFY_VKCMD(vkCreateBuffer(device, &bufferInfo, nullptr, &_buffer));
 
   VkMemoryRequirements memRequirements;
   vkGetBufferMemoryRequirements(device, _buffer, &memRequirements);
@@ -65,7 +65,7 @@ void Buffer::allocate(const Device& device, size_t size,
   allocInfo.allocationSize = memRequirements.size;
   allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-  VK_VERIFY(vkAllocateMemory(device, &allocInfo, nullptr, &_memory));
+  MG_VERIFY_VKCMD(vkAllocateMemory(device, &allocInfo, nullptr, &_memory));
 
   vkBindBufferMemory(device, _buffer, _memory, 0);
 }

@@ -1,4 +1,4 @@
-#include "helpers.h"
+#include "helpers_debug.h"
 
 #include <iostream>
 #include <cassert>
@@ -14,7 +14,7 @@ using std::cerr;
 using std::endl;
 using std::strlen;
 
-namespace __helpers__ {
+namespace __helpers_debug__ {
 
 void not_tested(const char* func, const char* file, int line)
 {
@@ -112,4 +112,4 @@ void log_backtraces()
   free(traces);
 }
 
-} //namespace __helpers__
+} //namespace __helpers_debug__

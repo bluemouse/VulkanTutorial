@@ -1,7 +1,7 @@
 #include "CommandPool.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -27,7 +27,7 @@ void CommandPool::create(const Device& device, uint32_t queueFamilyIndex) {
   poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
   poolInfo.queueFamilyIndex = queueFamilyIndex;
 
-  VK_VERIFY(vkCreateCommandPool(device, &poolInfo, nullptr, &_pool));
+  MG_VERIFY_VKCMD(vkCreateCommandPool(device, &poolInfo, nullptr, &_pool));
 
   vkGetDeviceQueue(device, queueFamilyIndex, 0, &_queue);
 }

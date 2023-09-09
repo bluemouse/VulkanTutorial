@@ -5,7 +5,7 @@
 #include "Pipeline.h"
 #include "RenderPass.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -31,7 +31,7 @@ void CommandBuffer::allocate(const CommandPool& commandPool) {
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = 1;
 
-  VK_VERIFY(vkAllocateCommandBuffers(commandPool.device(), &allocInfo, &_buffer));
+  MG_VERIFY_VKCMD(vkAllocateCommandBuffers(commandPool.device(), &allocInfo, &_buffer));
 }
 
 void CommandBuffer::reset() {
@@ -52,11 +52,11 @@ void CommandBuffer::free() {
 void CommandBuffer::recordCommand(const std::function<void(const CommandBuffer& buffer)>& command) const {
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  VK_VERIFY(vkBeginCommandBuffer(_buffer, &beginInfo));
+  MG_VERIFY_VKCMD(vkBeginCommandBuffer(_buffer, &beginInfo));
 
   command(*this);
 
-  VK_VERIFY(vkEndCommandBuffer(_buffer));
+  MG_VERIFY_VKCMD(vkEndCommandBuffer(_buffer));
 }
 
 void CommandBuffer::executeCommand(const std::function<void(const CommandBuffer& buffer)>& command,
@@ -80,7 +80,7 @@ void CommandBuffer::executeCommand(const std::function<void(const CommandBuffer&
     submitInfo.pSignalSemaphores = signals.data();
   }
   auto queue = _pool->queue();
-  VK_VERIFY(vkQueueSubmit(queue, 1, &submitInfo, fence));
+  MG_VERIFY_VKCMD(vkQueueSubmit(queue, 1, &submitInfo, fence));
 }
 
 void CommandBuffer::recordSingleTimeCommand(const std::function<void(const CommandBuffer&)>& command) const {
@@ -88,11 +88,11 @@ void CommandBuffer::recordSingleTimeCommand(const std::function<void(const Comma
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-  VK_VERIFY(vkBeginCommandBuffer(_buffer, &beginInfo));
+  MG_VERIFY_VKCMD(vkBeginCommandBuffer(_buffer, &beginInfo));
 
   command(*this);
 
-  VK_VERIFY(vkEndCommandBuffer(_buffer));
+  MG_VERIFY_VKCMD(vkEndCommandBuffer(_buffer));
 }
 
 void CommandBuffer::executeSingleTimeCommand(const std::function<void(const CommandBuffer&)>& command, bool blocking) const {

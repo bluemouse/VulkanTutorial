@@ -1,7 +1,7 @@
 #include "DescriptorSetLayout.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -29,7 +29,7 @@ void DescriptorSetLayout::create(const Device& device,
   layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
   layoutInfo.pBindings = bindings.data();
 
-  VK_VERIFY(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &_layout));
+  MG_VERIFY_VKCMD(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &_layout));
 }
 
 void DescriptorSetLayout::destroy() {

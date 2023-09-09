@@ -1,7 +1,7 @@
 #include "Image.h"
 #include "Device.h"
 
-#include "helpers.h"
+#include "helpers_vkdebug.h"
 
 using namespace Vulkan;
 
@@ -42,7 +42,7 @@ void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
   imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
   imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-  VK_VERIFY(vkCreateImage(device, &imageInfo, nullptr, &_image));
+  MG_VERIFY_VKCMD(vkCreateImage(device, &imageInfo, nullptr, &_image));
 
   VkMemoryRequirements memRequirements;
   vkGetImageMemoryRequirements(device, _image, &memRequirements);
@@ -53,7 +53,7 @@ void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
   allocInfo.memoryTypeIndex =
       findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-  VK_VERIFY(vkAllocateMemory(device, &allocInfo, nullptr, &_memory));
+  MG_VERIFY_VKCMD(vkAllocateMemory(device, &allocInfo, nullptr, &_memory));
 
   vkBindImageMemory(device, _image, _memory, 0);
 }
