@@ -27,8 +27,8 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
   float queuePriority = 1.0f;
 
   std::set<uint32_t> uniqueQueueFamilies = {
-      physicalDevice.graphicsFamilyIndex(),
-      physicalDevice.presentFamilyIndex()
+      physicalDevice.queueFamilies().graphicsIndex(),
+      physicalDevice.queueFamilies().presentIndex()
   };
   for (uint32_t queueFamily : uniqueQueueFamilies) {
     VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -64,8 +64,8 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
 
   MI_VERIFY_VKCMD(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
 
-  vkGetDeviceQueue(_device, physicalDevice.graphicsFamilyIndex(), 0, &_graphicsQueue);
-  vkGetDeviceQueue(_device, physicalDevice.presentFamilyIndex(), 0, &_presentQueue);
+  vkGetDeviceQueue(_device, physicalDevice.queueFamilies().graphicsIndex(), 0, &_graphicsQueue);
+  vkGetDeviceQueue(_device, physicalDevice.queueFamilies().presentIndex(), 0, &_presentQueue);
 }
 
 void Device::destroy() {

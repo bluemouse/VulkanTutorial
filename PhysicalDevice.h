@@ -12,12 +12,15 @@ class Instance;
 class PhysicalDevice {
 public:
   struct QueueFamilies {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
+    std::optional<uint32_t> graphics;
+    std::optional<uint32_t> compute;
+    std::optional<uint32_t> transfer;
+    std::optional<uint32_t> present;
 
-    bool isComplete() {
-      return graphicsFamily.has_value() && presentFamily.has_value();
-    }
+    uint32_t graphicsIndex() const { return graphics.value(); }
+    uint32_t computeIndex() const { return compute.value(); }
+    uint32_t transferIndex() const { return transfer.value(); }
+    uint32_t presentIndex() const { return present.value(); }
   };
 
   struct SwapChainSupportDetails {
@@ -33,16 +36,14 @@ public:
                    [](VkPhysicalDevice) -> bool { return true; });
   ~PhysicalDevice();
 
-  void create(const Instance& instance,
-            const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable =
-              [](VkPhysicalDevice) -> bool { return true; });
-  void initQueueFamilies();
-  void destroy();
+  void instantiate(const Instance& instance,
+                   const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable =
+                     [](VkPhysicalDevice) -> bool { return true; });
+  void reset();
 
   operator VkPhysicalDevice() const { return _device; }
 
-  uint32_t graphicsFamilyIndex() const { return _queueFamilies.graphicsFamily.value(); }
-  uint32_t presentFamilyIndex() const { return _queueFamilies.presentFamily.value(); }
+  const QueueFamilies& queueFamilies() const { return _queueFamilies; }
 
   const Instance& instance() const { return *_instance; }
 

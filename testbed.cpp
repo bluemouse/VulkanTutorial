@@ -236,7 +236,7 @@ private:
     _commandBuffers.clear();
     _commandPool.destroy();
     _device.destroy();
-    _physicalDevice.destroy();
+    _physicalDevice.reset();
     _instance.destroy();
 
     glfwDestroyWindow(window);
@@ -274,8 +274,7 @@ private:
   }
 
   void pickPhysicalDevice() {
-    _physicalDevice.create(_instance, [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
-    _physicalDevice.initQueueFamilies();
+    _physicalDevice.instantiate(_instance, [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
   }
 
   void createLogicalDevice() {
@@ -335,7 +334,7 @@ private:
   }
 
   void createCommandPool() {
-    _commandPool.create(_device, _physicalDevice.graphicsFamilyIndex());
+    _commandPool.create(_device, _physicalDevice.queueFamilies().graphicsIndex());
   }
 
   void createTextureImage() {
@@ -749,6 +748,7 @@ private:
 
   bool isDeviceSuitable(VkPhysicalDevice device) {
     auto queueFamilies = Vulkan::PhysicalDevice::findQueueFamilies(device, _instance.surface());
+    bool isQueueFamiliesComplete = queueFamilies.graphics && queueFamilies.present;
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);
 
@@ -762,7 +762,7 @@ private:
     VkPhysicalDeviceFeatures supportedFeatures;
     vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-    return queueFamilies.isComplete() && extensionsSupported && swapChainAdequate &&
+    return isQueueFamiliesComplete && extensionsSupported && swapChainAdequate &&
            supportedFeatures.samplerAnisotropy;
   }
 
