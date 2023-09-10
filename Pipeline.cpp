@@ -3,7 +3,7 @@
 #include "RenderPass.h"
 #include "ShaderModule.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
@@ -110,7 +110,7 @@ void Pipeline::create(const Device &device, const RenderPass& renderPass,
   pipelineLayoutInfo.setLayoutCount = 1;
   pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
-  MG_VERIFY_VKCMD(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &_layout));
+  MI_VERIFY_VKCMD(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &_layout));
 
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -128,7 +128,7 @@ void Pipeline::create(const Device &device, const RenderPass& renderPass,
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-  MG_VERIFY_VKCMD(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline));
+  MI_VERIFY_VKCMD(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline));
 }
 
 void Pipeline::destroy() {

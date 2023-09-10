@@ -1,7 +1,7 @@
 #include "StagingBuffer.h"
 #include "Device.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 #include <cstring>
 

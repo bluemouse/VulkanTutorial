@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "helpers_vulkan.h"
 #include "Instance.h"
 #include "PhysicalDevice.h"
 #include "Device.h"
@@ -260,13 +261,16 @@ private:
   }
 
   void createInstance() {
-    _instance.create(1, 0, getRequiredExtensions(), nullptr, enableValidationLayers);
+    uint32_t extensionCount = 0;
+    const char** extensions = glfwGetRequiredInstanceExtensions(&extensionCount);
+
+    // Create Vulkan 1.0 instance
+    _instance.create(1, 0, {extensions, extensions+extensionCount}, enableValidationLayers);
 
     VkSurfaceKHR surface;
-    if (glfwCreateWindowSurface(_instance, window, nullptr, &surface) != VK_SUCCESS) {
-      throw std::runtime_error("Failed to create window surface!");
-    }
-    _instance.initSurface(surface);
+    MI_VERIFY_VKCMD(glfwCreateWindowSurface(_instance, window, nullptr, &surface));
+
+    _instance.setSurface(surface);
   }
 
   void pickPhysicalDevice() {
@@ -779,16 +783,6 @@ private:
     }
 
     return requiredExtensions.empty();
-  }
-
-  std::vector<const char *> getRequiredExtensions() {
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    std::vector<const char*> extensions(glfwExtensions,
-                                        glfwExtensions + glfwExtensionCount);
-
-    return extensions;
   }
 };
 

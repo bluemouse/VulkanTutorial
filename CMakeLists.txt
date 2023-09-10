@@ -36,6 +36,7 @@ find_package(Vulkan REQUIRED COMPONENTS glslangValidator)
 set(MYVULKAN_SRC_FILES
   helpers_debug.h
   helpers_debug.cpp
+  helpers_vulkan.h
   Instance.cpp
   Instance.h
   PhysicalDevice.cpp
@@ -103,6 +104,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 target_include_directories(${PROJECT_NAME} PRIVATE ${STB_INCLUDE_DIR})
+target_compile_options(${PROJECT_NAME} PRIVATE -fmacro-prefix-map=${CMAKE_SOURCE_DIR}=.) # make __FILE__ relative to project root
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan glfw)
 
 set(SHADER_TARGET shader)

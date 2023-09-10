@@ -1,7 +1,7 @@
 #include "Device.h"
 #include "Instance.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 #include <set>
 
@@ -56,14 +56,13 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
 
   const auto& instance = physicalDevice.instance();
   if (instance.isValidationLayersEnabled()) {
-    createInfo.enabledLayerCount =
-        static_cast<uint32_t>(instance.validationLayers.size());
-    createInfo.ppEnabledLayerNames = instance.validationLayers.data();
+    createInfo.enabledLayerCount = static_cast<uint32_t>(instance.layers().size());
+    createInfo.ppEnabledLayerNames = instance.layers().data();
   } else {
     createInfo.enabledLayerCount = 0;
   }
 
-  MG_VERIFY_VKCMD(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
+  MI_VERIFY_VKCMD(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
 
   vkGetDeviceQueue(_device, physicalDevice.graphicsFamilyIndex(), 0, &_graphicsQueue);
   vkGetDeviceQueue(_device, physicalDevice.presentFamilyIndex(), 0, &_presentQueue);

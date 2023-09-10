@@ -1,7 +1,7 @@
 #include "PhysicalDevice.h"
 #include "Instance.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 #include <vector>
 

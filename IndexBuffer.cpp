@@ -1,6 +1,6 @@
 #include "IndexBuffer.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 using namespace Vulkan;
 

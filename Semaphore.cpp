@@ -1,7 +1,7 @@
 #include "Semaphore.h"
 #include "Device.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
@@ -24,7 +24,7 @@ void Semaphore::create(const Device& device) {
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-  MG_VERIFY_VKCMD(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_semaphore));
+  MI_VERIFY_VKCMD(vkCreateSemaphore(device, &semaphoreInfo, nullptr, &_semaphore));
 }
 
 void Semaphore::destroy() {

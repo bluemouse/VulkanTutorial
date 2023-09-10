@@ -4,7 +4,7 @@
 #include "ImageView.h"
 #include "RenderPass.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
@@ -22,7 +22,7 @@ Framebuffer::Framebuffer(const Device& device, const RenderPass& renderPass,
   framebufferInfo.height = imageView.image().height();
   framebufferInfo.layers = 1;
 
-  MG_VERIFY_VKCMD(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &_buffer));
+  MI_VERIFY_VKCMD(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &_buffer));
 }
 
 Framebuffer::~Framebuffer() {

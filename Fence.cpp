@@ -1,7 +1,7 @@
 #include "Fence.h"
 #include "Device.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
@@ -25,7 +25,7 @@ void Fence::create(const Device& device) {
   fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-  MG_VERIFY_VKCMD(vkCreateFence(device, &fenceInfo, nullptr, &_fence));
+  MI_VERIFY_VKCMD(vkCreateFence(device, &fenceInfo, nullptr, &_fence));
 }
 
 void Fence::destroy() {

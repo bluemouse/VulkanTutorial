@@ -2,7 +2,7 @@
 #include "Device.h"
 #include "Image.h"
 
-#include "helpers_vkdebug.h"
+#include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
@@ -34,7 +34,7 @@ void ImageView::create(const Device& device, const Image& image) {
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = 1;
 
-  MG_VERIFY_VKCMD(vkCreateImageView(*_device, &viewInfo, nullptr, &_view));
+  MI_VERIFY_VKCMD(vkCreateImageView(*_device, &viewInfo, nullptr, &_view));
 }
 
 void ImageView::destroy() {
