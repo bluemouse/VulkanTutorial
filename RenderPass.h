@@ -7,7 +7,7 @@ namespace Vulkan {
 class Device;
 
 class RenderPass {
-public:
+ public:
   RenderPass() = default;
   RenderPass(const Device& device, VkFormat format);
   ~RenderPass();
@@ -17,10 +17,10 @@ public:
 
   operator VkRenderPass() const { return _renderPass; }
 
-private:
+ private:
   VkRenderPass _renderPass = VK_NULL_HANDLE;
 
   const Device* _device;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

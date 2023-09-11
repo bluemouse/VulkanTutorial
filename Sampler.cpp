@@ -1,12 +1,11 @@
 #include "Sampler.h"
-#include "Device.h"
 
+#include "Device.h"
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
-Sampler::Sampler(const Device& device,
-                 VkFilter magFilter, VkFilter minFilter,
+Sampler::Sampler(const Device& device, VkFilter magFilter, VkFilter minFilter,
                  VkSamplerAddressMode mode) {
   create(device, magFilter, minFilter, mode);
 }
@@ -17,9 +16,8 @@ Sampler::~Sampler() {
   }
 }
 
-void Sampler::create(const Device& device,
-                   VkFilter magFilter, VkFilter minFilter,
-                   VkSamplerAddressMode mode) {
+void Sampler::create(const Device& device, VkFilter magFilter, VkFilter minFilter,
+                     VkSamplerAddressMode mode) {
   if (_sampler != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan sampler has been initialized already!");
   }

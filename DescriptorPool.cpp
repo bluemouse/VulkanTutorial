@@ -1,12 +1,12 @@
 #include "DescriptorPool.h"
-#include "Device.h"
 
+#include "Device.h"
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
-DescriptorPool::DescriptorPool(const Device& device,
-                               std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets) {
+DescriptorPool::DescriptorPool(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes,
+                               uint32_t maxSets) {
   create(device, poolSizes, maxSets);
 }
 
@@ -16,8 +16,8 @@ DescriptorPool::~DescriptorPool() {
   }
 }
 
-void DescriptorPool::create(const Device& device,
-                            std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets) {
+void DescriptorPool::create(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes,
+                            uint32_t maxSets) {
   if (_pool != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan descriptor pool has been initialized already!");
   }

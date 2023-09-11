@@ -9,7 +9,7 @@ namespace Vulkan {
 class Device;
 
 class IndexBuffer : private Buffer {
-public:
+ public:
   IndexBuffer() = default;
   IndexBuffer(const Device& device, size_t size);
 
@@ -25,4 +25,4 @@ public:
   using Buffer::size;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

@@ -1,9 +1,9 @@
 #include "Framebuffer.h"
+
 #include "Device.h"
 #include "Image.h"
 #include "ImageView.h"
 #include "RenderPass.h"
-
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
@@ -11,7 +11,7 @@ using namespace Vulkan;
 Framebuffer::Framebuffer(const Device& device, const RenderPass& renderPass,
                          const ImageView& imageView)
     : _device(&device), _renderPass(&renderPass), _imageView(&imageView) {
-  VkImageView attachments[] = { imageView };
+  VkImageView attachments[] = {imageView};
 
   VkFramebufferCreateInfo framebufferInfo{};
   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

@@ -1,6 +1,6 @@
 #include "DescriptorSetLayout.h"
-#include "Device.h"
 
+#include "Device.h"
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
@@ -17,7 +17,7 @@ DescriptorSetLayout::~DescriptorSetLayout() {
 }
 
 void DescriptorSetLayout::create(const Device& device,
-                               std::vector<VkDescriptorSetLayoutBinding> bindings) {
+                                 std::vector<VkDescriptorSetLayoutBinding> bindings) {
   if (_layout != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan descriptor set layout has been initialized already!");
   }

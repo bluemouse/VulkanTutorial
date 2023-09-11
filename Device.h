@@ -7,7 +7,7 @@
 namespace Vulkan {
 
 class Device {
-public:
+ public:
   Device() = default;
   Device(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions = {});
   ~Device();
@@ -23,7 +23,7 @@ public:
   VkQueue graphicsQueue() const { return _graphicsQueue; }
   VkQueue presentQueue() const { return _presentQueue; }
 
-private:
+ private:
   VkDevice _device = VK_NULL_HANDLE;
 
   VkQueue _graphicsQueue = VK_NULL_HANDLE;

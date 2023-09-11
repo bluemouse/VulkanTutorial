@@ -1,16 +1,16 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
 #include <functional>
 #include <optional>
-
-#include <vulkan/vulkan.h>
 
 namespace Vulkan {
 
 class Instance;
 
 class PhysicalDevice {
-public:
+ public:
   struct QueueFamilies {
     std::optional<uint32_t> graphics;
     std::optional<uint32_t> compute;
@@ -29,16 +29,14 @@ public:
     std::vector<VkPresentModeKHR> presentModes;
   };
 
-public:
+  using IsDeviceSuitablePredicate = std::function<bool(VkPhysicalDevice)>;
+
+ public:
   PhysicalDevice() = default;
-  PhysicalDevice(const Instance& instance,
-                 const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable =
-                   [](VkPhysicalDevice) -> bool { return true; });
+  PhysicalDevice(const Instance& instance, const IsDeviceSuitablePredicate& isDeviceSuitable);
   ~PhysicalDevice();
 
-  void instantiate(const Instance& instance,
-                   const std::function<bool(VkPhysicalDevice)>& isDeviceSuitable =
-                     [](VkPhysicalDevice) -> bool { return true; });
+  void instantiate(const Instance& instance, const IsDeviceSuitablePredicate& isDeviceSuitable);
   void reset();
 
   operator VkPhysicalDevice() const { return _device; }
@@ -48,12 +46,13 @@ public:
   const Instance& instance() const { return *_instance; }
 
   static QueueFamilies findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-  static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
+  static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
+                                                       VkSurfaceKHR surface);
 
-private:
+ private:
   bool isDeviceSuitable(VkPhysicalDevice device);
 
-private:
+ private:
   VkPhysicalDevice _device = VK_NULL_HANDLE;
   QueueFamilies _queueFamilies;
 

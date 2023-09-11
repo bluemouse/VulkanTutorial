@@ -1,10 +1,10 @@
 #include "CommandBuffer.h"
-#include "Device.h"
+
 #include "CommandPool.h"
+#include "Device.h"
 #include "Framebuffer.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
-
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
@@ -49,7 +49,8 @@ void CommandBuffer::free() {
   _pool = nullptr;
 }
 
-void CommandBuffer::recordCommand(const std::function<void(const CommandBuffer& buffer)>& command) const {
+void CommandBuffer::recordCommand(
+    const std::function<void(const CommandBuffer& buffer)>& command) const {
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   MI_VERIFY_VKCMD(vkBeginCommandBuffer(_buffer, &beginInfo));
@@ -83,7 +84,8 @@ void CommandBuffer::executeCommand(const std::function<void(const CommandBuffer&
   MI_VERIFY_VKCMD(vkQueueSubmit(queue, 1, &submitInfo, fence));
 }
 
-void CommandBuffer::recordSingleTimeCommand(const std::function<void(const CommandBuffer&)>& command) const {
+void CommandBuffer::recordSingleTimeCommand(
+    const std::function<void(const CommandBuffer&)>& command) const {
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -95,7 +97,8 @@ void CommandBuffer::recordSingleTimeCommand(const std::function<void(const Comma
   MI_VERIFY_VKCMD(vkEndCommandBuffer(_buffer));
 }
 
-void CommandBuffer::executeSingleTimeCommand(const std::function<void(const CommandBuffer&)>& command, bool blocking) const {
+void CommandBuffer::executeSingleTimeCommand(
+    const std::function<void(const CommandBuffer&)>& command, bool blocking) const {
   recordSingleTimeCommand(command);
 
   VkSubmitInfo submitInfo{};

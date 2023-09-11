@@ -7,18 +7,18 @@ namespace Vulkan {
 class Device;
 
 class Buffer {
-public:
+ public:
   Buffer() = default;
-  Buffer(const Device& device, size_t size,
-         VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+  Buffer(const Device& device, size_t size, VkBufferUsageFlags usage,
+         VkMemoryPropertyFlags properties);
   virtual ~Buffer();
 
   // Transfer the ownership from `rhs` to `this`
   Buffer(const Buffer& rhs);
   Buffer& operator=(const Buffer& rhs);
 
-  void allocate(const Device& device, size_t size,
-                VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+  void allocate(const Device& device, size_t size, VkBufferUsageFlags usage,
+                VkMemoryPropertyFlags properties);
   void free();
 
   void* map();
@@ -31,11 +31,11 @@ public:
   size_t size() const { return _size; }
   bool isAllocated() const { return _buffer != VK_NULL_HANDLE; }
 
-private:
+ private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
   void moveFrom(Buffer& rhs);
 
-protected:
+ protected:
   const Device* _device;
 
   VkBuffer _buffer = VK_NULL_HANDLE;
@@ -44,4 +44,4 @@ protected:
   size_t _size = 0; // in bytes
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

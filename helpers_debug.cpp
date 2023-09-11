@@ -1,14 +1,14 @@
 #include "helpers_debug.h"
 
-#include <iostream>
-#include <cassert>
-#include <cstring>
-#include <stdio.h>
-#include <stdarg.h>
-
 #include <execinfo.h>
 #include <signal.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <unistd.h>
+
+#include <cassert>
+#include <cstring>
+#include <iostream>
 
 using std::cerr;
 using std::endl;
@@ -16,8 +16,7 @@ using std::strlen;
 
 namespace __helpers_debug__ {
 
-void not_tested(const char* func, const char* file, int line)
-{
+void not_tested(const char* func, const char* file, int line) {
 #ifdef _NDEBUG
   log("ERROR", "%s [file(ln): %s(%d)] is not tested", func, file, line);
 #else
@@ -25,17 +24,15 @@ void not_tested(const char* func, const char* file, int line)
 #endif
 }
 
-void not_implemented(const char* func, const char* file, int line)
-{
+void not_implemented(const char* func, const char* file, int line) {
   cerr << "Error: " << func << " is not implemented!" << endl
-       << "  File(Line): " << file << " ("<< line << ")" << endl;
+       << "  File(Line): " << file << " (" << line << ")" << endl;
 #ifndef _NDEBUG
   abort();
 #endif
 }
 
-void assertion_fail(const char* expr, const char* file, int line, const char* msg, ...)
-{
+void assertion_fail(const char* expr, const char* file, int line, const char* msg, ...) {
   cerr << "Error: assertion violation!" << endl
        << "  Condition: " << expr << endl
        << "  File(Line): " << file << " (" << line << ")" << endl;
@@ -54,8 +51,7 @@ void assertion_fail(const char* expr, const char* file, int line, const char* ms
   abort();
 }
 
-void warning_fail(const char* expr, const char* file, int line, const char* msg, ...)
-{
+void warning_fail(const char* expr, const char* file, int line, const char* msg, ...) {
   cerr << "Warning: check violation!" << endl
        << "  Condition: " << expr << endl
        << "  File(Line): " << file << " (" << line << ")" << endl;
@@ -72,8 +68,7 @@ void warning_fail(const char* expr, const char* file, int line, const char* msg,
   }
 }
 
-void log(const char* tag, const char* msg, ...)
-{
+void log(const char* tag, const char* msg, ...) {
   size_t msg_len = strlen(msg) + 160;
   char* buffer = new char[msg_len];
   va_list args;
@@ -87,8 +82,7 @@ void log(const char* tag, const char* msg, ...)
   delete[] buffer;
 }
 
-void log(const char* file, int line, const char* tag, const char* msg, ...)
-{
+void log(const char* file, int line, const char* tag, const char* msg, ...) {
   size_t msg_len = strlen(msg) + 160;
   char* buffer = new char[msg_len];
   va_list args;
@@ -101,9 +95,8 @@ void log(const char* file, int line, const char* tag, const char* msg, ...)
   delete[] buffer;
 }
 
-void log_backtraces()
-{
-  void *array[10];
+void log_backtraces() {
+  void* array[10];
   size_t num_traces = backtrace(array, 10);
   char** traces = backtrace_symbols(array, num_traces);
   for (size_t i = 0; i < num_traces; ++i) {
@@ -112,4 +105,4 @@ void log_backtraces()
   free(traces);
 }
 
-} //namespace __helpers_debug__
+} // namespace __helpers_debug__

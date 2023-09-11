@@ -8,7 +8,7 @@ class Device;
 class Image;
 
 class ImageView {
-public:
+ public:
   ImageView() = default;
   ImageView(const Device& device, const Image& image);
   ~ImageView();
@@ -20,11 +20,11 @@ public:
 
   const Image& image() const { return *_image; }
 
-private:
+ private:
   VkImageView _view = VK_NULL_HANDLE;
 
   const Device* _device = nullptr;
   const Image* _image = nullptr;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

@@ -9,7 +9,7 @@ class RenderPass;
 class ImageView;
 
 class Framebuffer {
-public:
+ public:
   Framebuffer(const Device& device, const RenderPass& renderPass, const ImageView& imageView);
   ~Framebuffer();
 
@@ -17,7 +17,7 @@ public:
 
   VkExtent2D extent() const;
 
-private:
+ private:
   VkFramebuffer _buffer = VK_NULL_HANDLE;
 
   const Device* _device;
@@ -25,4 +25,4 @@ private:
   const ImageView* _imageView;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

@@ -7,7 +7,7 @@ namespace Vulkan {
 class Device;
 
 class Semaphore {
-public:
+ public:
   Semaphore() = default;
   explicit Semaphore(const Device& device);
   ~Semaphore();
@@ -18,10 +18,10 @@ public:
   operator VkSemaphore() const { return _semaphore; }
   operator const VkSemaphore*() const { return &_semaphore; }
 
-private:
+ private:
   VkSemaphore _semaphore = VK_NULL_HANDLE;
 
   const Device* _device;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

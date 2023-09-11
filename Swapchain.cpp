@@ -1,17 +1,20 @@
 #include "Swapchain.h"
+
+#include "Device.h"
 #include "Instance.h"
 #include "PhysicalDevice.h"
-#include "Device.h"
 #include "RenderPass.h"
-
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
-Swapchain::Swapchain(const Device &device,
-            const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
-            const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
-            const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
+Swapchain::Swapchain(
+    const Device& device,
+    const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
+        chooseSwapSurfaceFormat,
+    const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
+        chooseSwapPresentMode,
+    const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
   create(device, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
 }
 
@@ -21,10 +24,13 @@ Swapchain::~Swapchain() {
   }
 }
 
-void Swapchain::create(const Device &device,
-                     const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>& chooseSwapSurfaceFormat,
-                     const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>& chooseSwapPresentMode,
-                     const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
+void Swapchain::create(
+    const Device& device,
+    const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
+        chooseSwapSurfaceFormat,
+    const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
+        chooseSwapPresentMode,
+    const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
   if (_swapchain != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan swap chain has been initialized already!");
   }
@@ -36,10 +42,8 @@ void Swapchain::create(const Device &device,
   PhysicalDevice::SwapChainSupportDetails swapChainSupport =
       PhysicalDevice::querySwapChainSupport(physicalDevice, surface);
 
-  VkSurfaceFormatKHR surfaceFormat =
-      chooseSwapSurfaceFormat(swapChainSupport.formats);
-  VkPresentModeKHR presentMode =
-      chooseSwapPresentMode(swapChainSupport.presentModes);
+  VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+  VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
   VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
   uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
@@ -68,7 +72,7 @@ void Swapchain::create(const Device &device,
     createInfo.pQueueFamilyIndices = queueFamilyIndices;
   } else {
     createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    createInfo.queueFamilyIndexCount = 0; // Optional
+    createInfo.queueFamilyIndexCount = 0;     // Optional
     createInfo.pQueueFamilyIndices = nullptr; // Optional
   }
 

@@ -1,20 +1,18 @@
 #include "Pipeline.h"
+
 #include "Device.h"
 #include "RenderPass.h"
 #include "ShaderModule.h"
-
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
-Pipeline::Pipeline(const Device &device, const RenderPass& renderPass,
-                   const Shader &vertShader, const Shader &fragShader,
-                   VkVertexInputBindingDescription bindingDescription,
+Pipeline::Pipeline(const Device &device, const RenderPass &renderPass, const Shader &vertShader,
+                   const Shader &fragShader, VkVertexInputBindingDescription bindingDescription,
                    std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
                    VkDescriptorSetLayout descriptorSetLayout) {
-  create(device, renderPass,
-      vertShader, fragShader,
-      bindingDescription, attributeDescriptions, descriptorSetLayout);
+  create(device, renderPass, vertShader, fragShader, bindingDescription, attributeDescriptions,
+         descriptorSetLayout);
 }
 
 Pipeline::~Pipeline() {
@@ -23,11 +21,10 @@ Pipeline::~Pipeline() {
   }
 }
 
-void Pipeline::create(const Device &device, const RenderPass& renderPass,
-                    const Shader &vertShader, const Shader &fragShader,
-                    VkVertexInputBindingDescription bindingDescription,
-                    std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-                    VkDescriptorSetLayout descriptorSetLayout) {
+void Pipeline::create(const Device &device, const RenderPass &renderPass, const Shader &vertShader,
+                      const Shader &fragShader, VkVertexInputBindingDescription bindingDescription,
+                      std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
+                      VkDescriptorSetLayout descriptorSetLayout) {
   if (_pipeline != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan pipeline has been initialized already!");
   }
@@ -45,14 +42,14 @@ void Pipeline::create(const Device &device, const RenderPass& renderPass,
   fragShaderStageInfo.module = fragShader.module;
   fragShaderStageInfo.pName = fragShader.entry;
 
-  VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo,
-                                                    fragShaderStageInfo};
+  VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
   vertexInputInfo.vertexBindingDescriptionCount = 1;
-  vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+  vertexInputInfo.vertexAttributeDescriptionCount =
+      static_cast<uint32_t>(attributeDescriptions.size());
   vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
   vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
@@ -82,9 +79,8 @@ void Pipeline::create(const Device &device, const RenderPass& renderPass,
   multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
   VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-  colorBlendAttachment.colorWriteMask =
-      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-      VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+  colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
   colorBlendAttachment.blendEnable = VK_FALSE;
 
   VkPipelineColorBlendStateCreateInfo colorBlending{};
@@ -98,8 +94,7 @@ void Pipeline::create(const Device &device, const RenderPass& renderPass,
   colorBlending.blendConstants[2] = 0.0f;
   colorBlending.blendConstants[3] = 0.0f;
 
-  std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
-                                               VK_DYNAMIC_STATE_SCISSOR};
+  std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
   VkPipelineDynamicStateCreateInfo dynamicState{};
   dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
   dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
@@ -128,7 +123,8 @@ void Pipeline::create(const Device &device, const RenderPass& renderPass,
   pipelineInfo.subpass = 0;
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-  MI_VERIFY_VKCMD(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline));
+  MI_VERIFY_VKCMD(
+      vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline));
 }
 
 void Pipeline::destroy() {

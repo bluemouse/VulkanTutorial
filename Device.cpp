@@ -1,13 +1,13 @@
 #include "Device.h"
-#include "Instance.h"
-
-#include "helpers_vulkan.h"
 
 #include <set>
 
+#include "Instance.h"
+#include "helpers_vulkan.h"
+
 using namespace Vulkan;
 
-Device::Device(const PhysicalDevice &physicalDevice, std::vector<const char*> extensions) {
+Device::Device(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
   create(physicalDevice, extensions);
 }
 
@@ -26,10 +26,8 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   float queuePriority = 1.0f;
 
-  std::set<uint32_t> uniqueQueueFamilies = {
-      physicalDevice.queueFamilies().graphicsIndex(),
-      physicalDevice.queueFamilies().presentIndex()
-  };
+  std::set<uint32_t> uniqueQueueFamilies = {physicalDevice.queueFamilies().graphicsIndex(),
+                                            physicalDevice.queueFamilies().presentIndex()};
   for (uint32_t queueFamily : uniqueQueueFamilies) {
     VkDeviceQueueCreateInfo queueCreateInfo{};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -45,8 +43,7 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
   VkDeviceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-  createInfo.queueCreateInfoCount =
-      static_cast<uint32_t>(queueCreateInfos.size());
+  createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
   createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
   createInfo.pEnabledFeatures = &deviceFeatures;

@@ -9,7 +9,7 @@ namespace Vulkan {
 class Device;
 
 class DescriptorSetLayout {
-public:
+ public:
   DescriptorSetLayout() = default;
   DescriptorSetLayout(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
   ~DescriptorSetLayout();
@@ -20,10 +20,10 @@ public:
   operator VkDescriptorSetLayout() const { return _layout; }
   operator const VkDescriptorSetLayout*() const { return &_layout; }
 
-private:
+ private:
   VkDescriptorSetLayout _layout = VK_NULL_HANDLE;
 
   const Device* _device = nullptr;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

@@ -11,35 +11,34 @@ class RenderPass;
 class ShaderModule;
 
 class Pipeline {
-public:
+ public:
   struct Shader {
     const ShaderModule& module;
     const char* entry;
   };
-public:
+
+ public:
   Pipeline() = default;
-  Pipeline(const Device& device, const RenderPass& renderPass,
-           const Shader& vertShader, const Shader& fragShader,
-           VkVertexInputBindingDescription bindingDescription,
+  Pipeline(const Device& device, const RenderPass& renderPass, const Shader& vertShader,
+           const Shader& fragShader, VkVertexInputBindingDescription bindingDescription,
            std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
            VkDescriptorSetLayout descriptorSetLayout);
   ~Pipeline();
 
-  void create(const Device& device, const RenderPass& renderPass,
-            const Shader& vertShader, const Shader& fragShader,
-            VkVertexInputBindingDescription bindingDescription,
-            std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-            VkDescriptorSetLayout descriptorSetLayout);
+  void create(const Device& device, const RenderPass& renderPass, const Shader& vertShader,
+              const Shader& fragShader, VkVertexInputBindingDescription bindingDescription,
+              std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
+              VkDescriptorSetLayout descriptorSetLayout);
   void destroy();
 
   operator VkPipeline() const { return _pipeline; }
   VkPipelineLayout layout() const { return _layout; }
 
-private:
+ private:
   VkPipeline _pipeline = VK_NULL_HANDLE;
   VkPipelineLayout _layout;
 
   const Device* _device = nullptr;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

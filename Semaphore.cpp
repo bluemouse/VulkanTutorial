@@ -1,6 +1,6 @@
 #include "Semaphore.h"
-#include "Device.h"
 
+#include "Device.h"
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;

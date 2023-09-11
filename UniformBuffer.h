@@ -9,7 +9,7 @@ namespace Vulkan {
 class Device;
 
 class UniformBuffer : private Buffer {
-public:
+ public:
   UniformBuffer() = default;
   UniformBuffer(const Device& device, size_t size);
 
@@ -30,4 +30,4 @@ public:
   using Buffer::size;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

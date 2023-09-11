@@ -1,19 +1,20 @@
 #include "Instance.h"
-#include "helpers_vulkan.h"
 
 #include <cstring>
 #include <iostream>
 
+#include "helpers_vulkan.h"
+
 using namespace Vulkan;
 
-Instance::Instance(const AppInfoOverride& appInfoOverride,
-                   const InstanceCreateInfoOverride& instanceCreateInfoOverride,
-                   const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride) {
+Instance::Instance(
+    const AppInfoOverride& appInfoOverride,
+    const InstanceCreateInfoOverride& instanceCreateInfoOverride,
+    const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride) {
   create(appInfoOverride, instanceCreateInfoOverride, debugUtilsMessengerCreateInfoOverride);
 }
 
-Instance::Instance(int versionMajor, int versionMinor,
-                   std::vector<const char*> extensions,
+Instance::Instance(int versionMajor, int versionMinor, std::vector<const char*> extensions,
                    bool enableValidation) {
   create(versionMajor, versionMinor, extensions, enableValidation);
 }
@@ -24,10 +25,10 @@ Instance::~Instance() {
   }
 }
 
-void Instance::create(const AppInfoOverride& appInfoOverride,
-                      const InstanceCreateInfoOverride& instanceCreateInfoOverride,
-                      const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride) {
-
+void Instance::create(
+    const AppInfoOverride& appInfoOverride,
+    const InstanceCreateInfoOverride& instanceCreateInfoOverride,
+    const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride) {
   MI_VERIFY(_instance == VK_NULL_HANDLE);
 
   if (debugUtilsMessengerCreateInfoOverride) {
@@ -63,19 +64,19 @@ void Instance::create(const AppInfoOverride& appInfoOverride,
   VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
   if (debugUtilsMessengerCreateInfoOverride) {
     debugUtilsMessengerCreateInfoOverride(&debugCreateInfo);
-    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
+    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
   }
 
   MI_VERIFY_VKCMD(vkCreateInstance(&createInfo, nullptr, &_instance));
 
   if (debugUtilsMessengerCreateInfoOverride) {
     MI_INIT_VKPROC(vkCreateDebugUtilsMessengerEXT);
-    MI_VERIFY_VKCMD(vkCreateDebugUtilsMessengerEXT(_instance, &debugCreateInfo, nullptr, &_debugMessenger));
+    MI_VERIFY_VKCMD(
+        vkCreateDebugUtilsMessengerEXT(_instance, &debugCreateInfo, nullptr, &_debugMessenger));
   }
 }
 
-void Instance::create(int versionMajor, int versionMinor,
-                      std::vector<const char*> extensions,
+void Instance::create(int versionMajor, int versionMinor, std::vector<const char*> extensions,
                       bool enableValidation) {
   MI_VERIFY(_instance == VK_NULL_HANDLE);
 
@@ -142,7 +143,7 @@ bool Instance::checkLayerSupport(const std::vector<const char*>& layers) const {
 
   for (auto layer : layers) {
     bool layerFound = false;
-    for (const auto &layerProperties : availableLayers) {
+    for (const auto& layerProperties : availableLayers) {
       if (strcmp(layer, layerProperties.layerName) == 0) {
         layerFound = true;
         break;
@@ -200,7 +201,6 @@ void Instance::initDefaultDebugCallback() {
 
     return VK_FALSE;
   };
-
 }
 
 void Instance::setDebugCallback(const DebugCallback& callback) {
@@ -211,10 +211,10 @@ void Instance::setDebugCallback(const DebugCallback& callback) {
   }
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL Instance::VkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                         void* pUserData) {
+VKAPI_ATTR VkBool32 VKAPI_CALL Instance::VkDebugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
   Instance* instance = static_cast<Instance*>(pUserData);
   return instance->_debugCallback(messageSeverity, messageType, pCallbackData);
 }

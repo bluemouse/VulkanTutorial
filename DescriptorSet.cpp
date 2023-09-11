@@ -1,9 +1,8 @@
 #include "DescriptorSet.h"
 
-#include "Device.h"
 #include "DescriptorPool.h"
 #include "DescriptorSetLayout.h"
-
+#include "Device.h"
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
@@ -38,8 +37,9 @@ void DescriptorSet::free() {
     throw std::runtime_error("Vulkan null descriptor set cannot be freed!");
   }
 
-  //TODO: Can only call free() if _pool is created with VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT.
-  // vkFreeDescriptorSets(_pool->device(), *_pool, 1, &_set);
+  // TODO: Can only call free() if _pool is created with
+  // VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT.
+  //  vkFreeDescriptorSets(_pool->device(), *_pool, 1, &_set);
 
   _set = VK_NULL_HANDLE;
   _pool = nullptr;

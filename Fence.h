@@ -7,7 +7,7 @@ namespace Vulkan {
 class Device;
 
 class Fence {
-public:
+ public:
   Fence() = default;
   explicit Fence(const Device& device);
   ~Fence();
@@ -18,10 +18,10 @@ public:
   operator VkFence() const { return _fence; }
   operator const VkFence*() const { return &_fence; }
 
-private:
+ private:
   VkFence _fence = VK_NULL_HANDLE;
 
   const Device* _device;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

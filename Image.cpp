@@ -1,6 +1,6 @@
 #include "Image.h"
-#include "Device.h"
 
+#include "Device.h"
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
@@ -10,7 +10,7 @@ Image::Image(const Device& device, VkFormat format, VkExtent2D extent) {
 }
 
 Image::Image(VkImage image, VkFormat format, VkExtent2D extent)
-: _image(image), _format(format), _extent(extent) {
+    : _image(image), _format(format), _extent(extent) {
 }
 
 Image::~Image() {
@@ -97,8 +97,7 @@ void Image::moveFrom(Image& rhs) {
   }
 }
 
-uint32_t Image::findMemoryType(uint32_t typeFilter,
-                               VkMemoryPropertyFlags properties) const {
+uint32_t Image::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const {
   VkPhysicalDeviceMemoryProperties memProperties;
   vkGetPhysicalDeviceMemoryProperties(_device->physicalDevice(), &memProperties);
 

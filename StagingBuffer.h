@@ -9,7 +9,7 @@ namespace Vulkan {
 class Device;
 
 class StagingBuffer : private Buffer {
-public:
+ public:
   StagingBuffer() = default;
   StagingBuffer(const Device& device, size_t size);
 
@@ -28,4 +28,4 @@ public:
   using Buffer::size;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

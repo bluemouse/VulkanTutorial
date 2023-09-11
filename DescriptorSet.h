@@ -8,7 +8,7 @@ class DescriptorPool;
 class DescriptorSetLayout;
 
 class DescriptorSet {
-public:
+ public:
   DescriptorSet() = default;
   DescriptorSet(const DescriptorPool& pool, const DescriptorSetLayout& layout);
   ~DescriptorSet();
@@ -19,10 +19,10 @@ public:
   operator VkDescriptorSet() const { return _set; }
   operator const VkDescriptorSet*() const { return &_set; }
 
-private:
+ private:
   VkDescriptorSet _set = VK_NULL_HANDLE;
 
   const DescriptorPool* _pool = nullptr;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

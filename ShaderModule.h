@@ -7,16 +7,16 @@ namespace Vulkan {
 class Device;
 
 class ShaderModule {
-public:
+ public:
   ShaderModule(const Device& device, const char* shaderFile);
   ~ShaderModule();
 
   operator VkShaderModule() const { return _shader; }
 
-private:
+ private:
   VkShaderModule _shader = VK_NULL_HANDLE;
 
   const Device* _device;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

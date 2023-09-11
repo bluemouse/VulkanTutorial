@@ -1,12 +1,12 @@
 #include "Buffer.h"
-#include "Device.h"
 
+#include "Device.h"
 #include "helpers_vulkan.h"
 
 using namespace Vulkan;
 
-Buffer::Buffer(const Device& device, size_t size,
-               VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) {
+Buffer::Buffer(const Device& device, size_t size, VkBufferUsageFlags usage,
+               VkMemoryPropertyFlags properties) {
   allocate(device, size, usage, properties);
 }
 
@@ -40,8 +40,8 @@ void Buffer::moveFrom(Buffer& rhs) {
   }
 }
 
-void Buffer::allocate(const Device& device, size_t size,
-                      VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) {
+void Buffer::allocate(const Device& device, size_t size, VkBufferUsageFlags usage,
+                      VkMemoryPropertyFlags properties) {
   if (isAllocated()) {
     throw std::runtime_error("Vulkan buffer has been allocated already!");
   }
@@ -97,8 +97,7 @@ void Buffer::unmap() {
   vkUnmapMemory(*_device, _memory);
 }
 
-uint32_t Buffer::findMemoryType(uint32_t typeFilter,
-                                VkMemoryPropertyFlags properties) const {
+uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const {
   VkPhysicalDeviceMemoryProperties memProperties;
   vkGetPhysicalDeviceMemoryProperties(_device->physicalDevice(), &memProperties);
 

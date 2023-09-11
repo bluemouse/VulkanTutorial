@@ -9,9 +9,10 @@ namespace Vulkan {
 class Device;
 
 class DescriptorPool {
-public:
+ public:
   DescriptorPool() = default;
-  DescriptorPool(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets);
+  DescriptorPool(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes,
+                 uint32_t maxSets);
   ~DescriptorPool();
 
   void create(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets);
@@ -21,10 +22,10 @@ public:
 
   const Device& device() const { return *_device; }
 
-private:
+ private:
   VkDescriptorPool _pool = VK_NULL_HANDLE;
 
   const Device* _device = nullptr;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

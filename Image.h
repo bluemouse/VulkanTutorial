@@ -7,7 +7,7 @@ namespace Vulkan {
 class Device;
 
 class Image {
-public:
+ public:
   Image() = default;
   Image(const Device& device, VkFormat format, VkExtent2D extent);
   Image(VkImage image, VkFormat format, VkExtent2D extent);
@@ -28,15 +28,14 @@ public:
   Image(const Image& rhs);
   Image& operator=(const Image& rhs);
 
-
-private:
+ private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
   void moveFrom(Image& rhs);
 
   bool isOwner() const { return _memory != VK_NULL_HANDLE; }
   bool isAllocated() const { return isOwner() && _image != VK_NULL_HANDLE; }
 
-private:
+ private:
   VkImage _image = VK_NULL_HANDLE;
   VkDeviceMemory _memory = VK_NULL_HANDLE;
 
@@ -44,7 +43,6 @@ private:
   VkExtent2D _extent;
 
   const Device* _device;
-
 };
 
-} //namespace Vulkan
+} // namespace Vulkan

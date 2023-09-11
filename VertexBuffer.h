@@ -9,7 +9,7 @@ namespace Vulkan {
 class Device;
 
 class VertexBuffer : private Buffer {
-public:
+ public:
   VertexBuffer() = default;
   VertexBuffer(const Device& device, size_t size);
 
@@ -25,4 +25,4 @@ public:
   using Buffer::size;
 };
 
-} //namespace Vulkan
+} // namespace Vulkan
