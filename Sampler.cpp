@@ -1,13 +1,11 @@
 #include "Sampler.h"
 
 #include "Device.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
-Sampler::Sampler(const Device& device, VkFilter magFilter, VkFilter minFilter,
-                 VkSamplerAddressMode mode) {
-  create(device, magFilter, minFilter, mode);
+Sampler::Sampler(const Device& device, VkSamplerAddressMode addressMode, Filter filter) {
+  create(device, addressMode, filter);
 }
 
 Sampler::~Sampler() {
@@ -16,8 +14,7 @@ Sampler::~Sampler() {
   }
 }
 
-void Sampler::create(const Device& device, VkFilter magFilter, VkFilter minFilter,
-                     VkSamplerAddressMode mode) {
+void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Filter filter) {
   if (_sampler != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan sampler has been initialized already!");
   }
@@ -28,11 +25,11 @@ void Sampler::create(const Device& device, VkFilter magFilter, VkFilter minFilte
 
   VkSamplerCreateInfo samplerInfo{};
   samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-  samplerInfo.magFilter = magFilter;
-  samplerInfo.minFilter = minFilter;
-  samplerInfo.addressModeU = mode;
-  samplerInfo.addressModeV = mode;
-  samplerInfo.addressModeW = mode;
+  samplerInfo.magFilter = filter.mag;
+  samplerInfo.minFilter = filter.min;
+  samplerInfo.addressModeU = addressMode;
+  samplerInfo.addressModeV = addressMode;
+  samplerInfo.addressModeW = addressMode;
   samplerInfo.anisotropyEnable = VK_TRUE;
   samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
   samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
@@ -54,3 +51,5 @@ void Sampler::destroy() {
   _device = nullptr;
   _sampler = VK_NULL_HANDLE;
 }
+
+NAMESPACE_VULKAN_END

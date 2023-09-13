@@ -3,9 +3,8 @@
 #include <cstring>
 
 #include "Device.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 StagingBuffer::StagingBuffer(const Device& device, size_t size) {
   allocate(device, size);
@@ -21,3 +20,5 @@ void StagingBuffer::copyFromHost(const void* src, size_t size) {
   std::memcpy(data, src, size);
   unmap();
 }
+
+NAMESPACE_VULKAN_END

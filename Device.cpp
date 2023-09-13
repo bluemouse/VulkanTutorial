@@ -1,14 +1,14 @@
 #include "Device.h"
 
 #include <set>
+#include <utility>
 
 #include "Instance.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Device::Device(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
-  create(physicalDevice, extensions);
+  create(physicalDevice, std::move(extensions));
 }
 
 Device::~Device() {
@@ -73,3 +73,5 @@ void Device::destroy() {
   _device = VK_NULL_HANDLE;
   _physicalDevice = nullptr;
 }
+
+NAMESPACE_VULKAN_END

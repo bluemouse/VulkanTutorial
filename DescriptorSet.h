@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class DescriptorPool;
 class DescriptorSetLayout;
@@ -25,4 +27,4 @@ class DescriptorSet {
   const DescriptorPool* _pool = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

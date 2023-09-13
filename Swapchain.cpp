@@ -4,9 +4,8 @@
 #include "Instance.h"
 #include "PhysicalDevice.h"
 #include "RenderPass.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Swapchain::Swapchain(
     const Device& device,
@@ -36,7 +35,7 @@ void Swapchain::create(
   }
   _device = &device;
 
-  auto surface = device.instance().surface();
+  VkSurfaceKHR surface = device.instance().surface();
 
   const auto& physicalDevice = device.physicalDevice();
   PhysicalDevice::SwapChainSupportDetails swapChainSupport =
@@ -63,13 +62,13 @@ void Swapchain::create(
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-  uint32_t queueFamilyIndices[] = {physicalDevice.queueFamilies().graphicsIndex(),
-                                   physicalDevice.queueFamilies().presentIndex()};
+  std::array<uint32_t,2> queueFamilyIndices = {physicalDevice.queueFamilies().graphicsIndex(),
+                                               physicalDevice.queueFamilies().presentIndex()};
 
   if (queueFamilyIndices[0] != queueFamilyIndices[1]) {
     createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     createInfo.queueFamilyIndexCount = 2;
-    createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
   } else {
     createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     createInfo.queueFamilyIndexCount = 0;     // Optional
@@ -127,3 +126,5 @@ void Swapchain::destroy() {
   _swapchain = VK_NULL_HANDLE;
   _device = nullptr;
 }
+
+NAMESPACE_VULKAN_END

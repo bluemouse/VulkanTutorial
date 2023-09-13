@@ -5,7 +5,7 @@
 #include "Device.h"
 #include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 DescriptorSet::DescriptorSet(const DescriptorPool& pool, const DescriptorSetLayout& layout) {
   allocate(pool, layout);
@@ -44,3 +44,5 @@ void DescriptorSet::free() {
   _set = VK_NULL_HANDLE;
   _pool = nullptr;
 }
+
+NAMESPACE_VULKAN_END

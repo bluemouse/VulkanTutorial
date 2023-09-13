@@ -5,7 +5,9 @@
 #include <functional>
 #include <vector>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Instance {
  public:
@@ -39,7 +41,7 @@ class Instance {
   void destroy();
 
   operator VkInstance() const { return _instance; }
-  VkSurfaceKHR surface() const { return _surface; }
+  [[nodiscard]] VkSurfaceKHR surface() const { return _surface; }
 
   bool isValidationLayersEnabled() const { return !_layers.empty(); }
   const std::vector<const char*>& layers() const { return _layers; }
@@ -50,7 +52,7 @@ class Instance {
   void setDebugCallback(const DebugCallback& callback);
 
  private:
-  bool checkLayerSupport(const std::vector<const char*>& layers) const;
+  static bool checkLayerSupport(const std::vector<const char*>& layers);
   void initDefaultDebugCallback();
 
   static VKAPI_ATTR VkBool32 VKAPI_CALL
@@ -69,4 +71,4 @@ class Instance {
   DebugCallback _debugCallback;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

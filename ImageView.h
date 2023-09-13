@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 class Image;
@@ -18,7 +20,7 @@ class ImageView {
 
   operator VkImageView() const { return _view; }
 
-  const Image& image() const { return *_image; }
+  [[nodiscard]] const Image& image() const { return *_image; }
 
  private:
   VkImageView _view = VK_NULL_HANDLE;
@@ -27,4 +29,4 @@ class ImageView {
   const Image* _image = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

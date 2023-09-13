@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -16,9 +18,9 @@ class CommandPool {
   void destroy();
 
   operator VkCommandPool() const { return _pool; }
-  VkQueue queue() const { return _queue; }
+  [[nodiscard]] VkQueue queue() const { return _queue; }
 
-  const Device& device() const { return *_device; }
+  [[nodiscard]] const Device& device() const { return *_device; }
 
  private:
   VkCommandPool _pool = VK_NULL_HANDLE;
@@ -27,4 +29,4 @@ class CommandPool {
   const Device* _device = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

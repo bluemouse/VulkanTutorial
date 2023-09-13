@@ -4,7 +4,7 @@
 
 #include "Buffer.h"
 
-namespace Vulkan {
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -14,8 +14,8 @@ class UniformBuffer : private Buffer {
   UniformBuffer(const Device& device, size_t size);
 
   // Transfer the ownership from `rhs` to `this`
-  UniformBuffer(const UniformBuffer& rhs);
-  UniformBuffer& operator=(const UniformBuffer& rhs);
+  UniformBuffer(UniformBuffer&& rhs) = default;
+  UniformBuffer& operator=(UniformBuffer&& rhs) noexcept(false);
 
   void allocate(const Device& device, size_t size);
   using Buffer::free;
@@ -30,4 +30,4 @@ class UniformBuffer : private Buffer {
   using Buffer::size;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

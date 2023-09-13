@@ -2,9 +2,12 @@
 
 #include <vulkan/vulkan.h>
 
-#include "PhysicalDevice.h"
+#include <vector>
 
-namespace Vulkan {
+#include "PhysicalDevice.h"
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device {
  public:
@@ -17,11 +20,11 @@ class Device {
 
   operator VkDevice() const { return _device; }
 
-  const Instance& instance() const { return physicalDevice().instance(); }
-  const PhysicalDevice& physicalDevice() const { return *_physicalDevice; }
+  [[nodiscard]] const Instance& instance() const { return physicalDevice().instance(); }
+  [[nodiscard]] const PhysicalDevice& physicalDevice() const { return *_physicalDevice; }
 
-  VkQueue graphicsQueue() const { return _graphicsQueue; }
-  VkQueue presentQueue() const { return _presentQueue; }
+  [[nodiscard]] VkQueue graphicsQueue() const { return _graphicsQueue; }
+  [[nodiscard]] VkQueue presentQueue() const { return _presentQueue; }
 
  private:
   VkDevice _device = VK_NULL_HANDLE;
@@ -32,4 +35,4 @@ class Device {
   const PhysicalDevice* _physicalDevice = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

@@ -2,10 +2,9 @@
 
 #include <cstring>
 #include <iostream>
+#include <utility>
 
-#include "helpers_vulkan.h"
-
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Instance::Instance(
     const AppInfoOverride& appInfoOverride,
@@ -16,7 +15,7 @@ Instance::Instance(
 
 Instance::Instance(int versionMajor, int versionMinor, std::vector<const char*> extensions,
                    bool enableValidation) {
-  create(versionMajor, versionMinor, extensions, enableValidation);
+  create(versionMajor, versionMinor, std::move(extensions), enableValidation);
 }
 
 Instance::~Instance() {
@@ -94,8 +93,7 @@ void Instance::create(int versionMajor, int versionMinor, std::vector<const char
                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
       createInfo->messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                                 VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
-                                VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT;
+                                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
       createInfo->pfnUserCallback = Instance::VkDebugCallback;
       createInfo->pUserData = this;
     };
@@ -134,17 +132,17 @@ void Instance::destroy() {
   _debugMessenger = VK_NULL_HANDLE;
 }
 
-bool Instance::checkLayerSupport(const std::vector<const char*>& layers) const {
-  uint32_t layerCount;
+bool Instance::checkLayerSupport(const std::vector<const char*>& layers) {
+  uint32_t layerCount = 0;
   vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
   std::vector<VkLayerProperties> availableLayers(layerCount);
   vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-  for (auto layer : layers) {
+  for (const auto* layer : layers) {
     bool layerFound = false;
     for (const auto& layerProperties : availableLayers) {
-      if (strcmp(layer, layerProperties.layerName) == 0) {
+      if (strcmp(layer, static_cast<const char*>(layerProperties.layerName)) == 0) {
         layerFound = true;
         break;
       }
@@ -190,9 +188,6 @@ void Instance::initDefaultDebugCallback() {
       case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
         type = "\033[1;32mPERFORMANCE\033[0m"; // bold gree
         break;
-      case VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT:
-        type = "DEVICE_ADDRESS_BINDING";
-        break;
       default:
         type = "UNKNOWN";
         break;
@@ -215,6 +210,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Instance::VkDebugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-  Instance* instance = static_cast<Instance*>(pUserData);
+  auto* instance = static_cast<Instance*>(pUserData);
   return instance->_debugCallback(messageSeverity, messageType, pCallbackData);
 }
+
+NAMESPACE_VULKAN_END

@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -14,8 +16,8 @@ class Buffer {
   virtual ~Buffer();
 
   // Transfer the ownership from `rhs` to `this`
-  Buffer(const Buffer& rhs);
-  Buffer& operator=(const Buffer& rhs);
+  Buffer(Buffer&& rhs) noexcept;
+  Buffer& operator=(Buffer&& rhs) noexcept(false);
 
   void allocate(const Device& device, size_t size, VkBufferUsageFlags usage,
                 VkMemoryPropertyFlags properties);
@@ -36,7 +38,7 @@ class Buffer {
   void moveFrom(Buffer& rhs);
 
  protected:
-  const Device* _device;
+  const Device* _device = nullptr;
 
   VkBuffer _buffer = VK_NULL_HANDLE;
   VkDeviceMemory _memory = VK_NULL_HANDLE;
@@ -44,4 +46,4 @@ class Buffer {
   size_t _size = 0; // in bytes
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

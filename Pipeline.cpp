@@ -1,18 +1,19 @@
 #include "Pipeline.h"
 
+#include <utility>
+
 #include "Device.h"
 #include "RenderPass.h"
 #include "ShaderModule.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Pipeline::Pipeline(const Device &device, const RenderPass &renderPass, const Shader &vertShader,
                    const Shader &fragShader, VkVertexInputBindingDescription bindingDescription,
                    std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
                    VkDescriptorSetLayout descriptorSetLayout) {
-  create(device, renderPass, vertShader, fragShader, bindingDescription, attributeDescriptions,
-         descriptorSetLayout);
+  create(device, renderPass, vertShader, fragShader, bindingDescription,
+         std::move(attributeDescriptions), descriptorSetLayout);
 }
 
 Pipeline::~Pipeline() {
@@ -42,7 +43,8 @@ void Pipeline::create(const Device &device, const RenderPass &renderPass, const 
   fragShaderStageInfo.module = fragShader.module;
   fragShaderStageInfo.pName = fragShader.entry;
 
-  VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+  std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {vertShaderStageInfo,
+                                                                 fragShaderStageInfo};
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -89,10 +91,10 @@ void Pipeline::create(const Device &device, const RenderPass &renderPass, const 
   colorBlending.logicOp = VK_LOGIC_OP_COPY;
   colorBlending.attachmentCount = 1;
   colorBlending.pAttachments = &colorBlendAttachment;
-  colorBlending.blendConstants[0] = 0.0f;
-  colorBlending.blendConstants[1] = 0.0f;
-  colorBlending.blendConstants[2] = 0.0f;
-  colorBlending.blendConstants[3] = 0.0f;
+  colorBlending.blendConstants[0] = 0.0F;
+  colorBlending.blendConstants[1] = 0.0F;
+  colorBlending.blendConstants[2] = 0.0F;
+  colorBlending.blendConstants[3] = 0.0F;
 
   std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
   VkPipelineDynamicStateCreateInfo dynamicState{};
@@ -110,7 +112,7 @@ void Pipeline::create(const Device &device, const RenderPass &renderPass, const 
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
   pipelineInfo.stageCount = 2;
-  pipelineInfo.pStages = shaderStages;
+  pipelineInfo.pStages = shaderStages.data();
   pipelineInfo.pVertexInputState = &vertexInputInfo;
   pipelineInfo.pInputAssemblyState = &inputAssembly;
   pipelineInfo.pViewportState = &viewportState;
@@ -137,3 +139,5 @@ void Pipeline::destroy() {
   _device = nullptr;
   _pipeline = VK_NULL_HANDLE;
 }
+
+NAMESPACE_VULKAN_END

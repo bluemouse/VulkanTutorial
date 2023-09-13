@@ -103,9 +103,19 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 17
   RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
-target_include_directories(${PROJECT_NAME} PRIVATE ${STB_INCLUDE_DIR})
-target_compile_options(${PROJECT_NAME} PRIVATE -fmacro-prefix-map=${CMAKE_SOURCE_DIR}=.) # make __FILE__ relative to project root
-target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan glfw)
+target_include_directories(${PROJECT_NAME}
+  PRIVATE
+    ${STB_INCLUDE_DIR}
+)
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    Vulkan::Vulkan
+    glfw
+)
+target_compile_options(${PROJECT_NAME}
+  PRIVATE
+    -fmacro-prefix-map=${CMAKE_SOURCE_DIR}=. # make __FILE__ relative to project root
+)
 
 set(SHADER_TARGET shader)
 add_shaders_target(${SHADER_TARGET} SOURCES ${SHADER_FILES})

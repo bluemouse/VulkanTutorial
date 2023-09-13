@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -20,7 +22,7 @@ class RenderPass {
  private:
   VkRenderPass _renderPass = VK_NULL_HANDLE;
 
-  const Device* _device;
+  const Device* _device = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

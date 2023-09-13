@@ -1,9 +1,8 @@
 #include "Fence.h"
 
 #include "Device.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Fence::Fence(const Device& device) {
   create(device);
@@ -37,3 +36,5 @@ void Fence::destroy() {
   _device = nullptr;
   _fence = VK_NULL_HANDLE;
 }
+
+NAMESPACE_VULKAN_END

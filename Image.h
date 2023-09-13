@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -11,22 +13,22 @@ class Image {
   Image() = default;
   Image(const Device& device, VkFormat format, VkExtent2D extent);
   Image(VkImage image, VkFormat format, VkExtent2D extent);
-  ~Image();
+  ~Image() noexcept(false);
 
   void allocate(const Device& device, VkFormat format, VkExtent2D extent);
   void free();
 
   operator VkImage() const { return _image; }
 
-  VkFormat format() const { return _format; }
+  [[nodiscard]] VkFormat format() const { return _format; }
 
-  VkExtent2D extent() const { return _extent; }
-  uint32_t width() const { return _extent.width; }
-  uint32_t height() const { return _extent.height; }
+  [[nodiscard]] VkExtent2D extent() const { return _extent; }
+  [[nodiscard]] uint32_t width() const { return _extent.width; }
+  [[nodiscard]] uint32_t height() const { return _extent.height; }
 
   // Transfer the ownership from `rhs` to `this`
-  Image(const Image& rhs);
-  Image& operator=(const Image& rhs);
+  Image(Image&& rhs) noexcept;
+  Image& operator=(Image&& rhs) noexcept(false);
 
  private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
@@ -39,10 +41,10 @@ class Image {
   VkImage _image = VK_NULL_HANDLE;
   VkDeviceMemory _memory = VK_NULL_HANDLE;
 
-  VkFormat _format;
-  VkExtent2D _extent;
+  VkFormat _format = VK_FORMAT_UNDEFINED;
+  VkExtent2D _extent = {0, 0};
 
-  const Device* _device;
+  const Device* _device = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

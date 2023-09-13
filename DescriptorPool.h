@@ -4,7 +4,9 @@
 
 #include <vector>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -20,7 +22,7 @@ class DescriptorPool {
 
   operator VkDescriptorPool() const { return _pool; }
 
-  const Device& device() const { return *_device; }
+  [[nodiscard]] const Device& device() const { return *_device; }
 
  private:
   VkDescriptorPool _pool = VK_NULL_HANDLE;
@@ -28,4 +30,4 @@ class DescriptorPool {
   const Device* _device = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

@@ -1,9 +1,8 @@
 #include "Semaphore.h"
 
 #include "Device.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Semaphore::Semaphore(const Device& device) {
   create(device);
@@ -36,3 +35,5 @@ void Semaphore::destroy() {
   _semaphore = VK_NULL_HANDLE;
   _device = nullptr;
 }
+
+NAMESPACE_VULKAN_END

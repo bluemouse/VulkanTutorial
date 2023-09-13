@@ -1,9 +1,8 @@
 #include "Image.h"
 
 #include "Device.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Image::Image(const Device& device, VkFormat format, VkExtent2D extent) {
   allocate(device, format, extent);
@@ -13,7 +12,7 @@ Image::Image(VkImage image, VkFormat format, VkExtent2D extent)
     : _image(image), _format(format), _extent(extent) {
 }
 
-Image::~Image() {
+Image::~Image() noexcept(false) {
   if (isAllocated()) {
     free();
   }
@@ -71,15 +70,19 @@ void Image::free() {
   _device = nullptr;
 }
 
-Image::Image(const Image& rhs) {
-  moveFrom(const_cast<Image&>(rhs));
+Image::Image(Image&& rhs) noexcept {
+  moveFrom(rhs);
 }
 
-Image& Image::operator=(const Image& rhs) {
+Image& Image::operator=(Image&& rhs) noexcept(false) {
+  if (this == &rhs) {
+    return *this;
+  }
+
   if (isAllocated()) {
     throw std::runtime_error("Vulkan image has been allocated and can not be assigned!");
   }
-  moveFrom(const_cast<Image&>(rhs));
+  moveFrom(rhs);
   return *this;
 }
 
@@ -101,11 +104,14 @@ uint32_t Image::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags proper
   VkPhysicalDeviceMemoryProperties memProperties;
   vkGetPhysicalDeviceMemoryProperties(_device->physicalDevice(), &memProperties);
 
-  for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-    if ((typeFilter & (1 << i)) &&
-        (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-      return i;
+  uint32_t idx = 0;
+  for (auto& memType : memProperties.memoryTypes) {
+    if (((typeFilter & (1 << idx)) != 0u) && (memType.propertyFlags & properties) == properties) {
+      return idx;
     }
+    ++idx;
   }
   throw std::runtime_error("Failed to find suitable memory type!");
 }
+
+NAMESPACE_VULKAN_END

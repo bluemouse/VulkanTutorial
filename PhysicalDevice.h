@@ -4,8 +4,11 @@
 
 #include <functional>
 #include <optional>
+#include <vector>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Instance;
 
@@ -41,16 +44,17 @@ class PhysicalDevice {
 
   operator VkPhysicalDevice() const { return _device; }
 
-  const QueueFamilies& queueFamilies() const { return _queueFamilies; }
+  [[nodiscard]] const QueueFamilies& queueFamilies() const { return _queueFamilies; }
 
-  const Instance& instance() const { return *_instance; }
+  [[nodiscard]] const Instance& instance() const { return *_instance; }
 
-  static QueueFamilies findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-  static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
+  [[nodiscard]] static QueueFamilies findQueueFamilies(VkPhysicalDevice device,
                                                        VkSurfaceKHR surface);
+  [[nodiscard]] static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
+                                                                     VkSurfaceKHR surface);
 
  private:
-  bool isDeviceSuitable(VkPhysicalDevice device);
+  [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);
 
  private:
   VkPhysicalDevice _device = VK_NULL_HANDLE;
@@ -59,4 +63,4 @@ class PhysicalDevice {
   const Instance* _instance = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

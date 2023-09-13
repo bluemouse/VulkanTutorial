@@ -196,7 +196,7 @@ class HelloTriangleApplication {
   }
 
   void mainLoop() {
-    while (!glfwWindowShouldClose(window)) {
+    while (glfwWindowShouldClose(window) == 0) {
       glfwPollEvents();
       drawFrame();
     }
@@ -332,7 +332,7 @@ class HelloTriangleApplication {
         stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-    if (!pixels) {
+    if (pixels == nullptr) {
       throw std::runtime_error("failed to load texture image!");
     }
 
@@ -356,8 +356,7 @@ class HelloTriangleApplication {
   void createTextureImageView() { _textureImageView.create(_device, _textureImage); }
 
   void createTextureSampler() {
-    _textureSampler.create(_device, VK_FILTER_LINEAR, VK_FILTER_LINEAR,
-                           VK_SAMPLER_ADDRESS_MODE_REPEAT);
+    _textureSampler.create(_device, VK_SAMPLER_ADDRESS_MODE_REPEAT, {VK_FILTER_LINEAR, VK_FILTER_LINEAR});
   }
 
   void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout,
@@ -733,7 +732,7 @@ class HelloTriangleApplication {
     vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
     return isQueueFamiliesComplete && extensionsSupported && swapChainAdequate &&
-           supportedFeatures.samplerAnisotropy;
+           (supportedFeatures.samplerAnisotropy != 0u);
   }
 
   bool checkDeviceExtensionSupport(VkPhysicalDevice device) {

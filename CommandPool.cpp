@@ -3,7 +3,7 @@
 #include "Device.h"
 #include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 CommandPool::CommandPool(const Device& device, uint32_t queueFamilyIndex) {
   create(device, queueFamilyIndex);
@@ -42,3 +42,5 @@ void CommandPool::destroy() {
   _queue = VK_NULL_HANDLE;
   _device = nullptr;
 }
+
+NAMESPACE_VULKAN_END

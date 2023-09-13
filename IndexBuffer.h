@@ -4,7 +4,7 @@
 
 #include "Buffer.h"
 
-namespace Vulkan {
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -14,8 +14,8 @@ class IndexBuffer : private Buffer {
   IndexBuffer(const Device& device, size_t size);
 
   // Transfer the ownership from `rhs` to `this`
-  IndexBuffer(const IndexBuffer& rhs);
-  IndexBuffer& operator=(const IndexBuffer& rhs);
+  IndexBuffer(IndexBuffer&& rhs) = default;
+  IndexBuffer& operator=(IndexBuffer&& rhs) noexcept(false);
 
   void allocate(const Device& device, size_t size);
   using Buffer::free;
@@ -25,4 +25,4 @@ class IndexBuffer : private Buffer {
   using Buffer::size;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

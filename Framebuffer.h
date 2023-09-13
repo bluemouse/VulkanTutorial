@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 class RenderPass;
@@ -15,7 +17,7 @@ class Framebuffer {
 
   operator VkFramebuffer() const { return _buffer; }
 
-  VkExtent2D extent() const;
+  [[nodiscard]] VkExtent2D extent() const;
 
  private:
   VkFramebuffer _buffer = VK_NULL_HANDLE;
@@ -25,4 +27,4 @@ class Framebuffer {
   const ImageView* _imageView;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

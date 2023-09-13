@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -19,4 +21,4 @@ class ShaderModule {
   const Device* _device;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

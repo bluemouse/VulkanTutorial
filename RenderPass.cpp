@@ -1,9 +1,8 @@
 #include "RenderPass.h"
 
 #include "Device.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 RenderPass::RenderPass(const Device& device, VkFormat format) {
   create(device, format);
@@ -69,3 +68,5 @@ void RenderPass::destroy() {
   _renderPass = VK_NULL_HANDLE;
   _device = nullptr;
 }
+
+NAMESPACE_VULKAN_END

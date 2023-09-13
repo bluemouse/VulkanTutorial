@@ -3,9 +3,8 @@
 #include <vector>
 
 #include "Instance.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 PhysicalDevice::PhysicalDevice(const Instance& instance,
                                const IsDeviceSuitablePredicate& isDeviceSuitable) {
@@ -59,20 +58,20 @@ PhysicalDevice::QueueFamilies PhysicalDevice::findQueueFamilies(VkPhysicalDevice
     vkGetPhysicalDeviceQueueFamilyProperties(device, &count, props.data());
 
     for (size_t i = 0; i < props.size(); ++i) {
-      if (!queueFamilies.graphics && props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+      if (!queueFamilies.graphics && ((props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u)) {
         queueFamilies.graphics = i;
       }
-      if (!queueFamilies.compute && props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+      if (!queueFamilies.compute && ((props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) != 0u)) {
         queueFamilies.compute = i;
       }
-      if (!queueFamilies.transfer && props[i].queueFlags & VK_QUEUE_TRANSFER_BIT) {
+      if (!queueFamilies.transfer && ((props[i].queueFlags & VK_QUEUE_TRANSFER_BIT) != 0u)) {
         queueFamilies.transfer = i;
       }
 
       if (!queueFamilies.present) {
-        VkBool32 presentSupport = false;
+        VkBool32 presentSupport = 0u;
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-        if (presentSupport) {
+        if (presentSupport != 0u) {
           queueFamilies.present = i;
         }
       }
@@ -87,14 +86,14 @@ PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(
   SwapChainSupportDetails details;
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
-  uint32_t formatCount;
+  uint32_t formatCount = 0;
   vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
   if (formatCount > 0) {
     details.formats.resize(formatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
   }
 
-  uint32_t presentModeCount;
+  uint32_t presentModeCount = 0;
   vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
   if (presentModeCount > 0) {
     details.presentModes.resize(presentModeCount);
@@ -104,3 +103,5 @@ PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(
 
   return details;
 }
+
+NAMESPACE_VULKAN_END

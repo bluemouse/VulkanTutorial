@@ -4,30 +4,30 @@
 #include <vector>
 
 #include "Device.h"
-#include "helpers_vulkan.h"
 
 namespace {
 std::vector<char> readFile(const std::string& filename) {
-  std::ifstream file(filename, std::ios::ate | std::ios::binary);
+  std::ifstream inputFile(filename, std::ios::binary | std::ios::ate);
 
-  if (!file.is_open()) {
-    std::string msg = std::string("Failed to open file: ") + filename + "!";
-    throw std::runtime_error(msg);
+  if (!inputFile) {
+    throw std::runtime_error(std::string("Failed to open file: ") + filename + "!");
   }
 
-  size_t fileSize = (size_t)file.tellg();
-  std::vector<char> buffer(fileSize);
+  std::streamsize fileSize = inputFile.tellg();
+  inputFile.seekg(0, std::ios::beg);
 
-  file.seekg(0);
-  file.read(buffer.data(), fileSize);
+  std::vector<char> charVector;
+  charVector.reserve(fileSize);
 
-  file.close();
+  charVector.assign(std::istreambuf_iterator<char>(inputFile), {});
 
-  return buffer;
-};
+  inputFile.close();
+  return charVector;
+}
+
 } // namespace
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 ShaderModule::ShaderModule(const Device& device, const char* shaderFile) : _device(&device) {
   auto code = readFile(shaderFile);
@@ -43,3 +43,5 @@ ShaderModule::ShaderModule(const Device& device, const char* shaderFile) : _devi
 ShaderModule::~ShaderModule() {
   vkDestroyShaderModule(*_device, _shader, nullptr);
 }
+
+NAMESPACE_VULKAN_END

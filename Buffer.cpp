@@ -3,7 +3,7 @@
 #include "Device.h"
 #include "helpers_vulkan.h"
 
-using namespace Vulkan;
+namespace Vulkan {
 
 Buffer::Buffer(const Device& device, size_t size, VkBufferUsageFlags usage,
                VkMemoryPropertyFlags properties) {
@@ -16,15 +16,19 @@ Buffer::~Buffer() {
   }
 }
 
-Buffer::Buffer(const Buffer& rhs) {
-  moveFrom(const_cast<Buffer&>(rhs));
+Buffer::Buffer(Buffer&& rhs) noexcept {
+  moveFrom(rhs);
 }
 
-Buffer& Buffer::operator=(const Buffer& rhs) {
+Buffer& Buffer::operator=(Buffer&& rhs) noexcept(false) {
+  if (this == &rhs) {
+    return *this;
+  }
+
   if (isAllocated()) {
     throw std::runtime_error("Vulkan buffer has been allocated and can not be assigned!");
   }
-  moveFrom(const_cast<Buffer&>(rhs));
+  moveFrom(rhs);
   return *this;
 }
 
@@ -88,7 +92,7 @@ void* Buffer::map() {
 }
 
 void* Buffer::map(size_t offset, size_t size) {
-  void* data;
+  void* data = nullptr;
   vkMapMemory(*_device, _memory, offset, size, 0, &data);
   return data;
 }
@@ -101,11 +105,14 @@ uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
   VkPhysicalDeviceMemoryProperties memProperties;
   vkGetPhysicalDeviceMemoryProperties(_device->physicalDevice(), &memProperties);
 
-  for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-    if ((typeFilter & (1 << i)) &&
-        (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-      return i;
+  uint32_t idx = 0;
+  for (auto& memType : memProperties.memoryTypes) {
+    if ((typeFilter & (1 << idx)) != 0 && (memType.propertyFlags & properties) == properties) {
+      return idx;
     }
+    ++idx;
   }
   throw std::runtime_error("Failed to find suitable memory type!");
 }
+
+} // namespace Vulkan

@@ -7,7 +7,7 @@
 #include "RenderPass.h"
 #include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 CommandBuffer::CommandBuffer(const CommandPool& commandPool) {
   allocate(commandPool);
@@ -71,16 +71,16 @@ void CommandBuffer::executeCommand(const std::function<void(const CommandBuffer&
   submitInfo.pCommandBuffers = &_buffer;
 
   if (!waits.empty()) {
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    std::array<VkPipelineStageFlags, 2> waitStages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waits.size());
     submitInfo.pWaitSemaphores = waits.data();
-    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.pWaitDstStageMask = waitStages.data();
   }
   if (!signals.empty()) {
     submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
     submitInfo.pSignalSemaphores = signals.data();
   }
-  auto queue = _pool->queue();
+  VkQueue queue = _pool->queue();
   MI_VERIFY_VKCMD(vkQueueSubmit(queue, 1, &submitInfo, fence));
 }
 
@@ -106,9 +106,11 @@ void CommandBuffer::executeSingleTimeCommand(
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &_buffer;
 
-  auto queue = _pool->queue();
+  VkQueue queue = _pool->queue();
   vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
   if (blocking) {
     vkQueueWaitIdle(queue);
   }
 }
+
+NAMESPACE_VULKAN_END

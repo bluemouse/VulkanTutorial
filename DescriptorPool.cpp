@@ -1,13 +1,15 @@
 #include "DescriptorPool.h"
 
+#include <utility>
+
 #include "Device.h"
 #include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 DescriptorPool::DescriptorPool(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes,
                                uint32_t maxSets) {
-  create(device, poolSizes, maxSets);
+  create(device, std::move(poolSizes), maxSets);
 }
 
 DescriptorPool::~DescriptorPool() {
@@ -41,3 +43,5 @@ void DescriptorPool::destroy() {
   _pool = VK_NULL_HANDLE;
   _device = nullptr;
 }
+
+NAMESPACE_VULKAN_END

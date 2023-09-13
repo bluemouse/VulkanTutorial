@@ -3,8 +3,11 @@
 #include <vulkan/vulkan.h>
 
 #include <functional>
+#include <vector>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 class CommandPool;
@@ -39,4 +42,4 @@ class CommandBuffer {
   const CommandPool* _pool = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

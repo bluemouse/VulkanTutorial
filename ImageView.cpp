@@ -2,9 +2,8 @@
 
 #include "Device.h"
 #include "Image.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 ImageView::ImageView(const Device& device, const Image& image) {
   create(device, image);
@@ -48,3 +47,5 @@ void ImageView::destroy() {
   _device = nullptr;
   _image = nullptr;
 }
+
+NAMESPACE_VULKAN_END

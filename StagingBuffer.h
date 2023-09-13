@@ -4,7 +4,7 @@
 
 #include "Buffer.h"
 
-namespace Vulkan {
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -28,4 +28,4 @@ class StagingBuffer : private Buffer {
   using Buffer::size;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

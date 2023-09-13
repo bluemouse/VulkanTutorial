@@ -4,7 +4,7 @@
 
 #include "Buffer.h"
 
-namespace Vulkan {
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
@@ -14,8 +14,8 @@ class VertexBuffer : private Buffer {
   VertexBuffer(const Device& device, size_t size);
 
   // Transfer the ownership from `rhs` to `this`
-  VertexBuffer(const VertexBuffer& rhs);
-  VertexBuffer& operator=(const VertexBuffer& rhs);
+  VertexBuffer(VertexBuffer&& rhs) = default;
+  VertexBuffer& operator=(VertexBuffer&& rhs) noexcept(false);
 
   void allocate(const Device& device, size_t size);
   using Buffer::free;
@@ -25,4 +25,4 @@ class VertexBuffer : private Buffer {
   using Buffer::size;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

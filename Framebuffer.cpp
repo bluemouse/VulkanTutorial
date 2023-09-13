@@ -4,20 +4,19 @@
 #include "Image.h"
 #include "ImageView.h"
 #include "RenderPass.h"
-#include "helpers_vulkan.h"
 
-using namespace Vulkan;
+NAMESPACE_VULKAN_BEGIN
 
 Framebuffer::Framebuffer(const Device& device, const RenderPass& renderPass,
                          const ImageView& imageView)
     : _device(&device), _renderPass(&renderPass), _imageView(&imageView) {
-  VkImageView attachments[] = {imageView};
+  std::array<VkImageView,1> attachments = {imageView};
 
   VkFramebufferCreateInfo framebufferInfo{};
   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
   framebufferInfo.renderPass = renderPass;
   framebufferInfo.attachmentCount = 1;
-  framebufferInfo.pAttachments = attachments;
+  framebufferInfo.pAttachments = attachments.data();
   framebufferInfo.width = imageView.image().width();
   framebufferInfo.height = imageView.image().height();
   framebufferInfo.layers = 1;
@@ -32,3 +31,5 @@ Framebuffer::~Framebuffer() {
 VkExtent2D Framebuffer::extent() const {
   return _imageView->image().extent();
 }
+
+NAMESPACE_VULKAN_END

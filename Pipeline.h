@@ -4,7 +4,9 @@
 
 #include <vector>
 
-namespace Vulkan {
+#include "helpers_vulkan.h"
+
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 class RenderPass;
@@ -32,13 +34,13 @@ class Pipeline {
   void destroy();
 
   operator VkPipeline() const { return _pipeline; }
-  VkPipelineLayout layout() const { return _layout; }
+  [[nodiscard]] VkPipelineLayout layout() const { return _layout; }
 
  private:
   VkPipeline _pipeline = VK_NULL_HANDLE;
-  VkPipelineLayout _layout;
+  VkPipelineLayout _layout = VK_NULL_HANDLE;
 
   const Device* _device = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

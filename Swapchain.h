@@ -9,7 +9,7 @@
 #include "Image.h"
 #include "ImageView.h"
 
-namespace Vulkan {
+NAMESPACE_VULKAN_BEGIN
 
 class Device;
 class RenderPass;
@@ -35,17 +35,17 @@ class Swapchain {
 
   operator VkSwapchainKHR() const { return _swapchain; }
 
-  const std::vector<Image>& images() const { return _images; }
-  VkFormat imageFormat() const { return _images[0].format(); }
-  VkExtent2D imageExtent() const { return _images[0].extent(); }
+  [[nodiscard]] const std::vector<Image>& images() const { return _images; }
+  [[nodiscard]] VkFormat imageFormat() const { return _images[0].format(); }
+  [[nodiscard]] VkExtent2D imageExtent() const { return _images[0].extent(); }
 
-  const std::vector<ImageView>& imageViews() const { return _imageViews; }
-  const ImageView& imageView(size_t i) const { return _imageViews[i]; }
+  [[nodiscard]] const std::vector<ImageView>& imageViews() const { return _imageViews; }
+  [[nodiscard]] const ImageView& imageView(size_t i) const { return _imageViews[i]; }
 
-  const std::vector<Framebuffer>& framebuffers() const { return _framebuffers; }
-  const Framebuffer& framebuffer(size_t i) const { return _framebuffers[i]; }
+  [[nodiscard]] const std::vector<Framebuffer>& framebuffers() const { return _framebuffers; }
+  [[nodiscard]] const Framebuffer& framebuffer(size_t i) const { return _framebuffers[i]; }
 
-  const Device& device() const { return *_device; }
+  [[nodiscard]] const Device& device() const { return *_device; }
 
  private:
   VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
@@ -57,4 +57,4 @@ class Swapchain {
   const Device* _device = nullptr;
 };
 
-} // namespace Vulkan
+NAMESPACE_VULKAN_END

@@ -1,21 +1,24 @@
 #include "helpers_debug.h"
 
 #include <execinfo.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdio.h>
 #include <unistd.h>
 
+#include <array>
 #include <cassert>
+#include <csignal>
+#include <cstdarg>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 using std::cerr;
 using std::endl;
 using std::strlen;
+using std::vector;
+using std::vsnprintf;
 
 namespace __helpers_debug__ {
-
 void not_tested(const char* func, const char* file, int line) {
 #ifdef _NDEBUG
   log("ERROR", "%s [file(ln): %s(%d)] is not tested", func, file, line);
@@ -38,14 +41,13 @@ void assertion_fail(const char* expr, const char* file, int line, const char* ms
        << "  File(Line): " << file << " (" << line << ")" << endl;
 
   if (msg != nullptr) {
-    size_t msg_len = strlen(msg) + 160;
-    char* buffer = new char[msg_len];
+    size_t msgLen = strlen(msg) + 160;
+    vector<char> buffer(msgLen);
     va_list args;
     va_start(args, msg);
-    vsnprintf(buffer, msg_len, msg, args);
+    vsnprintf(buffer.data(), msgLen, msg, args);
     va_end(args);
-    cerr << "Message:" << buffer << endl;
-    delete[] buffer;
+    cerr << "Message:" << buffer.data() << endl;
   }
   log_backtraces();
   abort();
@@ -57,50 +59,47 @@ void warning_fail(const char* expr, const char* file, int line, const char* msg,
        << "  File(Line): " << file << " (" << line << ")" << endl;
 
   if (msg != 0) {
-    size_t msg_len = strlen(msg) + 160;
-    char* buffer = new char[msg_len];
+    size_t msgLen = strlen(msg) + 160;
+    vector<char> buffer(msgLen);
     va_list args;
     va_start(args, msg);
-    vsnprintf(buffer, msg_len, msg, args);
+    vsnprintf(buffer.data(), msgLen, msg, args);
     va_end(args);
-    cerr << "Message:" << buffer << endl;
-    delete[] buffer;
+    cerr << "Message:" << buffer.data() << endl;
   }
 }
 
 void log(const char* tag, const char* msg, ...) {
-  size_t msg_len = strlen(msg) + 160;
-  char* buffer = new char[msg_len];
+  size_t msgLen = strlen(msg) + 160;
+  vector<char> buffer(msgLen);
   va_list args;
   va_start(args, msg);
-  vsnprintf(buffer, msg_len, msg, args);
+  vsnprintf(buffer.data(), msgLen, msg, args);
   va_end(args);
   if (tag != nullptr) {
-    fprintf(stderr, "%s: ", tag);
+    cerr << tag << ": ";
   }
-  fprintf(stderr, "%s\n", buffer);
-  delete[] buffer;
+  cerr << buffer.data() << endl;
 }
 
 void log(const char* file, int line, const char* tag, const char* msg, ...) {
-  size_t msg_len = strlen(msg) + 160;
-  char* buffer = new char[msg_len];
+  size_t msgLen = strlen(msg) + 160;
+  vector<char> buffer(msgLen);
   va_list args;
   va_start(args, msg);
-  vsnprintf(buffer, msg_len, msg, args);
+  vsnprintf(buffer.data(), msgLen, msg, args);
   va_end(args);
 
-  fprintf(stderr, "%s [%s Ln %i]: ", tag, file, line);
-  fprintf(stderr, "%s\n", buffer);
-  delete[] buffer;
+  cerr << tag << "[" << file << ":" << line << "]: " << buffer.data() << endl;
 }
 
 void log_backtraces() {
-  void* array[10];
-  size_t num_traces = backtrace(array, 10);
-  char** traces = backtrace_symbols(array, num_traces);
-  for (size_t i = 0; i < num_traces; ++i) {
-    fprintf(stderr, "%s\n", traces[i]);
+  const int maxBacktraceDepth = 10;
+  std::array<void*, maxBacktraceDepth> array{};
+  int numTraces = backtrace(array.data(), maxBacktraceDepth);
+  char** traces = backtrace_symbols(array.data(), numTraces);
+  for (size_t i = 0; i < numTraces; ++i) {
+    cerr << traces[i] << endl;
   }
   free(traces);
 }
