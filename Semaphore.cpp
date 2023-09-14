@@ -14,10 +14,29 @@ Semaphore::~Semaphore() {
   }
 }
 
-void Semaphore::create(const Device& device) {
-  if (_semaphore != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan samaphore has been initialized already!");
+Semaphore::Semaphore(Semaphore&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept(false) {
+  if (this == &rhs) {
+    return *this;
   }
+  MI_VERIFY(_semaphore == VK_NULL_HANDLE);
+  moveFrom(rhs);
+  return *this;
+}
+
+void Semaphore::moveFrom(Semaphore& rhs) {
+  _semaphore = rhs._semaphore;
+  _device = rhs._device;
+
+  rhs._semaphore = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
+void Semaphore::create(const Device& device) {
+  MI_VERIFY(_semaphore == VK_NULL_HANDLE);
   _device = &device;
 
   VkSemaphoreCreateInfo semaphoreInfo{};
@@ -27,9 +46,7 @@ void Semaphore::create(const Device& device) {
 }
 
 void Semaphore::destroy() {
-  if (_semaphore == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null semaphore cannot be released!");
-  }
+  MI_VERIFY(_semaphore != VK_NULL_HANDLE);
   vkDestroySemaphore(*_device, _semaphore, nullptr);
 
   _semaphore = VK_NULL_HANDLE;

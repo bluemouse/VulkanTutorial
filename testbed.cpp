@@ -356,14 +356,16 @@ class HelloTriangleApplication {
   void createTextureImageView() { _textureImageView.create(_device, _textureImage); }
 
   void createTextureSampler() {
-    _textureSampler.create(_device, VK_SAMPLER_ADDRESS_MODE_REPEAT, {VK_FILTER_LINEAR, VK_FILTER_LINEAR});
+    _textureSampler.create(_device, VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                           {VK_FILTER_LINEAR, VK_FILTER_LINEAR});
   }
 
   void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout,
                              VkImageLayout newLayout) {
     using Vulkan::CommandBuffer;
-    CommandBuffer(_commandPool)
-        .executeSingleTimeCommand([image, oldLayout, newLayout](const CommandBuffer &buffer) {
+    CommandBuffer commandBuffer{_commandPool};
+    commandBuffer.executeSingleTimeCommand(
+        [image, oldLayout, newLayout](const CommandBuffer &buffer) {
           VkImageMemoryBarrier barrier{};
           barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
           barrier.oldLayout = oldLayout;
@@ -401,27 +403,28 @@ class HelloTriangleApplication {
           vkCmdPipelineBarrier(buffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1,
                                &barrier);
         });
+    commandBuffer.waitIdle();
   }
 
   void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
     using Vulkan::CommandBuffer;
-    CommandBuffer(_commandPool)
-        .executeSingleTimeCommand(
-            [buffer, image, width, height](const CommandBuffer &commandBuffer) {
-              VkBufferImageCopy region{};
-              region.bufferOffset = 0;
-              region.bufferRowLength = 0;
-              region.bufferImageHeight = 0;
-              region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-              region.imageSubresource.mipLevel = 0;
-              region.imageSubresource.baseArrayLayer = 0;
-              region.imageSubresource.layerCount = 1;
-              region.imageOffset = {0, 0, 0};
-              region.imageExtent = {width, height, 1};
+    CommandBuffer commandBuffer{_commandPool};
+    commandBuffer.executeSingleTimeCommand([buffer, image, width, height](const CommandBuffer &commandBuffer) {
+      VkBufferImageCopy region{};
+      region.bufferOffset = 0;
+      region.bufferRowLength = 0;
+      region.bufferImageHeight = 0;
+      region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      region.imageSubresource.mipLevel = 0;
+      region.imageSubresource.baseArrayLayer = 0;
+      region.imageSubresource.layerCount = 1;
+      region.imageOffset = {0, 0, 0};
+      region.imageExtent = {width, height, 1};
 
-              vkCmdCopyBufferToImage(commandBuffer, buffer, image,
-                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-            });
+      vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+                             &region);
+    });
+    commandBuffer.waitIdle();
   }
 
   void createVertexBuffer() {
@@ -508,12 +511,13 @@ class HelloTriangleApplication {
 
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
     using Vulkan::CommandBuffer;
-    CommandBuffer(_commandPool)
-        .executeSingleTimeCommand([srcBuffer, dstBuffer, size](const CommandBuffer &buffer) {
-          VkBufferCopy copyRegion{};
-          copyRegion.size = size;
-          vkCmdCopyBuffer(buffer, srcBuffer, dstBuffer, 1, &copyRegion);
-        });
+    CommandBuffer commandBuffer{_commandPool};
+    commandBuffer.executeSingleTimeCommand([srcBuffer, dstBuffer, size](const CommandBuffer &buffer) {
+      VkBufferCopy copyRegion{};
+      copyRegion.size = size;
+      vkCmdCopyBuffer(buffer, srcBuffer, dstBuffer, 1, &copyRegion);
+    });
+    commandBuffer.waitIdle();
   }
 
   void createCommandBuffers() {
@@ -578,7 +582,7 @@ class HelloTriangleApplication {
     _commandBuffers[currentFrame].reset();
     _commandBuffers[currentFrame].executeCommand(
         [this, imageIndex](const Vulkan::CommandBuffer &commandBuffer) {
-          auto &framebuffer = _swapchain.framebuffer(imageIndex);
+          const auto &framebuffer = _swapchain.framebuffer(imageIndex);
           auto extent = framebuffer.extent();
 
           VkRenderPassBeginInfo renderPassInfo{};
@@ -621,7 +625,7 @@ class HelloTriangleApplication {
 
           vkCmdEndRenderPass(commandBuffer);
         },
-        {_imageAvailableSemaphores[currentFrame]}, {_renderFinishedSemaphores[currentFrame]},
+        {&_imageAvailableSemaphores[currentFrame]}, {&_renderFinishedSemaphores[currentFrame]},
         _inFlightFences[currentFrame]);
 
     VkPresentInfoKHR presentInfo{};

@@ -24,31 +24,24 @@ Buffer& Buffer::operator=(Buffer&& rhs) noexcept(false) {
   if (this == &rhs) {
     return *this;
   }
-
-  if (isAllocated()) {
-    throw std::runtime_error("Vulkan buffer has been allocated and can not be assigned!");
-  }
+  MI_VERIFY(!isAllocated());
   moveFrom(rhs);
   return *this;
 }
 
 void Buffer::moveFrom(Buffer& rhs) {
-  if (this != &rhs) {
-    _device = rhs._device;
-    _buffer = rhs._buffer;
-    _memory = rhs._memory;
+  _device = rhs._device;
+  _buffer = rhs._buffer;
+  _memory = rhs._memory;
 
-    rhs._device = nullptr;
-    rhs._buffer = VK_NULL_HANDLE;
-    rhs._memory = VK_NULL_HANDLE;
-  }
+  rhs._device = nullptr;
+  rhs._buffer = VK_NULL_HANDLE;
+  rhs._memory = VK_NULL_HANDLE;
 }
 
 void Buffer::allocate(const Device& device, size_t size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties) {
-  if (isAllocated()) {
-    throw std::runtime_error("Vulkan buffer has been allocated already!");
-  }
+  MI_VERIFY(!isAllocated());
   _device = &device;
 
   _size = size;
@@ -75,9 +68,8 @@ void Buffer::allocate(const Device& device, size_t size, VkBufferUsageFlags usag
 }
 
 void Buffer::free() {
-  if (!isAllocated()) {
-    throw std::runtime_error("Vulkan null buffer cannot be released!");
-  }
+  MI_VERIFY(isAllocated());
+
   vkFreeMemory(*_device, _memory, nullptr);
   vkDestroyBuffer(*_device, _buffer, nullptr);
 

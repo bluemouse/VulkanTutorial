@@ -5,6 +5,8 @@
 #include <functional>
 #include <vector>
 
+#include "Fence.h"
+#include "Semaphore.h"
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
@@ -21,20 +23,27 @@ class CommandBuffer {
   void allocate(const CommandPool& commandPool);
   void free();
 
-  void recordCommand(const std::function<void(const CommandBuffer& buffer)>& command) const;
-  void executeCommand(const std::function<void(const CommandBuffer& buffer)>& command,
-                      std::vector<VkSemaphore> waits = {}, std::vector<VkSemaphore> signals = {},
-                      VkFence fence = VK_NULL_HANDLE) const;
+  using Recorder = std::function<void(const CommandBuffer& buffer)>;
+  void recordCommand(const Recorder& recorder) const { recordCommand(recorder, false); }
+  void executeCommand(const Recorder& recorder, const std::vector<Semaphore*>& waits = {},
+                      const std::vector<Semaphore*>& signals = {}, const Fence& fence = {}) const;
 
-  void recordSingleTimeCommand(
-      const std::function<void(const CommandBuffer& buffer)>& command) const;
-  void executeSingleTimeCommand(const std::function<void(const CommandBuffer& buffer)>& command,
-                                bool blocking = true) const;
+  void recordSingleTimeCommand(const Recorder& recorder) const { recordCommand(recorder, true); }
+  void executeSingleTimeCommand(const Recorder& recorder, const std::vector<Semaphore*>& waits = {},
+                                const std::vector<Semaphore*>& signals = {},
+                                const Fence& fence = {}) const;
+
+  void waitIdle() const;
 
   void reset();
 
   operator VkCommandBuffer() const { return _buffer; }
   operator const VkCommandBuffer*() const { return &_buffer; }
+
+ private:
+  void recordCommand(const Recorder& recorder, bool singleTime) const;
+  void executeCommand(const std::vector<Semaphore*>& waits, const std::vector<Semaphore*>& signals,
+                      const Fence& fence) const;
 
  private:
   VkCommandBuffer _buffer = VK_NULL_HANDLE;

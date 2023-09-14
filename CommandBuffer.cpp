@@ -20,9 +20,7 @@ CommandBuffer::~CommandBuffer() {
 }
 
 void CommandBuffer::allocate(const CommandPool& commandPool) {
-  if (_buffer != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan command buffer has been initialized already!");
-  }
+  MI_VERIFY(_buffer == VK_NULL_HANDLE);
   _pool = &commandPool;
 
   VkCommandBufferAllocateInfo allocInfo{};
@@ -35,13 +33,11 @@ void CommandBuffer::allocate(const CommandPool& commandPool) {
 }
 
 void CommandBuffer::reset() {
-  vkResetCommandBuffer(_buffer, /*VkCommandBufferResetFlagBits*/ 0);
+  vkResetCommandBuffer(_buffer, VkCommandBufferResetFlagBits(0));
 }
 
 void CommandBuffer::free() {
-  if (_buffer == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null command buffer cannot be freed!");
-  }
+  MI_VERIFY(_buffer != VK_NULL_HANDLE);
 
   vkFreeCommandBuffers(_pool->device(), *_pool, 1, &_buffer);
 
@@ -49,68 +45,71 @@ void CommandBuffer::free() {
   _pool = nullptr;
 }
 
-void CommandBuffer::recordCommand(
-    const std::function<void(const CommandBuffer& buffer)>& command) const {
+void CommandBuffer::executeCommand(const Recorder& recorder, const std::vector<Semaphore*>& waits,
+                                   const std::vector<Semaphore*>& signals,
+                                   const Fence& fence) const {
+  recordCommand(recorder);
+  executeCommand(waits, signals, fence);
+}
+
+void CommandBuffer::executeSingleTimeCommand(const Recorder& recorder,
+                                             const std::vector<Semaphore*>& waits,
+                                             const std::vector<Semaphore*>& signals,
+                                             const Fence& fence) const {
+  recordSingleTimeCommand(recorder);
+  executeCommand(waits, signals, fence);
+}
+
+void CommandBuffer::waitIdle() const {
+  vkQueueWaitIdle(_pool->queue());
+}
+
+void CommandBuffer::recordCommand(const Recorder& recorder, bool singleTime) const {
   VkCommandBufferBeginInfo beginInfo{};
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  if (singleTime) {
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  }
+
   MI_VERIFY_VKCMD(vkBeginCommandBuffer(_buffer, &beginInfo));
 
-  command(*this);
+  recorder(*this);
 
   MI_VERIFY_VKCMD(vkEndCommandBuffer(_buffer));
 }
 
-void CommandBuffer::executeCommand(const std::function<void(const CommandBuffer& buffer)>& command,
-                                   std::vector<VkSemaphore> waits, std::vector<VkSemaphore> signals,
-                                   VkFence fence) const {
-  recordCommand(command);
-
+void CommandBuffer::executeCommand(const std::vector<Semaphore*>& waits,
+                                   const std::vector<Semaphore*>& signals,
+                                   const Fence& fence) const {
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &_buffer;
 
+  std::vector<VkSemaphore> waitSemaphores;
   if (!waits.empty()) {
-    std::array<VkPipelineStageFlags, 2> waitStages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waits.size());
-    submitInfo.pWaitSemaphores = waits.data();
-    submitInfo.pWaitDstStageMask = waitStages.data();
+    waitSemaphores.reserve(waits.size());
+    for (const auto& wait : waits) {
+      waitSemaphores.push_back(*wait);
+    }
+
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+    submitInfo.pWaitSemaphores = waitSemaphores.data();
+    submitInfo.pWaitDstStageMask = static_cast<VkPipelineStageFlags*>(waitStages);
   }
+  std::vector<VkSemaphore> signalSemaphores;
   if (!signals.empty()) {
-    submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signals.size());
-    submitInfo.pSignalSemaphores = signals.data();
+    signalSemaphores.reserve(signals.size());
+    for (const auto& signal : signals) {
+      signalSemaphores.push_back(*signal);
+    }
+
+    submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+    submitInfo.pSignalSemaphores = signalSemaphores.data();
   }
   VkQueue queue = _pool->queue();
   MI_VERIFY_VKCMD(vkQueueSubmit(queue, 1, &submitInfo, fence));
-}
-
-void CommandBuffer::recordSingleTimeCommand(
-    const std::function<void(const CommandBuffer&)>& command) const {
-  VkCommandBufferBeginInfo beginInfo{};
-  beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-  MI_VERIFY_VKCMD(vkBeginCommandBuffer(_buffer, &beginInfo));
-
-  command(*this);
-
-  MI_VERIFY_VKCMD(vkEndCommandBuffer(_buffer));
-}
-
-void CommandBuffer::executeSingleTimeCommand(
-    const std::function<void(const CommandBuffer&)>& command, bool blocking) const {
-  recordSingleTimeCommand(command);
-
-  VkSubmitInfo submitInfo{};
-  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &_buffer;
-
-  VkQueue queue = _pool->queue();
-  vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-  if (blocking) {
-    vkQueueWaitIdle(queue);
-  }
 }
 
 NAMESPACE_VULKAN_END

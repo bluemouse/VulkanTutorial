@@ -87,17 +87,17 @@ Image& Image::operator=(Image&& rhs) noexcept(false) {
 }
 
 void Image::moveFrom(Image& rhs) {
-  if (this != &rhs) {
-    _image = rhs._image;
-    _memory = rhs._memory;
-    _format = rhs._format;
-    _extent = rhs._extent;
-    _device = rhs._device;
+  _image = rhs._image;
+  _memory = rhs._memory;
+  _format = rhs._format;
+  _extent = rhs._extent;
+  _device = rhs._device;
 
-    rhs._image = VK_NULL_HANDLE;
-    rhs._memory = VK_NULL_HANDLE;
-    rhs._device = nullptr;
-  }
+  rhs._image = VK_NULL_HANDLE;
+  rhs._memory = VK_NULL_HANDLE;
+  rhs._format = VK_FORMAT_UNDEFINED;
+  rhs._extent = {0, 0};
+  rhs._device = nullptr;
 }
 
 uint32_t Image::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const {

@@ -28,22 +28,22 @@ class Buffer {
   void unmap();
 
   operator VkBuffer() const { return _buffer; }
-  VkDeviceMemory memory() const { return _memory; }
+  [[nodiscard]] VkDeviceMemory memory() const { return _memory; }
 
-  size_t size() const { return _size; }
-  bool isAllocated() const { return _buffer != VK_NULL_HANDLE; }
+  [[nodiscard]] size_t size() const { return _size; }
+  [[nodiscard]] bool isAllocated() const { return _buffer != VK_NULL_HANDLE; }
 
  private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
   void moveFrom(Buffer& rhs);
 
  protected:
-  const Device* _device = nullptr;
-
   VkBuffer _buffer = VK_NULL_HANDLE;
   VkDeviceMemory _memory = VK_NULL_HANDLE;
 
   size_t _size = 0; // in bytes
+
+  const Device* _device = nullptr;
 };
 
 NAMESPACE_VULKAN_END
