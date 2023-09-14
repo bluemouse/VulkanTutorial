@@ -17,6 +17,17 @@ Device::~Device() {
   }
 }
 
+Device::Device(Device&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+Device& Device::operator=(Device&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
   if (_device != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan logical device has been initialized already!");
@@ -72,6 +83,19 @@ void Device::destroy() {
   vkDestroyDevice(_device, nullptr);
   _device = VK_NULL_HANDLE;
   _physicalDevice = nullptr;
+}
+
+void Device::moveFrom(Device& rhs) {
+  MI_VERIFY(_device == VK_NULL_HANDLE);
+  _device = rhs._device;
+  _graphicsQueue = rhs._graphicsQueue;
+  _presentQueue = rhs._presentQueue;
+  _physicalDevice = rhs._physicalDevice;
+
+  rhs._device = VK_NULL_HANDLE;
+  rhs._graphicsQueue = VK_NULL_HANDLE;
+  rhs._presentQueue = VK_NULL_HANDLE;
+  rhs._physicalDevice = nullptr;
 }
 
 NAMESPACE_VULKAN_END

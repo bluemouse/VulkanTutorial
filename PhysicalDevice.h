@@ -53,6 +53,10 @@ class PhysicalDevice {
   [[nodiscard]] static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
                                                                      VkSurfaceKHR surface);
 
+  // Disable copy and assignment operators
+  PhysicalDevice(const PhysicalDevice&) = delete;
+  PhysicalDevice& operator=(const PhysicalDevice&) = delete;
+
  private:
   [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);
 

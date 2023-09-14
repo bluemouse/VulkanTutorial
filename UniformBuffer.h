@@ -15,7 +15,7 @@ class UniformBuffer : private Buffer {
 
   // Transfer the ownership from `rhs` to `this`
   UniformBuffer(UniformBuffer&& rhs) = default;
-  UniformBuffer& operator=(UniformBuffer&& rhs) noexcept(false);
+  UniformBuffer& operator=(UniformBuffer&& rhs) noexcept(false) = default;
 
   void allocate(const Device& device, size_t size);
   using Buffer::free;

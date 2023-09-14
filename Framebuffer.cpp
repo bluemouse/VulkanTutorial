@@ -29,8 +29,32 @@ Framebuffer::~Framebuffer() {
   vkDestroyFramebuffer(*_device, _buffer, nullptr);
 }
 
+Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 VkExtent2D Framebuffer::extent() const {
   return _imageView->image().extent();
+}
+
+void Framebuffer::moveFrom(Framebuffer& rhs) {
+  MI_VERIFY(_buffer == VK_NULL_HANDLE);
+  _buffer = rhs._buffer;
+  _device = rhs._device;
+  _renderPass = rhs._renderPass;
+  _imageView = rhs._imageView;
+
+  rhs._buffer = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+  rhs._renderPass = nullptr;
+  rhs._imageView = nullptr;
 }
 
 NAMESPACE_VULKAN_END

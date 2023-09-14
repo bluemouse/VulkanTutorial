@@ -14,6 +14,17 @@ Fence::~Fence() {
   }
 }
 
+Fence::Fence(Fence&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+Fence& Fence::operator=(Fence&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void Fence::create(const Device& device) {
   if (_fence != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan fence has been initialized already!");
@@ -35,6 +46,15 @@ void Fence::destroy() {
 
   _device = nullptr;
   _fence = VK_NULL_HANDLE;
+}
+
+void Fence::moveFrom(Fence& rhs) {
+  MI_VERIFY(_fence == VK_NULL_HANDLE);
+  _fence = rhs._fence;
+  _device = rhs._device;
+
+  rhs._fence = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

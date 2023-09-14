@@ -19,6 +19,16 @@ CommandBuffer::~CommandBuffer() {
   }
 }
 
+CommandBuffer::CommandBuffer(CommandBuffer&& rhs) noexcept {
+  moveFrom(rhs);
+}
+CommandBuffer& CommandBuffer::operator=(CommandBuffer&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void CommandBuffer::allocate(const CommandPool& commandPool) {
   MI_VERIFY(_buffer == VK_NULL_HANDLE);
   _pool = &commandPool;
@@ -111,6 +121,15 @@ void CommandBuffer::executeCommand(const std::vector<Semaphore*>& waits,
   }
   VkQueue queue = _pool->queue();
   MI_VERIFY_VKCMD(vkQueueSubmit(queue, 1, &submitInfo, fence));
+}
+
+void CommandBuffer::moveFrom(CommandBuffer& rhs) {
+  MI_VERIFY(_buffer == VK_NULL_HANDLE);
+  _buffer = rhs._buffer;
+  _pool = rhs._pool;
+
+  rhs._buffer = VK_NULL_HANDLE;
+  rhs._pool = nullptr;
 }
 
 NAMESPACE_VULKAN_END

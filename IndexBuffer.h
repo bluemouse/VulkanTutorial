@@ -15,7 +15,7 @@ class IndexBuffer : private Buffer {
 
   // Transfer the ownership from `rhs` to `this`
   IndexBuffer(IndexBuffer&& rhs) = default;
-  IndexBuffer& operator=(IndexBuffer&& rhs) noexcept(false);
+  IndexBuffer& operator=(IndexBuffer&& rhs) noexcept(false) = default;
 
   void allocate(const Device& device, size_t size);
   using Buffer::free;

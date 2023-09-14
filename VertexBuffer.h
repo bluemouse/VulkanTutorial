@@ -15,7 +15,7 @@ class VertexBuffer : private Buffer {
 
   // Transfer the ownership from `rhs` to `this`
   VertexBuffer(VertexBuffer&& rhs) = default;
-  VertexBuffer& operator=(VertexBuffer&& rhs) noexcept(false);
+  VertexBuffer& operator=(VertexBuffer&& rhs) noexcept(false) = default;
 
   void allocate(const Device& device, size_t size);
   using Buffer::free;

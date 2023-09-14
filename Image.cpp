@@ -18,6 +18,17 @@ Image::~Image() noexcept(false) {
   }
 }
 
+Image::Image(Image&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+Image& Image::operator=(Image&& rhs) noexcept(false) {
+  if (this == &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
   if (isAllocated()) {
     throw std::runtime_error("Vulkan image has been initialized and its memory allocated already!");
@@ -70,23 +81,8 @@ void Image::free() {
   _device = nullptr;
 }
 
-Image::Image(Image&& rhs) noexcept {
-  moveFrom(rhs);
-}
-
-Image& Image::operator=(Image&& rhs) noexcept(false) {
-  if (this == &rhs) {
-    return *this;
-  }
-
-  if (isAllocated()) {
-    throw std::runtime_error("Vulkan image has been allocated and can not be assigned!");
-  }
-  moveFrom(rhs);
-  return *this;
-}
-
 void Image::moveFrom(Image& rhs) {
+  MI_VERIFY(_image == VK_NULL_HANDLE);
   _image = rhs._image;
   _memory = rhs._memory;
   _format = rhs._format;

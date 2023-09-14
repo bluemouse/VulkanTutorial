@@ -14,6 +14,17 @@ Sampler::~Sampler() {
   }
 }
 
+Sampler::Sampler(Sampler&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+Sampler& Sampler::operator=(Sampler&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Filter filter) {
   if (_sampler != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan sampler has been initialized already!");
@@ -50,6 +61,15 @@ void Sampler::destroy() {
 
   _device = nullptr;
   _sampler = VK_NULL_HANDLE;
+}
+
+void Sampler::moveFrom(Sampler& rhs) {
+  MI_VERIFY(_sampler == VK_NULL_HANDLE);
+  _sampler = rhs._sampler;
+  _device = rhs._device;
+
+  rhs._sampler = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

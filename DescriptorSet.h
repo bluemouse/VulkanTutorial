@@ -15,11 +15,18 @@ class DescriptorSet {
   DescriptorSet(const DescriptorPool& pool, const DescriptorSetLayout& layout);
   ~DescriptorSet();
 
+  // Transfer the ownership from `rhs` to `this`
+  DescriptorSet(DescriptorSet&& rhs) noexcept;
+  DescriptorSet& operator=(DescriptorSet&& rhs) noexcept(false);
+
   void allocate(const DescriptorPool& pool, const DescriptorSetLayout& layout);
   void free();
 
   operator VkDescriptorSet() const { return _set; }
   operator const VkDescriptorSet*() const { return &_set; }
+
+ private:
+  void moveFrom(DescriptorSet& rhs);
 
  private:
   VkDescriptorSet _set = VK_NULL_HANDLE;

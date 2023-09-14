@@ -14,11 +14,18 @@ class Fence {
   explicit Fence(const Device& device);
   ~Fence();
 
+  // Transfer the ownership from `rhs` to `this`
+  Fence(Fence&& rhs) noexcept;
+  Fence& operator=(Fence&& rhs) noexcept(false);
+
   void create(const Device& device);
   void destroy();
 
   operator VkFence() const { return _fence; }
   operator const VkFence*() const { return &_fence; }
+
+ private:
+  void moveFrom(Fence& rhs);
 
  private:
   VkFence _fence = VK_NULL_HANDLE;

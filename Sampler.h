@@ -22,12 +22,19 @@ class Sampler {
           Filter filter = {VK_FILTER_LINEAR, VK_FILTER_LINEAR});
   ~Sampler();
 
+  // Transfer the ownership from `rhs` to `this`
+  Sampler(Sampler&& rhs) noexcept;
+  Sampler& operator=(Sampler&& rhs) noexcept(false);
+
   void create(const Device& device,
               VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
               Filter filter = {VK_FILTER_LINEAR, VK_FILTER_LINEAR});
   void destroy();
 
   operator VkSampler() const { return _sampler; }
+
+ private:
+  void moveFrom(Sampler& rhs);
 
  private:
   VkSampler _sampler = VK_NULL_HANDLE;

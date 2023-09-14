@@ -15,6 +15,17 @@ CommandPool::~CommandPool() {
   }
 }
 
+CommandPool::CommandPool(CommandPool&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+CommandPool& CommandPool::operator=(CommandPool&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void CommandPool::create(const Device& device, uint32_t queueFamilyIndex) {
   if (_pool != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan command pool has been initialized already!");
@@ -41,6 +52,17 @@ void CommandPool::destroy() {
   _pool = VK_NULL_HANDLE;
   _queue = VK_NULL_HANDLE;
   _device = nullptr;
+}
+
+void CommandPool::moveFrom(CommandPool& rhs) {
+  MI_VERIFY(_pool == VK_NULL_HANDLE);
+  _pool = rhs._pool;
+  _queue = rhs._queue;
+  _device = rhs._device;
+
+  rhs._pool = VK_NULL_HANDLE;
+  rhs._queue = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

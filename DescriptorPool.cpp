@@ -19,6 +19,17 @@ DescriptorPool::~DescriptorPool() {
   }
 }
 
+DescriptorPool::DescriptorPool(DescriptorPool&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+DescriptorPool& DescriptorPool::operator=(DescriptorPool&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void DescriptorPool::create(const Device& device,
                             std::vector<VkDescriptorPoolSize> poolSizes,
                             uint32_t maxSets) {
@@ -44,6 +55,15 @@ void DescriptorPool::destroy() {
   vkDestroyDescriptorPool(*_device, _pool, nullptr);
   _pool = VK_NULL_HANDLE;
   _device = nullptr;
+}
+
+void DescriptorPool::moveFrom(DescriptorPool& rhs) {
+  MI_VERIFY(_pool == VK_NULL_HANDLE);
+  _pool = rhs._pool;
+  _device = rhs._device;
+
+  rhs._pool = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

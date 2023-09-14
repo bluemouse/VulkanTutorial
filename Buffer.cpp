@@ -23,15 +23,14 @@ Buffer::Buffer(Buffer&& rhs) noexcept {
 }
 
 Buffer& Buffer::operator=(Buffer&& rhs) noexcept(false) {
-  if (this == &rhs) {
-    return *this;
+  if (this != &rhs) {
+    moveFrom(rhs);
   }
-  MI_VERIFY(!isAllocated());
-  moveFrom(rhs);
   return *this;
 }
 
 void Buffer::moveFrom(Buffer& rhs) {
+  MI_VERIFY(!isAllocated());
   _device = rhs._device;
   _buffer = rhs._buffer;
   _memory = rhs._memory;

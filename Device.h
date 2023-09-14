@@ -15,6 +15,10 @@ class Device {
   Device(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions = {});
   ~Device();
 
+  // Transfer the ownership from `rhs` to `this`
+  Device(Device&& rhs) noexcept;
+  Device& operator=(Device&& rhs) noexcept(false);
+
   void create(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions = {});
   void destroy();
 
@@ -25,6 +29,9 @@ class Device {
 
   [[nodiscard]] VkQueue graphicsQueue() const { return _graphicsQueue; }
   [[nodiscard]] VkQueue presentQueue() const { return _presentQueue; }
+
+ private:
+  void moveFrom(Device& rhs);
 
  private:
   VkDevice _device = VK_NULL_HANDLE;

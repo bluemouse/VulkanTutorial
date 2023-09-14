@@ -485,9 +485,9 @@ class HelloTriangleApplication {
   }
 
   void createDescriptorSets() {
-    _descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+    _descriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      _descriptorSets[i].allocate(_descriptorPool, _descriptorSetLayout);
+      _descriptorSets.emplace_back(_descriptorPool, _descriptorSetLayout);
 
       VkDescriptorBufferInfo bufferInfo{};
       bufferInfo.buffer = _uniformBuffers[i];

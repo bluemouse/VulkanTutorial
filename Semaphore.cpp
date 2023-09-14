@@ -20,19 +20,9 @@ Semaphore::Semaphore(Semaphore&& rhs) noexcept {
 
 Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept(false) {
   if (this == &rhs) {
-    return *this;
+    moveFrom(rhs);
   }
-  MI_VERIFY(_semaphore == VK_NULL_HANDLE);
-  moveFrom(rhs);
   return *this;
-}
-
-void Semaphore::moveFrom(Semaphore& rhs) {
-  _semaphore = rhs._semaphore;
-  _device = rhs._device;
-
-  rhs._semaphore = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 void Semaphore::create(const Device& device) {
@@ -51,6 +41,15 @@ void Semaphore::destroy() {
 
   _semaphore = VK_NULL_HANDLE;
   _device = nullptr;
+}
+
+void Semaphore::moveFrom(Semaphore& rhs) {
+  MI_VERIFY(_semaphore == VK_NULL_HANDLE);
+  _semaphore = rhs._semaphore;
+  _device = rhs._device;
+
+  rhs._semaphore = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

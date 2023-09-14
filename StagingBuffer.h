@@ -13,8 +13,9 @@ class StagingBuffer : private Buffer {
   StagingBuffer() = default;
   StagingBuffer(const Device& device, size_t size);
 
-  StagingBuffer(const StagingBuffer&) = delete;
-  StagingBuffer& operator=(const StagingBuffer&) = delete;
+  // Transfer the ownership from `rhs` to `this`
+  StagingBuffer(StagingBuffer&& rhs) = default;
+  StagingBuffer& operator=(StagingBuffer&& rhs) noexcept(false) = default;
 
   void allocate(const Device& device, size_t size);
   using Buffer::free;

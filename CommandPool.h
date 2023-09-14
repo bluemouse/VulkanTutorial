@@ -14,6 +14,10 @@ class CommandPool {
   CommandPool(const Device& device, uint32_t queueFamilyIndex);
   ~CommandPool();
 
+  // Transfer the ownership from `rhs` to `this`
+  CommandPool(CommandPool&& rhs) noexcept;
+  CommandPool& operator=(CommandPool&& rhs) noexcept(false);
+
   void create(const Device& device, uint32_t queueFamilyIndex);
   void destroy();
 
@@ -21,6 +25,9 @@ class CommandPool {
   [[nodiscard]] VkQueue queue() const { return _queue; }
 
   [[nodiscard]] const Device& device() const { return *_device; }
+
+ private:
+  void moveFrom(CommandPool& rhs);
 
  private:
   VkCommandPool _pool = VK_NULL_HANDLE;

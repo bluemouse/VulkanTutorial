@@ -16,6 +16,17 @@ DescriptorSetLayout::~DescriptorSetLayout() {
   }
 }
 
+DescriptorSetLayout::DescriptorSetLayout(DescriptorSetLayout&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void DescriptorSetLayout::create(const Device& device,
                                  std::vector<VkDescriptorSetLayoutBinding> bindings) {
   if (_layout != VK_NULL_HANDLE) {
@@ -40,6 +51,15 @@ void DescriptorSetLayout::destroy() {
   vkDestroyDescriptorSetLayout(*_device, _layout, nullptr);
   _layout = VK_NULL_HANDLE;
   _device = nullptr;
+}
+
+void DescriptorSetLayout::moveFrom(DescriptorSetLayout& rhs) {
+  MI_VERIFY(_layout == VK_NULL_HANDLE);
+  _layout = rhs._layout;
+  _device = rhs._device;
+
+  rhs._layout = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

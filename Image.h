@@ -15,6 +15,10 @@ class Image {
   Image(VkImage image, VkFormat format, VkExtent2D extent);
   ~Image() noexcept(false);
 
+  // Transfer the ownership from `rhs` to `this`
+  Image(Image&& rhs) noexcept;
+  Image& operator=(Image&& rhs) noexcept(false);
+
   void allocate(const Device& device, VkFormat format, VkExtent2D extent);
   void free();
 
@@ -25,10 +29,6 @@ class Image {
   [[nodiscard]] VkExtent2D extent() const { return _extent; }
   [[nodiscard]] uint32_t width() const { return _extent.width; }
   [[nodiscard]] uint32_t height() const { return _extent.height; }
-
-  // Transfer the ownership from `rhs` to `this`
-  Image(Image&& rhs) noexcept;
-  Image& operator=(Image&& rhs) noexcept(false);
 
  private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;

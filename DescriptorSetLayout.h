@@ -16,11 +16,18 @@ class DescriptorSetLayout {
   DescriptorSetLayout(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
   ~DescriptorSetLayout();
 
+  // Transfer the ownership from `rhs` to `this`
+  DescriptorSetLayout(DescriptorSetLayout&& rhs) noexcept;
+  DescriptorSetLayout& operator=(DescriptorSetLayout&& rhs) noexcept(false);
+
   void create(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
   void destroy();
 
   operator VkDescriptorSetLayout() const { return _layout; }
   operator const VkDescriptorSetLayout*() const { return &_layout; }
+
+ private:
+  void moveFrom(DescriptorSetLayout& rhs);
 
  private:
   VkDescriptorSetLayout _layout = VK_NULL_HANDLE;

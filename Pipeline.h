@@ -30,6 +30,10 @@ class Pipeline {
            VkDescriptorSetLayout descriptorSetLayout);
   ~Pipeline();
 
+  // Transfer the ownership from `rhs` to `this`
+  Pipeline(Pipeline&& rhs) noexcept;
+  Pipeline& operator=(Pipeline&& rhs) noexcept(false);
+
   void create(const Device& device,
               const RenderPass& renderPass,
               const Shader& vertShader,
@@ -41,6 +45,9 @@ class Pipeline {
 
   operator VkPipeline() const { return _pipeline; }
   [[nodiscard]] VkPipelineLayout layout() const { return _layout; }
+
+ private:
+  void moveFrom(Pipeline& rhs);
 
  private:
   VkPipeline _pipeline = VK_NULL_HANDLE;

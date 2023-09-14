@@ -14,6 +14,17 @@ RenderPass::~RenderPass() {
   }
 }
 
+RenderPass::RenderPass(RenderPass&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+RenderPass& RenderPass::operator=(RenderPass&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void RenderPass::create(const Device& device, VkFormat format) {
   if (_renderPass != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan render pass has been created already!");
@@ -67,6 +78,15 @@ void RenderPass::destroy() {
 
   _renderPass = VK_NULL_HANDLE;
   _device = nullptr;
+}
+
+void RenderPass::moveFrom(RenderPass& rhs) {
+  MI_VERIFY(_renderPass == VK_NULL_HANDLE);
+  _renderPass = rhs._renderPass;
+  _device = rhs._device;
+
+  rhs._renderPass = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

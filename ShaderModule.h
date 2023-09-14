@@ -13,7 +13,14 @@ class ShaderModule {
   ShaderModule(const Device& device, const char* shaderFile);
   ~ShaderModule();
 
+  // Transfer the ownership from `rhs` to `this`
+  ShaderModule(ShaderModule&& rhs) noexcept;
+  ShaderModule& operator=(ShaderModule&& rhs) noexcept(false);
+
   operator VkShaderModule() const { return _shader; }
+
+private:
+  void moveFrom(ShaderModule& rhs);
 
  private:
   VkShaderModule _shader = VK_NULL_HANDLE;

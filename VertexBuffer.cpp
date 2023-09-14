@@ -6,14 +6,6 @@ VertexBuffer::VertexBuffer(const Device& device, size_t size) {
   allocate(device, size);
 }
 
-VertexBuffer& VertexBuffer::operator=(VertexBuffer&& rhs) noexcept(false) {
-  if (isAllocated()) {
-    throw std::runtime_error("Vulkan vertex buffer has been allocated and can not be assigned!");
-  }
-  Buffer::operator=(std::move(rhs));
-  return *this;
-}
-
 void VertexBuffer::allocate(const Device& device, size_t size) {
   if (isAllocated()) {
     throw std::runtime_error("Vulkan vertex buffer has been allocated already!");

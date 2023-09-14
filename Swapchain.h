@@ -24,6 +24,10 @@ class Swapchain {
             const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);
   ~Swapchain();
 
+  // Disable copy and assignment operators
+  Swapchain(const Swapchain&) = delete;
+  Swapchain& operator=(const Swapchain&) = delete;
+
   void create(const Device& device,
               const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
                   chooseSwapSurfaceFormat,

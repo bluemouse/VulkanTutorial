@@ -44,4 +44,23 @@ ShaderModule::~ShaderModule() {
   vkDestroyShaderModule(*_device, _shader, nullptr);
 }
 
+ShaderModule::ShaderModule(ShaderModule&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+ShaderModule& ShaderModule::operator=(ShaderModule&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
+void ShaderModule::moveFrom(ShaderModule& rhs) {
+  MI_VERIFY(_shader == VK_NULL_HANDLE);
+  _shader = rhs._shader;
+  _device = rhs._device;
+
+  rhs._shader = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
 NAMESPACE_VULKAN_END

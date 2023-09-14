@@ -15,6 +15,17 @@ ImageView::~ImageView() {
   }
 }
 
+ImageView::ImageView(ImageView&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+ImageView& ImageView::operator=(ImageView&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void ImageView::create(const Device& device, const Image& image) {
   if (_view != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan image view has been initialized already!");
@@ -48,4 +59,14 @@ void ImageView::destroy() {
   _image = nullptr;
 }
 
+void ImageView::moveFrom(ImageView& rhs) {
+  MI_VERIFY(_view == VK_NULL_HANDLE);
+  _view = rhs._view;
+  _device = rhs._device;
+  _image = rhs._image;
+
+  rhs._view = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+  rhs._image = nullptr;
+}
 NAMESPACE_VULKAN_END

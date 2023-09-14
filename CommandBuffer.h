@@ -20,6 +20,10 @@ class CommandBuffer {
   CommandBuffer(const CommandPool& commandPool);
   ~CommandBuffer();
 
+  // Transfer the ownership from `rhs` to `this`
+  CommandBuffer(CommandBuffer&& rhs) noexcept;
+  CommandBuffer& operator=(CommandBuffer&& rhs) noexcept(false);
+
   void allocate(const CommandPool& commandPool);
   void free();
 
@@ -48,6 +52,7 @@ class CommandBuffer {
   void executeCommand(const std::vector<Semaphore*>& waits,
                       const std::vector<Semaphore*>& signals,
                       const Fence& fence) const;
+  void moveFrom(CommandBuffer& rhs);
 
  private:
   VkCommandBuffer _buffer = VK_NULL_HANDLE;

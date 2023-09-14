@@ -55,6 +55,10 @@ class Instance {
                                                const VkDebugUtilsMessengerCallbackDataEXT*)>;
   void setDebugCallback(const DebugCallback& callback);
 
+  // Disable copy and assignment operators
+  Instance(const Instance&) = delete;
+  Instance& operator=(const Instance&) = delete;
+
  private:
   static bool checkLayerSupport(const std::vector<const char*>& layers);
   void initDefaultDebugCallback();

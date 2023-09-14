@@ -30,6 +30,17 @@ Pipeline::~Pipeline() {
   }
 }
 
+Pipeline::Pipeline(Pipeline &&rhs) noexcept {
+  moveFrom(rhs);
+}
+
+Pipeline &Pipeline::operator=(Pipeline &&rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void Pipeline::create(const Device &device,
                       const RenderPass &renderPass,
                       const Shader &vertShader,
@@ -149,6 +160,17 @@ void Pipeline::destroy() {
 
   _device = nullptr;
   _pipeline = VK_NULL_HANDLE;
+}
+
+void Pipeline::moveFrom(Pipeline &rhs) {
+  MI_VERIFY(_pipeline == VK_NULL_HANDLE);
+  _pipeline = rhs._pipeline;
+  _layout = rhs._layout;
+  _device = rhs._device;
+
+  rhs._pipeline = VK_NULL_HANDLE;
+  rhs._layout = VK_NULL_HANDLE;
+  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

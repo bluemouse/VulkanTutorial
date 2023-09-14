@@ -17,6 +17,17 @@ DescriptorSet::~DescriptorSet() {
   }
 }
 
+DescriptorSet::DescriptorSet(DescriptorSet&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+DescriptorSet& DescriptorSet::operator=(DescriptorSet&& rhs) noexcept(false) {
+  if (this != &rhs) {
+    moveFrom(rhs);
+  }
+  return *this;
+}
+
 void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayout& layout) {
   if (_set != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan descriptor set has been allocated already!");
@@ -43,6 +54,15 @@ void DescriptorSet::free() {
 
   _set = VK_NULL_HANDLE;
   _pool = nullptr;
+}
+
+void DescriptorSet::moveFrom(DescriptorSet& rhs) {
+  MI_VERIFY(_set == VK_NULL_HANDLE);
+  _set = rhs._set;
+  _pool = rhs._pool;
+
+  rhs._set = VK_NULL_HANDLE;
+  rhs._pool = nullptr;
 }
 
 NAMESPACE_VULKAN_END
