@@ -21,14 +21,20 @@ class Pipeline {
 
  public:
   Pipeline() = default;
-  Pipeline(const Device& device, const RenderPass& renderPass, const Shader& vertShader,
-           const Shader& fragShader, VkVertexInputBindingDescription bindingDescription,
+  Pipeline(const Device& device,
+           const RenderPass& renderPass,
+           const Shader& vertShader,
+           const Shader& fragShader,
+           VkVertexInputBindingDescription bindingDescription,
            std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
            VkDescriptorSetLayout descriptorSetLayout);
   ~Pipeline();
 
-  void create(const Device& device, const RenderPass& renderPass, const Shader& vertShader,
-              const Shader& fragShader, VkVertexInputBindingDescription bindingDescription,
+  void create(const Device& device,
+              const RenderPass& renderPass,
+              const Shader& vertShader,
+              const Shader& fragShader,
+              VkVertexInputBindingDescription bindingDescription,
               std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
               VkDescriptorSetLayout descriptorSetLayout);
   void destroy();

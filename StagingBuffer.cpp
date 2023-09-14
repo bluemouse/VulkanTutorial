@@ -11,7 +11,9 @@ StagingBuffer::StagingBuffer(const Device& device, size_t size) {
 }
 
 void StagingBuffer::allocate(const Device& device, size_t size) {
-  Buffer::allocate(device, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+  Buffer::allocate(device,
+                   size,
+                   VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 

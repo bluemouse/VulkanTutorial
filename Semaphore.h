@@ -24,13 +24,13 @@ class Semaphore {
   operator VkSemaphore() const { return _semaphore; }
   operator const VkSemaphore*() const { return &_semaphore; }
 
-  private:
-   void moveFrom(Semaphore& rhs);
+ private:
+  void moveFrom(Semaphore& rhs);
 
-  private:
-   VkSemaphore _semaphore = VK_NULL_HANDLE;
+ private:
+  VkSemaphore _semaphore = VK_NULL_HANDLE;
 
-   const Device* _device = nullptr;
+  const Device* _device = nullptr;
 };
 
 NAMESPACE_VULKAN_END

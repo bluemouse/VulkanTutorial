@@ -82,7 +82,8 @@ PhysicalDevice::QueueFamilies PhysicalDevice::findQueueFamilies(VkPhysicalDevice
 }
 
 PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(
-    VkPhysicalDevice device, VkSurfaceKHR surface) {
+    VkPhysicalDevice device,
+    VkSurfaceKHR surface) {
   SwapChainSupportDetails details;
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
@@ -97,8 +98,8 @@ PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(
   vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
   if (presentModeCount > 0) {
     details.presentModes.resize(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount,
-                                              details.presentModes.data());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(
+        device, surface, &presentModeCount, details.presentModes.data());
   }
 
   return details;

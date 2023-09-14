@@ -5,7 +5,9 @@
 
 namespace Vulkan {
 
-Buffer::Buffer(const Device& device, size_t size, VkBufferUsageFlags usage,
+Buffer::Buffer(const Device& device,
+               size_t size,
+               VkBufferUsageFlags usage,
                VkMemoryPropertyFlags properties) {
   allocate(device, size, usage, properties);
 }
@@ -39,7 +41,9 @@ void Buffer::moveFrom(Buffer& rhs) {
   rhs._memory = VK_NULL_HANDLE;
 }
 
-void Buffer::allocate(const Device& device, size_t size, VkBufferUsageFlags usage,
+void Buffer::allocate(const Device& device,
+                      size_t size,
+                      VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties) {
   MI_VERIFY(!isAllocated());
   _device = &device;

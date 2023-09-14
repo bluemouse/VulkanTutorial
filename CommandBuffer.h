@@ -25,11 +25,14 @@ class CommandBuffer {
 
   using Recorder = std::function<void(const CommandBuffer& buffer)>;
   void recordCommand(const Recorder& recorder) const { recordCommand(recorder, false); }
-  void executeCommand(const Recorder& recorder, const std::vector<Semaphore*>& waits = {},
-                      const std::vector<Semaphore*>& signals = {}, const Fence& fence = {}) const;
+  void executeCommand(const Recorder& recorder,
+                      const std::vector<Semaphore*>& waits = {},
+                      const std::vector<Semaphore*>& signals = {},
+                      const Fence& fence = {}) const;
 
   void recordSingleTimeCommand(const Recorder& recorder) const { recordCommand(recorder, true); }
-  void executeSingleTimeCommand(const Recorder& recorder, const std::vector<Semaphore*>& waits = {},
+  void executeSingleTimeCommand(const Recorder& recorder,
+                                const std::vector<Semaphore*>& waits = {},
                                 const std::vector<Semaphore*>& signals = {},
                                 const Fence& fence = {}) const;
 
@@ -42,7 +45,8 @@ class CommandBuffer {
 
  private:
   void recordCommand(const Recorder& recorder, bool singleTime) const;
-  void executeCommand(const std::vector<Semaphore*>& waits, const std::vector<Semaphore*>& signals,
+  void executeCommand(const std::vector<Semaphore*>& waits,
+                      const std::vector<Semaphore*>& signals,
                       const Fence& fence) const;
 
  private:

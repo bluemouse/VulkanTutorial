@@ -7,7 +7,8 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-DescriptorPool::DescriptorPool(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes,
+DescriptorPool::DescriptorPool(const Device& device,
+                               std::vector<VkDescriptorPoolSize> poolSizes,
                                uint32_t maxSets) {
   create(device, std::move(poolSizes), maxSets);
 }
@@ -18,7 +19,8 @@ DescriptorPool::~DescriptorPool() {
   }
 }
 
-void DescriptorPool::create(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes,
+void DescriptorPool::create(const Device& device,
+                            std::vector<VkDescriptorPoolSize> poolSizes,
                             uint32_t maxSets) {
   if (_pool != VK_NULL_HANDLE) {
     throw std::runtime_error("Vulkan descriptor pool has been initialized already!");

@@ -8,12 +8,20 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-Pipeline::Pipeline(const Device &device, const RenderPass &renderPass, const Shader &vertShader,
-                   const Shader &fragShader, VkVertexInputBindingDescription bindingDescription,
+Pipeline::Pipeline(const Device &device,
+                   const RenderPass &renderPass,
+                   const Shader &vertShader,
+                   const Shader &fragShader,
+                   VkVertexInputBindingDescription bindingDescription,
                    std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
                    VkDescriptorSetLayout descriptorSetLayout) {
-  create(device, renderPass, vertShader, fragShader, bindingDescription,
-         std::move(attributeDescriptions), descriptorSetLayout);
+  create(device,
+         renderPass,
+         vertShader,
+         fragShader,
+         bindingDescription,
+         std::move(attributeDescriptions),
+         descriptorSetLayout);
 }
 
 Pipeline::~Pipeline() {
@@ -22,8 +30,11 @@ Pipeline::~Pipeline() {
   }
 }
 
-void Pipeline::create(const Device &device, const RenderPass &renderPass, const Shader &vertShader,
-                      const Shader &fragShader, VkVertexInputBindingDescription bindingDescription,
+void Pipeline::create(const Device &device,
+                      const RenderPass &renderPass,
+                      const Shader &vertShader,
+                      const Shader &fragShader,
+                      VkVertexInputBindingDescription bindingDescription,
                       std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
                       VkDescriptorSetLayout descriptorSetLayout) {
   if (_pipeline != VK_NULL_HANDLE) {

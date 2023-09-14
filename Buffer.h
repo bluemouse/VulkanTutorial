@@ -11,7 +11,9 @@ class Device;
 class Buffer {
  public:
   Buffer() = default;
-  Buffer(const Device& device, size_t size, VkBufferUsageFlags usage,
+  Buffer(const Device& device,
+         size_t size,
+         VkBufferUsageFlags usage,
          VkMemoryPropertyFlags properties);
   virtual ~Buffer();
 
@@ -19,7 +21,9 @@ class Buffer {
   Buffer(Buffer&& rhs) noexcept;
   Buffer& operator=(Buffer&& rhs) noexcept(false);
 
-  void allocate(const Device& device, size_t size, VkBufferUsageFlags usage,
+  void allocate(const Device& device,
+                size_t size,
+                VkBufferUsageFlags usage,
                 VkMemoryPropertyFlags properties);
   void free();
 

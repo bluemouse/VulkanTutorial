@@ -13,7 +13,9 @@ Instance::Instance(
   create(appInfoOverride, instanceCreateInfoOverride, debugUtilsMessengerCreateInfoOverride);
 }
 
-Instance::Instance(int versionMajor, int versionMinor, std::vector<const char*> extensions,
+Instance::Instance(int versionMajor,
+                   int versionMinor,
+                   std::vector<const char*> extensions,
                    bool enableValidation) {
   create(versionMajor, versionMinor, std::move(extensions), enableValidation);
 }
@@ -75,7 +77,9 @@ void Instance::create(
   }
 }
 
-void Instance::create(int versionMajor, int versionMinor, std::vector<const char*> extensions,
+void Instance::create(int versionMajor,
+                      int versionMinor,
+                      std::vector<const char*> extensions,
                       bool enableValidation) {
   MI_VERIFY(_instance == VK_NULL_HANDLE);
 
@@ -206,10 +210,11 @@ void Instance::setDebugCallback(const DebugCallback& callback) {
   }
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL Instance::VkDebugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+VKAPI_ATTR VkBool32 VKAPI_CALL
+Instance::VkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                          VkDebugUtilsMessageTypeFlagsEXT messageType,
+                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                          void* pUserData) {
   auto* instance = static_cast<Instance*>(pUserData);
   return instance->_debugCallback(messageSeverity, messageType, pCallbackData);
 }

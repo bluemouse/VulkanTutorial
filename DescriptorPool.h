@@ -13,7 +13,8 @@ class Device;
 class DescriptorPool {
  public:
   DescriptorPool() = default;
-  DescriptorPool(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes,
+  DescriptorPool(const Device& device,
+                 std::vector<VkDescriptorPoolSize> poolSizes,
                  uint32_t maxSets);
   ~DescriptorPool();
 

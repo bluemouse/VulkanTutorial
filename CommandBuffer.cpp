@@ -45,7 +45,8 @@ void CommandBuffer::free() {
   _pool = nullptr;
 }
 
-void CommandBuffer::executeCommand(const Recorder& recorder, const std::vector<Semaphore*>& waits,
+void CommandBuffer::executeCommand(const Recorder& recorder,
+                                   const std::vector<Semaphore*>& waits,
                                    const std::vector<Semaphore*>& signals,
                                    const Fence& fence) const {
   recordCommand(recorder);

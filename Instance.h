@@ -21,7 +21,9 @@ class Instance {
            const InstanceCreateInfoOverride& instanceCreateInfoOverride,
            const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride =
                DebugUtilsMessengerCreateInfoOverride());
-  Instance(int versionMajor, int versionMinor, std::vector<const char*> extensions,
+  Instance(int versionMajor,
+           int versionMinor,
+           std::vector<const char*> extensions,
            bool enableValidation = false);
   ~Instance();
 
@@ -30,7 +32,9 @@ class Instance {
       const InstanceCreateInfoOverride& instanceCreateInfoOverride = InstanceCreateInfoOverride(),
       const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride =
           DebugUtilsMessengerCreateInfoOverride());
-  void create(int versionMajor, int versionMinor, std::vector<const char*> extensions,
+  void create(int versionMajor,
+              int versionMinor,
+              std::vector<const char*> extensions,
               bool enableValidation = false);
   // TODO we should be able to create the surface using functions such
   //      as vkCreateWin32SurfaceKHR, vkCreateWin32SurfaceKHR and
@@ -58,7 +62,8 @@ class Instance {
   static VKAPI_ATTR VkBool32 VKAPI_CALL
   VkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                   VkDebugUtilsMessageTypeFlagsEXT messageType,
-                  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+                  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                  void* pUserData);
 
  private:
   VkInstance _instance = VK_NULL_HANDLE;

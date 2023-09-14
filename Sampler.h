@@ -17,7 +17,8 @@ class Sampler {
 
  public:
   Sampler() = default;
-  Sampler(const Device& device, VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+  Sampler(const Device& device,
+          VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT,
           Filter filter = {VK_FILTER_LINEAR, VK_FILTER_LINEAR});
   ~Sampler();
 

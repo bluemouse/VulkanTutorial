@@ -7,10 +7,11 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-Framebuffer::Framebuffer(const Device& device, const RenderPass& renderPass,
+Framebuffer::Framebuffer(const Device& device,
+                         const RenderPass& renderPass,
                          const ImageView& imageView)
     : _device(&device), _renderPass(&renderPass), _imageView(&imageView) {
-  std::array<VkImageView,1> attachments = {imageView};
+  std::array<VkImageView, 1> attachments = {imageView};
 
   VkFramebufferCreateInfo framebufferInfo{};
   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

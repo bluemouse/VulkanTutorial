@@ -25,6 +25,6 @@
     throw std::runtime_error(msg _MI_AT_THIS_LINE); \
   }
 
-#define MI_INIT_VKPROC(cmd)                                     \
+#define MI_INIT_VKPROC(cmd)                                                       \
   auto cmd = reinterpret_cast<PFN_##cmd>(vkGetInstanceProcAddr(_instance, #cmd)); \
   MI_VERIFY(cmd != nullptr);
