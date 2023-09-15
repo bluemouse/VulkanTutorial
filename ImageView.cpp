@@ -27,9 +27,7 @@ ImageView& ImageView::operator=(ImageView&& rhs) noexcept(false) {
 }
 
 void ImageView::create(const Device& device, const Image& image) {
-  if (_view != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan image view has been initialized already!");
-  }
+  MI_VERIFY(_view == VK_NULL_HANDLE);
   _device = &device;
   _image = &image;
 
@@ -48,10 +46,7 @@ void ImageView::create(const Device& device, const Image& image) {
 }
 
 void ImageView::destroy() {
-  if (_view == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null image view cannot be released!");
-  }
-
+  MI_VERIFY(_view != VK_NULL_HANDLE);
   vkDestroyImageView(*_device, _view, nullptr);
 
   _view = VK_NULL_HANDLE;

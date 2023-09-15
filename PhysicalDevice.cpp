@@ -24,7 +24,7 @@ void PhysicalDevice::instantiate(const Instance& instance,
   uint32_t deviceCount = 0;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
-  MI_VERIFY_MSG(deviceCount > 0, "Error: failed to find physical Vulkan devices!");
+  MI_VERIFY_MSG(deviceCount > 0, "Failed to find physical Vulkan devices!");
 
   std::vector<VkPhysicalDevice> devices(deviceCount);
   vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());

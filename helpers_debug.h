@@ -5,15 +5,18 @@
 #define _MI_STRINGIZE_IMPL(x) #x
 #define _MI_STRINGIZE(x) _MI_STRINGIZE_IMPL(x)
 
+#define MI_FORMAT(...) __helpers_debug__::format(__VA_ARGS__)
+
 #define _MI_AT_THIS_LINE " [" __FILE__ ":" _MI_STRINGIZE(__LINE__) "]"
 
 #define MI_VERIFY(condition)                                                   \
   if (!(condition)) {                                                          \
     throw std::runtime_error("Error: " #condition " failed" _MI_AT_THIS_LINE); \
   }
-#define MI_VERIFY_MSG(condition, msg)               \
-  if (!(condition)) {                               \
-    throw std::runtime_error(msg _MI_AT_THIS_LINE); \
+#define MI_VERIFY_MSG(condition, ...)                                                              \
+  if (!(condition)) {                                                                              \
+    auto msg = std::string("Error: ") + __helpers_debug__::format(__VA_ARGS__) + _MI_AT_THIS_LINE; \
+    throw std::runtime_error(msg);                                                                 \
   }
 
 #if defined(_NDEBUG) || defined(NDEBUG)
@@ -71,4 +74,6 @@ void log(const char* tag, const char* msg, ...);
 void log(const char* file, int line, const char* tag, const char* msg, ...);
 
 void log_backtraces();
+
+const char* format(const char* fmt, ...);
 } // namespace __helpers_debug__

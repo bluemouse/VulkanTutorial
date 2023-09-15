@@ -27,9 +27,7 @@ CommandPool& CommandPool::operator=(CommandPool&& rhs) noexcept(false) {
 }
 
 void CommandPool::create(const Device& device, uint32_t queueFamilyIndex) {
-  if (_pool != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan command pool has been initialized already!");
-  }
+  MI_VERIFY(_pool == VK_NULL_HANDLE);
 
   _device = &device;
 
@@ -44,9 +42,7 @@ void CommandPool::create(const Device& device, uint32_t queueFamilyIndex) {
 }
 
 void CommandPool::destroy() {
-  if (_pool == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null command pool cannot be released!");
-  }
+  MI_VERIFY(_pool != VK_NULL_HANDLE);
 
   vkDestroyCommandPool(*_device, _pool, nullptr);
   _pool = VK_NULL_HANDLE;

@@ -26,9 +26,7 @@ Fence& Fence::operator=(Fence&& rhs) noexcept(false) {
 }
 
 void Fence::create(const Device& device) {
-  if (_fence != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan fence has been initialized already!");
-  }
+  MI_VERIFY(_fence == VK_NULL_HANDLE);
   _device = &device;
 
   VkFenceCreateInfo fenceInfo{};
@@ -39,9 +37,7 @@ void Fence::create(const Device& device) {
 }
 
 void Fence::destroy() {
-  if (_fence == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null fence cannot be released!");
-  }
+  MI_VERIFY(_fence != VK_NULL_HANDLE);
   vkDestroyFence(*_device, _fence, nullptr);
 
   _device = nullptr;

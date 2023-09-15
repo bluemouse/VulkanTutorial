@@ -26,9 +26,7 @@ RenderPass& RenderPass::operator=(RenderPass&& rhs) noexcept(false) {
 }
 
 void RenderPass::create(const Device& device, VkFormat format) {
-  if (_renderPass != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan render pass has been created already!");
-  }
+  MI_VERIFY(_renderPass == VK_NULL_HANDLE);
   _device = &device;
 
   VkAttachmentDescription colorAttachment{};
@@ -71,9 +69,7 @@ void RenderPass::create(const Device& device, VkFormat format) {
 }
 
 void RenderPass::destroy() {
-  if (_renderPass == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null render pass cannot be released!");
-  }
+  MI_VERIFY(_renderPass != VK_NULL_HANDLE);
   vkDestroyRenderPass(*_device, _renderPass, nullptr);
 
   _renderPass = VK_NULL_HANDLE;

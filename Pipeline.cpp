@@ -48,9 +48,7 @@ void Pipeline::create(const Device &device,
                       VkVertexInputBindingDescription bindingDescription,
                       std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
                       VkDescriptorSetLayout descriptorSetLayout) {
-  if (_pipeline != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan pipeline has been initialized already!");
-  }
+  MI_VERIFY(_pipeline == VK_NULL_HANDLE);
   _device = &device;
 
   VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -152,9 +150,7 @@ void Pipeline::create(const Device &device,
 }
 
 void Pipeline::destroy() {
-  if (_pipeline == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null pipeline cannot be released!");
-  }
+  MI_VERIFY(_pipeline != VK_NULL_HANDLE);
   vkDestroyPipeline(*_device, _pipeline, nullptr);
   vkDestroyPipelineLayout(*_device, _layout, nullptr);
 

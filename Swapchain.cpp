@@ -100,9 +100,7 @@ void Swapchain::create(
 }
 
 void Swapchain::createFramebuffers(const RenderPass& renderPass) {
-  if (_swapchain == VK_NULL_HANDLE) {
-    throw std::runtime_error("Can not create swapchain framebuffers without a valid swapchain!");
-  }
+  MI_VERIFY(_swapchain != VK_NULL_HANDLE);
 
   // Reserve enough space to avoid resizing that can trigger destructing
   _framebuffers.reserve(_imageViews.size());
@@ -112,9 +110,7 @@ void Swapchain::createFramebuffers(const RenderPass& renderPass) {
 }
 
 void Swapchain::destroy() {
-  if (_swapchain == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null swap chain cannot be released!");
-  }
+  MI_VERIFY(_swapchain != VK_NULL_HANDLE);
 
   // Be careful about changing the release order.
   _framebuffers.clear();

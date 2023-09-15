@@ -9,9 +9,7 @@ namespace {
 std::vector<char> readFile(const std::string& filename) {
   std::ifstream inputFile(filename, std::ios::binary | std::ios::ate);
 
-  if (!inputFile) {
-    throw std::runtime_error(std::string("Failed to open file: ") + filename + "!");
-  }
+  MI_VERIFY_MSG(inputFile, "Failed to open file '%s'", filename.c_str());
 
   std::streamsize fileSize = inputFile.tellg();
   inputFile.seekg(0, std::ios::beg);

@@ -104,4 +104,13 @@ void log_backtraces() {
   free(traces);
 }
 
+const char* format(const char* fmt, ...) {
+  static char buffer[1024];
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(buffer, fmt, args);
+  va_end(args);
+  return buffer;
+}
+
 } // namespace __helpers_debug__

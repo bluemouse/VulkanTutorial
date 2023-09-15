@@ -26,9 +26,7 @@ Sampler& Sampler::operator=(Sampler&& rhs) noexcept(false) {
 }
 
 void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Filter filter) {
-  if (_sampler != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan sampler has been initialized already!");
-  }
+  MI_VERIFY(_sampler == VK_NULL_HANDLE);
   _device = &device;
 
   VkPhysicalDeviceProperties properties{};
@@ -53,10 +51,7 @@ void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Fil
 }
 
 void Sampler::destroy() {
-  if (_sampler == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null sampler cannot be released!");
-  }
-
+  MI_VERIFY(_sampler != VK_NULL_HANDLE);
   vkDestroySampler(*_device, _sampler, nullptr);
 
   _device = nullptr;

@@ -29,9 +29,7 @@ DescriptorSet& DescriptorSet::operator=(DescriptorSet&& rhs) noexcept(false) {
 }
 
 void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayout& layout) {
-  if (_set != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan descriptor set has been allocated already!");
-  }
+  MI_VERIFY(_set == VK_NULL_HANDLE);
   _pool = &pool;
 
   VkDescriptorSetAllocateInfo allocInfo{};
@@ -44,9 +42,7 @@ void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayo
 }
 
 void DescriptorSet::free() {
-  if (_set == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null descriptor set cannot be freed!");
-  }
+  MI_VERIFY(_set != VK_NULL_HANDLE);
 
   // TODO: Can only call free() if _pool is created with
   // VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT.

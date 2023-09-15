@@ -30,9 +30,7 @@ Image& Image::operator=(Image&& rhs) noexcept(false) {
 }
 
 void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
-  if (isAllocated()) {
-    throw std::runtime_error("Vulkan image has been initialized and its memory allocated already!");
-  }
+  MI_VERIFY(_image == VK_NULL_HANDLE);
   _device = &device;
   _format = format;
   _extent = extent;
@@ -69,10 +67,7 @@ void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
 }
 
 void Image::free() {
-  if (!isAllocated()) {
-    throw std::runtime_error("Vulkan null image and its memory cannot be released!");
-  }
-
+  MI_VERIFY(isAllocated());
   vkDestroyImage(*_device, _image, nullptr);
   vkFreeMemory(*_device, _memory, nullptr);
 

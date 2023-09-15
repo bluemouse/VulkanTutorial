@@ -33,9 +33,7 @@ DescriptorPool& DescriptorPool::operator=(DescriptorPool&& rhs) noexcept(false) 
 void DescriptorPool::create(const Device& device,
                             std::vector<VkDescriptorPoolSize> poolSizes,
                             uint32_t maxSets) {
-  if (_pool != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan descriptor pool has been initialized already!");
-  }
+  MI_VERIFY(_pool == VK_NULL_HANDLE);
   _device = &device;
 
   VkDescriptorPoolCreateInfo poolInfo{};
@@ -48,9 +46,7 @@ void DescriptorPool::create(const Device& device,
 }
 
 void DescriptorPool::destroy() {
-  if (_pool == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null descriptor pool cannot be destroyed!");
-  }
+  MI_VERIFY(_pool != VK_NULL_HANDLE);
 
   vkDestroyDescriptorPool(*_device, _pool, nullptr);
   _pool = VK_NULL_HANDLE;

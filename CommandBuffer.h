@@ -28,7 +28,13 @@ class CommandBuffer {
   void free();
 
   using Recorder = std::function<void(const CommandBuffer& buffer)>;
+  // Record the commands played by `recorder` into this command buffer
   void recordCommand(const Recorder& recorder) const { recordCommand(recorder, false); }
+  // Execute the commands currently recorded in this command buffer
+  void executeCommand(const std::vector<Semaphore*>& waits = {},
+                      const std::vector<Semaphore*>& signals = {},
+                      const Fence& fence = {}) const;
+  // Record and  the commands played by `recorder` into this command buffer and then execute them
   void executeCommand(const Recorder& recorder,
                       const std::vector<Semaphore*>& waits = {},
                       const std::vector<Semaphore*>& signals = {},
@@ -49,9 +55,6 @@ class CommandBuffer {
 
  private:
   void recordCommand(const Recorder& recorder, bool singleTime) const;
-  void executeCommand(const std::vector<Semaphore*>& waits,
-                      const std::vector<Semaphore*>& signals,
-                      const Fence& fence) const;
   void moveFrom(CommandBuffer& rhs);
 
  private:

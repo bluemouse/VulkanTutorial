@@ -29,9 +29,7 @@ Device& Device::operator=(Device&& rhs) noexcept(false) {
 }
 
 void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
-  if (_device != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan logical device has been initialized already!");
-  }
+  MI_VERIFY(_device == VK_NULL_HANDLE);
   _physicalDevice = &physicalDevice;
 
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -77,9 +75,7 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
 }
 
 void Device::destroy() {
-  if (_device == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null logical device cannot be released!");
-  }
+  MI_VERIFY(_device != VK_NULL_HANDLE);
   vkDestroyDevice(_device, nullptr);
   _device = VK_NULL_HANDLE;
   _physicalDevice = nullptr;

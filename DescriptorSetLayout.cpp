@@ -29,10 +29,7 @@ DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& rhs) n
 
 void DescriptorSetLayout::create(const Device& device,
                                  std::vector<VkDescriptorSetLayoutBinding> bindings) {
-  if (_layout != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan descriptor set layout has been initialized already!");
-  }
-
+  MI_VERIFY(_layout == VK_NULL_HANDLE);
   _device = &device;
 
   VkDescriptorSetLayoutCreateInfo layoutInfo{};
@@ -44,9 +41,7 @@ void DescriptorSetLayout::create(const Device& device,
 }
 
 void DescriptorSetLayout::destroy() {
-  if (_layout == VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan null descriptor set layout cannot be released!");
-  }
+  MI_VERIFY(_layout != VK_NULL_HANDLE);
 
   vkDestroyDescriptorSetLayout(*_device, _layout, nullptr);
   _layout = VK_NULL_HANDLE;
