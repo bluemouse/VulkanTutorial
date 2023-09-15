@@ -19,19 +19,16 @@ class Instance {
   Instance() = default;
   Instance(const AppInfoOverride& appInfoOverride,
            const InstanceCreateInfoOverride& instanceCreateInfoOverride,
-           const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride =
-               DebugUtilsMessengerCreateInfoOverride());
+           const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride = {});
   Instance(int versionMajor,
            int versionMinor,
            std::vector<const char*> extensions,
            bool enableValidation = false);
   ~Instance();
 
-  void create(
-      const AppInfoOverride& appInfoOverride = AppInfoOverride(),
-      const InstanceCreateInfoOverride& instanceCreateInfoOverride = InstanceCreateInfoOverride(),
-      const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride =
-          DebugUtilsMessengerCreateInfoOverride());
+  void create(const AppInfoOverride& appInfoOverride = {},
+              const InstanceCreateInfoOverride& instanceCreateInfoOverride = {},
+              const DebugUtilsMessengerCreateInfoOverride& messengerCreateInfoOverride = {});
   void create(int versionMajor,
               int versionMinor,
               std::vector<const char*> extensions,
@@ -50,10 +47,10 @@ class Instance {
   bool isValidationLayersEnabled() const { return !_layers.empty(); }
   const std::vector<const char*>& layers() const { return _layers; }
 
-  using DebugCallback = std::function<VkBool32(VkDebugUtilsMessageSeverityFlagBitsEXT,
+  using ValidationCallback = std::function<VkBool32(VkDebugUtilsMessageSeverityFlagBitsEXT,
                                                VkDebugUtilsMessageTypeFlagsEXT,
                                                const VkDebugUtilsMessengerCallbackDataEXT*)>;
-  void setDebugCallback(const DebugCallback& callback);
+  void setValidationCallback(const ValidationCallback& callback);
 
   // Disable copy and assignment operators
   Instance(const Instance&) = delete;
@@ -61,7 +58,7 @@ class Instance {
 
  private:
   static bool checkLayerSupport(const std::vector<const char*>& layers);
-  void initDefaultDebugCallback();
+  void initDefaultValidationCallback();
 
   static VKAPI_ATTR VkBool32 VKAPI_CALL
   VkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -77,7 +74,7 @@ class Instance {
 
   std::vector<const char*> _layers;
 
-  DebugCallback _debugCallback;
+  ValidationCallback _validationCallback;
 };
 
 NAMESPACE_VULKAN_END

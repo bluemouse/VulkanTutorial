@@ -36,7 +36,7 @@ void Instance::create(
     MI_VERIFY(checkLayerSupport(_layers = {"VK_LAYER_KHRONOS_validation"}));
   }
 
-  initDefaultDebugCallback();
+  initDefaultValidationCallback();
 
   VkApplicationInfo appInfo{};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -159,10 +159,10 @@ bool Instance::checkLayerSupport(const std::vector<const char*>& layers) {
   return true;
 }
 
-void Instance::initDefaultDebugCallback() {
-  _debugCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                      VkDebugUtilsMessageTypeFlagsEXT messageType,
-                      const VkDebugUtilsMessengerCallbackDataEXT* data) -> VkBool32 {
+void Instance::initDefaultValidationCallback() {
+  _validationCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                           VkDebugUtilsMessageTypeFlagsEXT messageType,
+                           const VkDebugUtilsMessengerCallbackDataEXT* data) -> VkBool32 {
     std::string severity;
     switch (messageSeverity) {
       case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
@@ -202,11 +202,11 @@ void Instance::initDefaultDebugCallback() {
   };
 }
 
-void Instance::setDebugCallback(const DebugCallback& callback) {
+void Instance::setValidationCallback(const ValidationCallback& callback) {
   if (callback) {
-    _debugCallback = callback;
+    _validationCallback = callback;
   } else {
-    initDefaultDebugCallback();
+    initDefaultValidationCallback();
   }
 }
 
@@ -216,7 +216,7 @@ Instance::VkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
                           const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                           void* pUserData) {
   auto* instance = static_cast<Instance*>(pUserData);
-  return instance->_debugCallback(messageSeverity, messageType, pCallbackData);
+  return instance->_validationCallback(messageSeverity, messageType, pCallbackData);
 }
 
 NAMESPACE_VULKAN_END

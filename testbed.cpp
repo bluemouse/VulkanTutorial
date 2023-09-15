@@ -221,8 +221,8 @@ class HelloTriangleApplication {
 
     _descriptorSetLayout.destroy();
 
-    _indexBuffer.free();
-    _vertexBuffer.free();
+    _indexBuffer.destroy();
+    _vertexBuffer.destroy();
 
     _renderFinishedSemaphores.clear();
     _imageAvailableSemaphores.clear();
@@ -446,7 +446,7 @@ class HelloTriangleApplication {
     Vulkan::StagingBuffer stagingBuffer(_device, bufferSize);
     stagingBuffer.copyFromHost(vertices.data(), (size_t)bufferSize);
 
-    _vertexBuffer.allocate(_device, bufferSize);
+    _vertexBuffer.create(_device, bufferSize);
 
     copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
   }
@@ -457,7 +457,7 @@ class HelloTriangleApplication {
     Vulkan::StagingBuffer stagingBuffer(_device, bufferSize);
     stagingBuffer.copyFromHost(indices.data(), (size_t)bufferSize);
 
-    _indexBuffer.allocate(_device, bufferSize);
+    _indexBuffer.create(_device, bufferSize);
 
     copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
   }
@@ -469,7 +469,7 @@ class HelloTriangleApplication {
     _uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      _uniformBuffers[i].allocate(_device, bufferSize);
+      _uniformBuffers[i].create(_device, bufferSize);
       _uniformBuffersMapped[i] = _uniformBuffers[i].map();
     }
   }

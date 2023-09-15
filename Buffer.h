@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <functional>
+
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
@@ -12,7 +14,10 @@ class Buffer {
  public:
   Buffer() = default;
   Buffer(const Device& device,
-         size_t size,
+         VkDeviceSize size,
+         VkBufferUsageFlags usage);
+  Buffer(const Device& device,
+         VkDeviceSize size,
          VkBufferUsageFlags usage,
          VkMemoryPropertyFlags properties);
   virtual ~Buffer();
@@ -21,21 +26,33 @@ class Buffer {
   Buffer(Buffer&& rhs) noexcept;
   Buffer& operator=(Buffer&& rhs) noexcept(false);
 
-  void allocate(const Device& device,
-                size_t size,
-                VkBufferUsageFlags usage,
-                VkMemoryPropertyFlags properties);
+  using BufferCreateInfoOverride = std::function<void(VkBufferCreateInfo*)>;
+  void create(const Device& device,
+              VkDeviceSize size,
+              VkBufferUsageFlags usage,
+              const BufferCreateInfoOverride& override = {});
+  void create(const Device& device,
+              VkDeviceSize size,
+              VkBufferUsageFlags usage,
+              VkMemoryPropertyFlags properties,
+              const BufferCreateInfoOverride& override = {});
+  void destroy();
+
+  void allocate(VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
   void free();
 
   void* map();
-  void* map(size_t offset, size_t size);
+  void* map(VkDeviceSize offset, VkDeviceSize size);
   void unmap();
 
   operator VkBuffer() const { return _buffer; }
   [[nodiscard]] VkDeviceMemory memory() const { return _memory; }
 
-  [[nodiscard]] size_t size() const { return _size; }
-  [[nodiscard]] bool isAllocated() const { return _buffer != VK_NULL_HANDLE; }
+  [[nodiscard]] VkDeviceSize size() const { return _size; }
+  [[nodiscard]] bool isAllocated() const {
+    return _buffer != VK_NULL_HANDLE && _memory != VK_NULL_HANDLE;
+  }
+  [[nodiscard]] bool isMapped() const { return _mappedMemory != nullptr; }
 
  private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
@@ -45,7 +62,9 @@ class Buffer {
   VkBuffer _buffer = VK_NULL_HANDLE;
   VkDeviceMemory _memory = VK_NULL_HANDLE;
 
-  size_t _size = 0; // in bytes
+  VkDeviceSize _size = 0; // in bytes
+
+  void* _mappedMemory = nullptr;
 
   const Device* _device = nullptr;
 };

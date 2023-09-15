@@ -6,15 +6,21 @@
 namespace Vulkan {
 
 Buffer::Buffer(const Device& device,
-               size_t size,
+               VkDeviceSize size,
+               VkBufferUsageFlags usage) {
+  create(device, size, usage);
+}
+
+Buffer::Buffer(const Device& device,
+               VkDeviceSize size,
                VkBufferUsageFlags usage,
                VkMemoryPropertyFlags properties) {
-  allocate(device, size, usage, properties);
+  create(device, size, usage, properties);
 }
 
 Buffer::~Buffer() {
   if (isAllocated()) {
-    free();
+    destroy();
   }
 }
 
@@ -40,10 +46,10 @@ void Buffer::moveFrom(Buffer& rhs) {
   rhs._memory = VK_NULL_HANDLE;
 }
 
-void Buffer::allocate(const Device& device,
-                      size_t size,
-                      VkBufferUsageFlags usage,
-                      VkMemoryPropertyFlags properties) {
+void Buffer::create(const Device& device,
+                    VkDeviceSize size,
+                    VkBufferUsageFlags usage,
+                    const BufferCreateInfoOverride& override) {
   MI_VERIFY(!isAllocated());
   _device = &device;
 
@@ -51,49 +57,84 @@ void Buffer::allocate(const Device& device,
 
   VkBufferCreateInfo bufferInfo{};
   bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  // bufferInfo.pNext =
+  // bufferInfo.flags =
   bufferInfo.size = size;
   bufferInfo.usage = usage;
   bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  // bufferInfo.queueFamilyIndexCount =
+  // bufferInfo.pQueueFamilyIndices =
+
+  if (override) {
+    override(&bufferInfo);
+  }
 
   MI_VERIFY_VKCMD(vkCreateBuffer(device, &bufferInfo, nullptr, &_buffer));
+}
 
-  VkMemoryRequirements memRequirements;
-  vkGetBufferMemoryRequirements(device, _buffer, &memRequirements);
+void Buffer::create(const Device& device,
+                    VkDeviceSize size,
+                    VkBufferUsageFlags usage,
+                    VkMemoryPropertyFlags properties,
+                    const BufferCreateInfoOverride& override) {
+  create(device, size, usage, override);
+  allocate(properties);
+}
+
+void Buffer::destroy() {
+  MI_VERIFY(_buffer != VK_NULL_HANDLE);
+
+  if (isAllocated()) {
+    free();
+  }
+  vkDestroyBuffer(*_device, _buffer, nullptr);
+
+  _device = nullptr;
+  _buffer = VK_NULL_HANDLE;
+  _size = 0;
+}
+
+void Buffer::allocate(VkMemoryPropertyFlags properties) {
+  MI_VERIFY(!isAllocated());
+
+  VkMemoryRequirements requirements;
+  vkGetBufferMemoryRequirements(*_device, _buffer, &requirements);
 
   VkMemoryAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-  allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+  allocInfo.allocationSize = requirements.size;
+  allocInfo.memoryTypeIndex = findMemoryType(requirements.memoryTypeBits, properties);
 
-  MI_VERIFY_VKCMD(vkAllocateMemory(device, &allocInfo, nullptr, &_memory));
+  MI_VERIFY_VKCMD(vkAllocateMemory(*_device, &allocInfo, nullptr, &_memory));
 
-  vkBindBufferMemory(device, _buffer, _memory, 0);
+  vkBindBufferMemory(*_device, _buffer, _memory, 0);
 }
 
 void Buffer::free() {
   MI_VERIFY(isAllocated());
 
   vkFreeMemory(*_device, _memory, nullptr);
-  vkDestroyBuffer(*_device, _buffer, nullptr);
 
-  _device = nullptr;
-  _buffer = VK_NULL_HANDLE;
   _memory = VK_NULL_HANDLE;
-  _size = 0;
+  _mappedMemory = nullptr;
 }
 
 void* Buffer::map() {
   return map(0, size());
 }
 
-void* Buffer::map(size_t offset, size_t size) {
-  void* data = nullptr;
-  vkMapMemory(*_device, _memory, offset, size, 0, &data);
-  return data;
+void* Buffer::map(VkDeviceSize offset, VkDeviceSize size) {
+  MI_VERIFY(isAllocated());
+  MI_VERIFY(!isMapped());
+
+  vkMapMemory(*_device, _memory, offset, size, 0, &_mappedMemory);
+  return _mappedMemory;
 }
 
 void Buffer::unmap() {
+  MI_VERIFY(isMapped());
   vkUnmapMemory(*_device, _memory);
+  _mappedMemory = nullptr;
 }
 
 uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const {

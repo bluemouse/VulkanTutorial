@@ -11,17 +11,16 @@ class Device;
 class VertexBuffer : private Buffer {
  public:
   VertexBuffer() = default;
-  VertexBuffer(const Device& device, size_t size);
+  VertexBuffer(const Device& device, VkDeviceSize size);
 
   // Transfer the ownership from `rhs` to `this`
   VertexBuffer(VertexBuffer&& rhs) = default;
   VertexBuffer& operator=(VertexBuffer&& rhs) noexcept(false) = default;
 
-  void allocate(const Device& device, size_t size);
-  using Buffer::free;
+  void create(const Device& device, VkDeviceSize size);
+  using Buffer::destroy;
 
   using Buffer::operator VkBuffer;
-  using Buffer::isAllocated;
   using Buffer::size;
 };
 

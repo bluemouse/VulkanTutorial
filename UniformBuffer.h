@@ -11,17 +11,18 @@ class Device;
 class UniformBuffer : private Buffer {
  public:
   UniformBuffer() = default;
-  UniformBuffer(const Device& device, size_t size);
+  UniformBuffer(const Device& device, VkDeviceSize size);
 
   // Transfer the ownership from `rhs` to `this`
   UniformBuffer(UniformBuffer&& rhs) = default;
   UniformBuffer& operator=(UniformBuffer&& rhs) noexcept(false) = default;
 
-  void allocate(const Device& device, size_t size);
-  using Buffer::free;
+  void create(const Device& device, VkDeviceSize size);
+  using Buffer::destroy;
 
   using Buffer::map;
   using Buffer::unmap;
+  using Buffer::isMapped;
 
   using Buffer::operator VkBuffer;
   using Buffer::memory;
