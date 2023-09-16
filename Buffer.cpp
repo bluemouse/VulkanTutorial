@@ -40,7 +40,7 @@ Buffer& Buffer::operator=(Buffer&& rhs) noexcept(false) {
 }
 
 void Buffer::moveFrom(Buffer& rhs) {
-  MI_VERIFY(!isAllocated());
+  MI_VERIFY(!isCreated());
   _buffer = rhs._buffer;
   _size = rhs._size;
   _memory = rhs._memory;
@@ -56,7 +56,7 @@ void Buffer::create(const Device& device,
                     VkDeviceSize size,
                     VkBufferUsageFlags usage,
                     const BufferCreateInfoOverride& override) {
-  MI_VERIFY(!isAllocated());
+  MI_VERIFY(!isCreated());
   _device = &device;
   _size = size;
 
@@ -78,7 +78,7 @@ void Buffer::create(const Device& device,
 }
 
 void Buffer::destroy() {
-  MI_VERIFY(_buffer != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
 
   if (isAllocated()) {
     free();
@@ -107,6 +107,7 @@ void Buffer::free() {
 }
 
 void Buffer::bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset) {
+  MI_VERIFY(isCreated());
   MI_VERIFY(memory != _memory);
   if (isAllocated()) {
     free();

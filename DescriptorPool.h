@@ -29,6 +29,8 @@ class DescriptorPool {
 
   [[nodiscard]] const Device& device() const { return *_device; }
 
+  [[nodiscard]] bool isCreated() const { return _pool != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(DescriptorPool& rhs);
 

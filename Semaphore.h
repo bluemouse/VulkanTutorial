@@ -24,6 +24,8 @@ class Semaphore {
   operator VkSemaphore() const { return _semaphore; }
   operator const VkSemaphore*() const { return &_semaphore; }
 
+  [[nodiscard]] bool isCreated() const { return _semaphore != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(Semaphore& rhs);
 

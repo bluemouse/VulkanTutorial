@@ -53,6 +53,9 @@ class CommandBuffer {
   operator VkCommandBuffer() const { return _buffer; }
   operator const VkCommandBuffer*() const { return &_buffer; }
 
+  [[nodiscard]] bool isAllocated() const { return _buffer != VK_NULL_HANDLE; }
+
+
  private:
   void recordCommand(const Recorder& recorder, bool singleTime) const;
   void moveFrom(CommandBuffer& rhs);

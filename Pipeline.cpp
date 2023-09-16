@@ -25,7 +25,7 @@ Pipeline::Pipeline(const Device &device,
 }
 
 Pipeline::~Pipeline() {
-  if (_pipeline != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -41,6 +41,17 @@ Pipeline &Pipeline::operator=(Pipeline &&rhs) noexcept(false) {
   return *this;
 }
 
+void Pipeline::moveFrom(Pipeline &rhs) {
+  MI_VERIFY(!isCreated());
+  _pipeline = rhs._pipeline;
+  _layout = rhs._layout;
+  _device = rhs._device;
+
+  rhs._pipeline = VK_NULL_HANDLE;
+  rhs._layout = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void Pipeline::create(const Device &device,
                       const RenderPass &renderPass,
                       const Shader &vertShader,
@@ -48,7 +59,7 @@ void Pipeline::create(const Device &device,
                       VkVertexInputBindingDescription bindingDescription,
                       std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
                       VkDescriptorSetLayout descriptorSetLayout) {
-  MI_VERIFY(_pipeline == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -150,23 +161,12 @@ void Pipeline::create(const Device &device,
 }
 
 void Pipeline::destroy() {
-  MI_VERIFY(_pipeline != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
   vkDestroyPipeline(*_device, _pipeline, nullptr);
   vkDestroyPipelineLayout(*_device, _layout, nullptr);
 
   _device = nullptr;
   _pipeline = VK_NULL_HANDLE;
-}
-
-void Pipeline::moveFrom(Pipeline &rhs) {
-  MI_VERIFY(_pipeline == VK_NULL_HANDLE);
-  _pipeline = rhs._pipeline;
-  _layout = rhs._layout;
-  _device = rhs._device;
-
-  rhs._pipeline = VK_NULL_HANDLE;
-  rhs._layout = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

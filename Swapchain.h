@@ -51,6 +51,8 @@ class Swapchain {
 
   [[nodiscard]] const Device& device() const { return *_device; }
 
+  [[nodiscard]] bool isCreated() const { return _swapchain != VK_NULL_HANDLE; }
+
  private:
   VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 

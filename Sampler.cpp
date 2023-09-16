@@ -9,7 +9,7 @@ Sampler::Sampler(const Device& device, VkSamplerAddressMode addressMode, Filter 
 }
 
 Sampler::~Sampler() {
-  if (_sampler != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -25,8 +25,17 @@ Sampler& Sampler::operator=(Sampler&& rhs) noexcept(false) {
   return *this;
 }
 
+void Sampler::moveFrom(Sampler& rhs) {
+  MI_VERIFY(!isCreated());
+  _sampler = rhs._sampler;
+  _device = rhs._device;
+
+  rhs._sampler = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Filter filter) {
-  MI_VERIFY(_sampler == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkPhysicalDeviceProperties properties{};
@@ -51,20 +60,11 @@ void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Fil
 }
 
 void Sampler::destroy() {
-  MI_VERIFY(_sampler != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
   vkDestroySampler(*_device, _sampler, nullptr);
 
   _device = nullptr;
   _sampler = VK_NULL_HANDLE;
-}
-
-void Sampler::moveFrom(Sampler& rhs) {
-  MI_VERIFY(_sampler == VK_NULL_HANDLE);
-  _sampler = rhs._sampler;
-  _device = rhs._device;
-
-  rhs._sampler = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

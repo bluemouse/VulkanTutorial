@@ -14,7 +14,7 @@ DescriptorPool::DescriptorPool(const Device& device,
 }
 
 DescriptorPool::~DescriptorPool() {
-  if (_pool != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -30,10 +30,19 @@ DescriptorPool& DescriptorPool::operator=(DescriptorPool&& rhs) noexcept(false) 
   return *this;
 }
 
+void DescriptorPool::moveFrom(DescriptorPool& rhs) {
+  MI_VERIFY(!isCreated());
+  _pool = rhs._pool;
+  _device = rhs._device;
+
+  rhs._pool = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void DescriptorPool::create(const Device& device,
                             std::vector<VkDescriptorPoolSize> poolSizes,
                             uint32_t maxSets) {
-  MI_VERIFY(_pool == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkDescriptorPoolCreateInfo poolInfo{};
@@ -46,20 +55,11 @@ void DescriptorPool::create(const Device& device,
 }
 
 void DescriptorPool::destroy() {
-  MI_VERIFY(_pool != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
 
   vkDestroyDescriptorPool(*_device, _pool, nullptr);
   _pool = VK_NULL_HANDLE;
   _device = nullptr;
-}
-
-void DescriptorPool::moveFrom(DescriptorPool& rhs) {
-  MI_VERIFY(_pool == VK_NULL_HANDLE);
-  _pool = rhs._pool;
-  _device = rhs._device;
-
-  rhs._pool = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

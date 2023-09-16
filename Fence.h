@@ -24,6 +24,8 @@ class Fence {
   operator VkFence() const { return _fence; }
   operator const VkFence*() const { return &_fence; }
 
+  [[nodiscard]] bool isCreated() const { return _fence != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(Fence& rhs);
 

@@ -57,6 +57,8 @@ class PhysicalDevice {
   PhysicalDevice(const PhysicalDevice&) = delete;
   PhysicalDevice& operator=(const PhysicalDevice&) = delete;
 
+  [[nodiscard]] bool isInstantiated() const { return _device != VK_NULL_HANDLE; }
+
  private:
   [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);
 

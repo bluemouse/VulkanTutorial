@@ -9,7 +9,7 @@ Semaphore::Semaphore(const Device& device) {
 }
 
 Semaphore::~Semaphore() {
-  if (_semaphore != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -25,8 +25,17 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept(false) {
   return *this;
 }
 
+void Semaphore::moveFrom(Semaphore& rhs) {
+  MI_VERIFY(!isCreated());
+  _semaphore = rhs._semaphore;
+  _device = rhs._device;
+
+  rhs._semaphore = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void Semaphore::create(const Device& device) {
-  MI_VERIFY(_semaphore == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkSemaphoreCreateInfo semaphoreInfo{};
@@ -36,20 +45,11 @@ void Semaphore::create(const Device& device) {
 }
 
 void Semaphore::destroy() {
-  MI_VERIFY(_semaphore != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
   vkDestroySemaphore(*_device, _semaphore, nullptr);
 
   _semaphore = VK_NULL_HANDLE;
   _device = nullptr;
-}
-
-void Semaphore::moveFrom(Semaphore& rhs) {
-  MI_VERIFY(_semaphore == VK_NULL_HANDLE);
-  _semaphore = rhs._semaphore;
-  _device = rhs._device;
-
-  rhs._semaphore = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

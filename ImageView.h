@@ -26,6 +26,8 @@ class ImageView {
 
   [[nodiscard]] const Image& image() const { return *_image; }
 
+  [[nodiscard]] bool isCreated() const { return _view != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(ImageView& rhs);
 

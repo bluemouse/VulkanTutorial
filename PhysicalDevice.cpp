@@ -17,7 +17,7 @@ PhysicalDevice::~PhysicalDevice() {
 
 void PhysicalDevice::instantiate(const Instance& instance,
                                  const IsDeviceSuitablePredicate& isDeviceSuitable) {
-  MI_VERIFY(_device == VK_NULL_HANDLE);
+  MI_VERIFY(!isInstantiated());
 
   _instance = &instance;
 

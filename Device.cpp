@@ -12,7 +12,7 @@ Device::Device(const PhysicalDevice& physicalDevice, std::vector<const char*> ex
 }
 
 Device::~Device() {
-  if (_device != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -28,8 +28,21 @@ Device& Device::operator=(Device&& rhs) noexcept(false) {
   return *this;
 }
 
+void Device::moveFrom(Device& rhs) {
+  MI_VERIFY(!isCreated());
+  _device = rhs._device;
+  _graphicsQueue = rhs._graphicsQueue;
+  _presentQueue = rhs._presentQueue;
+  _physicalDevice = rhs._physicalDevice;
+
+  rhs._device = VK_NULL_HANDLE;
+  rhs._graphicsQueue = VK_NULL_HANDLE;
+  rhs._presentQueue = VK_NULL_HANDLE;
+  rhs._physicalDevice = nullptr;
+}
+
 void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
-  MI_VERIFY(_device == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _physicalDevice = &physicalDevice;
 
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -75,23 +88,10 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
 }
 
 void Device::destroy() {
-  MI_VERIFY(_device != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
   vkDestroyDevice(_device, nullptr);
   _device = VK_NULL_HANDLE;
   _physicalDevice = nullptr;
-}
-
-void Device::moveFrom(Device& rhs) {
-  MI_VERIFY(_device == VK_NULL_HANDLE);
-  _device = rhs._device;
-  _graphicsQueue = rhs._graphicsQueue;
-  _presentQueue = rhs._presentQueue;
-  _physicalDevice = rhs._physicalDevice;
-
-  rhs._device = VK_NULL_HANDLE;
-  rhs._graphicsQueue = VK_NULL_HANDLE;
-  rhs._presentQueue = VK_NULL_HANDLE;
-  rhs._physicalDevice = nullptr;
 }
 
 NAMESPACE_VULKAN_END

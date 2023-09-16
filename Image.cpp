@@ -41,12 +41,29 @@ Image& Image::operator=(Image&& rhs) noexcept(false) {
   return *this;
 }
 
+void Image::moveFrom(Image& rhs) {
+  MI_VERIFY(!isCreated());
+  _image = rhs._image;
+  _memory = rhs._memory;
+  _format = rhs._format;
+  _extent = rhs._extent;
+  _device = rhs._device;
+  _external = rhs._external;
+
+  rhs._image = VK_NULL_HANDLE;
+  rhs._memory = VK_NULL_HANDLE;
+  rhs._format = VK_FORMAT_UNDEFINED;
+  rhs._extent = {0, 0};
+  rhs._device = nullptr;
+  rhs._external = false;
+}
+
 void Image::create(const Device& device,
                    VkFormat format,
                    VkExtent2D extent,
                    const ImageCreateInfoOverride& override) {
   MI_VERIFY(!isExternal());
-  MI_VERIFY(_image == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
   _format = format;
   _extent = extent;
@@ -75,7 +92,7 @@ void Image::create(const Device& device,
 
 void Image::destroy() {
   MI_VERIFY(!isExternal());
-  MI_VERIFY(_image != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
 
   if (isAllocated()) {
     free();
@@ -90,7 +107,6 @@ void Image::destroy() {
 
 void Image::allocate(VkMemoryPropertyFlags properties) {
   MI_VERIFY(!isExternal());
-  MI_VERIFY(_image != VK_NULL_HANDLE);
   MI_VERIFY(!isAllocated());
   _memory = DeviceMemory::make();
 
@@ -109,31 +125,13 @@ void Image::free() {
 
 void Image::bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset) {
   MI_VERIFY(!isExternal());
-  MI_VERIFY(_image != VK_NULL_HANDLE);
-  MI_VERIFY(!isAllocated());
+  MI_VERIFY(isCreated());
   MI_VERIFY(memory != _memory);
   if (isAllocated()) {
     free();
   }
   _memory = memory;
   vkBindImageMemory(*_device, _image, *_memory.get(), offset);
-}
-
-void Image::moveFrom(Image& rhs) {
-  MI_VERIFY(_image == VK_NULL_HANDLE);
-  _image = rhs._image;
-  _memory = rhs._memory;
-  _format = rhs._format;
-  _extent = rhs._extent;
-  _device = rhs._device;
-  _external = rhs._external;
-
-  rhs._image = VK_NULL_HANDLE;
-  rhs._memory = VK_NULL_HANDLE;
-  rhs._format = VK_FORMAT_UNDEFINED;
-  rhs._extent = {0, 0};
-  rhs._device = nullptr;
-  rhs._external = false;
 }
 
 NAMESPACE_VULKAN_END

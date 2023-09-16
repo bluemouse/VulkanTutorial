@@ -33,6 +33,8 @@ class Sampler {
 
   operator VkSampler() const { return _sampler; }
 
+  [[nodiscard]] bool isCreated() const { return _sampler != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(Sampler& rhs);
 

@@ -10,7 +10,7 @@ CommandPool::CommandPool(const Device& device, uint32_t queueFamilyIndex) {
 }
 
 CommandPool::~CommandPool() {
-  if (_pool != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -26,8 +26,19 @@ CommandPool& CommandPool::operator=(CommandPool&& rhs) noexcept(false) {
   return *this;
 }
 
+void CommandPool::moveFrom(CommandPool& rhs) {
+  MI_VERIFY(!isCreated());
+  _pool = rhs._pool;
+  _queue = rhs._queue;
+  _device = rhs._device;
+
+  rhs._pool = VK_NULL_HANDLE;
+  rhs._queue = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void CommandPool::create(const Device& device, uint32_t queueFamilyIndex) {
-  MI_VERIFY(_pool == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
 
   _device = &device;
 
@@ -42,23 +53,12 @@ void CommandPool::create(const Device& device, uint32_t queueFamilyIndex) {
 }
 
 void CommandPool::destroy() {
-  MI_VERIFY(_pool != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
 
   vkDestroyCommandPool(*_device, _pool, nullptr);
   _pool = VK_NULL_HANDLE;
   _queue = VK_NULL_HANDLE;
   _device = nullptr;
-}
-
-void CommandPool::moveFrom(CommandPool& rhs) {
-  MI_VERIFY(_pool == VK_NULL_HANDLE);
-  _pool = rhs._pool;
-  _queue = rhs._queue;
-  _device = rhs._device;
-
-  rhs._pool = VK_NULL_HANDLE;
-  rhs._queue = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

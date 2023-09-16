@@ -51,13 +51,16 @@ class Image {
   [[nodiscard]] uint32_t width() const { return _extent.width; }
   [[nodiscard]] uint32_t height() const { return _extent.height; }
 
+  [[nodiscard]] bool isCreated() const { return _image != VK_NULL_HANDLE; }
+  [[nodiscard]] bool isAllocated() const {
+    return isCreated() && (_memory && _memory->isAllocated());
+  }
+  [[nodiscard]] bool isMapped() const { return isAllocated() && _memory->isMapped(); }
+
  private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
   void moveFrom(Image& rhs);
 
-  bool isAllocated() const {
-    return _image != VK_NULL_HANDLE && (_memory && _memory->isAllocated());
-  }
   bool isExternal() const { return _external; }
 
  private:

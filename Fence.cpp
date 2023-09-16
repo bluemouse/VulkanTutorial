@@ -9,7 +9,7 @@ Fence::Fence(const Device& device) {
 }
 
 Fence::~Fence() {
-  if (_fence != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -25,8 +25,17 @@ Fence& Fence::operator=(Fence&& rhs) noexcept(false) {
   return *this;
 }
 
+void Fence::moveFrom(Fence& rhs) {
+  MI_VERIFY(!isCreated());
+  _fence = rhs._fence;
+  _device = rhs._device;
+
+  rhs._fence = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void Fence::create(const Device& device) {
-  MI_VERIFY(_fence == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkFenceCreateInfo fenceInfo{};
@@ -37,20 +46,11 @@ void Fence::create(const Device& device) {
 }
 
 void Fence::destroy() {
-  MI_VERIFY(_fence != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
   vkDestroyFence(*_device, _fence, nullptr);
 
   _device = nullptr;
   _fence = VK_NULL_HANDLE;
-}
-
-void Fence::moveFrom(Fence& rhs) {
-  MI_VERIFY(_fence == VK_NULL_HANDLE);
-  _fence = rhs._fence;
-  _device = rhs._device;
-
-  rhs._fence = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

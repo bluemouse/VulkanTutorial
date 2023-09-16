@@ -25,6 +25,8 @@ class DescriptorSet {
   operator VkDescriptorSet() const { return _set; }
   operator const VkDescriptorSet*() const { return &_set; }
 
+  [[nodiscard]] bool isAllocated() const { return _set != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(DescriptorSet& rhs);
 

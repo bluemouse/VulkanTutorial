@@ -21,7 +21,7 @@ Instance::Instance(int versionMajor,
 }
 
 Instance::~Instance() {
-  if (_instance != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -30,7 +30,7 @@ void Instance::create(
     const AppInfoOverride& appInfoOverride,
     const InstanceCreateInfoOverride& instanceCreateInfoOverride,
     const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride) {
-  MI_VERIFY(_instance == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
 
   if (debugUtilsMessengerCreateInfoOverride) {
     MI_VERIFY(checkLayerSupport(_layers = {"VK_LAYER_KHRONOS_validation"}));
@@ -81,7 +81,7 @@ void Instance::create(int versionMajor,
                       int versionMinor,
                       std::vector<const char*> extensions,
                       bool enableValidation) {
-  MI_VERIFY(_instance == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
 
   auto appInfoOverride = [versionMajor, versionMinor](VkApplicationInfo* appInfo) {
     appInfo->apiVersion = VK_MAKE_API_VERSION(0, versionMajor, versionMinor, 0);
@@ -118,7 +118,7 @@ void Instance::create(int versionMajor,
 }
 
 void Instance::destroy() {
-  MI_VERIFY_VKHANDLE(_instance);
+  MI_VERIFY(isCreated());
 
   if (_surface != VK_NULL_HANDLE) {
     vkDestroySurfaceKHR(_instance, _surface, nullptr);

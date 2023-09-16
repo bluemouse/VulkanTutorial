@@ -12,7 +12,7 @@ DescriptorSet::DescriptorSet(const DescriptorPool& pool, const DescriptorSetLayo
 }
 
 DescriptorSet::~DescriptorSet() {
-  if (_set != VK_NULL_HANDLE) {
+  if (isAllocated()) {
     free();
   }
 }
@@ -28,8 +28,17 @@ DescriptorSet& DescriptorSet::operator=(DescriptorSet&& rhs) noexcept(false) {
   return *this;
 }
 
+void DescriptorSet::moveFrom(DescriptorSet& rhs) {
+  MI_VERIFY(!isAllocated());
+  _set = rhs._set;
+  _pool = rhs._pool;
+
+  rhs._set = VK_NULL_HANDLE;
+  rhs._pool = nullptr;
+}
+
 void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayout& layout) {
-  MI_VERIFY(_set == VK_NULL_HANDLE);
+  MI_VERIFY(!isAllocated());
   _pool = &pool;
 
   VkDescriptorSetAllocateInfo allocInfo{};
@@ -42,7 +51,7 @@ void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayo
 }
 
 void DescriptorSet::free() {
-  MI_VERIFY(_set != VK_NULL_HANDLE);
+  MI_VERIFY(isAllocated());
 
   // TODO: Can only call free() if _pool is created with
   // VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT.
@@ -50,15 +59,6 @@ void DescriptorSet::free() {
 
   _set = VK_NULL_HANDLE;
   _pool = nullptr;
-}
-
-void DescriptorSet::moveFrom(DescriptorSet& rhs) {
-  MI_VERIFY(_set == VK_NULL_HANDLE);
-  _set = rhs._set;
-  _pool = rhs._pool;
-
-  rhs._set = VK_NULL_HANDLE;
-  rhs._pool = nullptr;
 }
 
 NAMESPACE_VULKAN_END

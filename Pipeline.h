@@ -46,6 +46,8 @@ class Pipeline {
   operator VkPipeline() const { return _pipeline; }
   [[nodiscard]] VkPipelineLayout layout() const { return _layout; }
 
+  [[nodiscard]] bool isCreated() const { return _pipeline != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(Pipeline& rhs);
 

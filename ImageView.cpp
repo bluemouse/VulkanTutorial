@@ -10,7 +10,7 @@ ImageView::ImageView(const Device& device, const Image& image) {
 }
 
 ImageView::~ImageView() {
-  if (_view != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -26,8 +26,19 @@ ImageView& ImageView::operator=(ImageView&& rhs) noexcept(false) {
   return *this;
 }
 
+void ImageView::moveFrom(ImageView& rhs) {
+  MI_VERIFY(!isCreated());
+  _view = rhs._view;
+  _device = rhs._device;
+  _image = rhs._image;
+
+  rhs._view = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+  rhs._image = nullptr;
+}
+
 void ImageView::create(const Device& device, const Image& image) {
-  MI_VERIFY(_view == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
   _image = &image;
 
@@ -46,7 +57,7 @@ void ImageView::create(const Device& device, const Image& image) {
 }
 
 void ImageView::destroy() {
-  MI_VERIFY(_view != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
   vkDestroyImageView(*_device, _view, nullptr);
 
   _view = VK_NULL_HANDLE;
@@ -54,14 +65,4 @@ void ImageView::destroy() {
   _image = nullptr;
 }
 
-void ImageView::moveFrom(ImageView& rhs) {
-  MI_VERIFY(_view == VK_NULL_HANDLE);
-  _view = rhs._view;
-  _device = rhs._device;
-  _image = rhs._image;
-
-  rhs._view = VK_NULL_HANDLE;
-  rhs._device = nullptr;
-  rhs._image = nullptr;
-}
 NAMESPACE_VULKAN_END

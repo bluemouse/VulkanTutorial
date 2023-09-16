@@ -52,6 +52,8 @@ class Instance {
                                                const VkDebugUtilsMessengerCallbackDataEXT*)>;
   void setValidationCallback(const ValidationCallback& callback);
 
+  [[nodiscard]] bool isCreated() const { return _instance != VK_NULL_HANDLE; }
+
   // Disable copy and assignment operators
   Instance(const Instance&) = delete;
   Instance& operator=(const Instance&) = delete;

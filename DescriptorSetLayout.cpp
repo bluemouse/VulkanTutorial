@@ -11,7 +11,7 @@ DescriptorSetLayout::DescriptorSetLayout(const Device& device,
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {
-  if (_layout != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -27,9 +27,18 @@ DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& rhs) n
   return *this;
 }
 
+void DescriptorSetLayout::moveFrom(DescriptorSetLayout& rhs) {
+  MI_VERIFY(!isCreated());
+  _layout = rhs._layout;
+  _device = rhs._device;
+
+  rhs._layout = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void DescriptorSetLayout::create(const Device& device,
                                  std::vector<VkDescriptorSetLayoutBinding> bindings) {
-  MI_VERIFY(_layout == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkDescriptorSetLayoutCreateInfo layoutInfo{};
@@ -41,20 +50,11 @@ void DescriptorSetLayout::create(const Device& device,
 }
 
 void DescriptorSetLayout::destroy() {
-  MI_VERIFY(_layout != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
 
   vkDestroyDescriptorSetLayout(*_device, _layout, nullptr);
   _layout = VK_NULL_HANDLE;
   _device = nullptr;
-}
-
-void DescriptorSetLayout::moveFrom(DescriptorSetLayout& rhs) {
-  MI_VERIFY(_layout == VK_NULL_HANDLE);
-  _layout = rhs._layout;
-  _device = rhs._device;
-
-  rhs._layout = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

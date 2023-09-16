@@ -30,6 +30,8 @@ class Device {
   [[nodiscard]] VkQueue graphicsQueue() const { return _graphicsQueue; }
   [[nodiscard]] VkQueue presentQueue() const { return _presentQueue; }
 
+  [[nodiscard]] bool isCreated() const { return _device != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(Device& rhs);
 

@@ -26,6 +26,8 @@ class DescriptorSetLayout {
   operator VkDescriptorSetLayout() const { return _layout; }
   operator const VkDescriptorSetLayout*() const { return &_layout; }
 
+  [[nodiscard]] bool isCreated() const { return _layout != VK_NULL_HANDLE; }
+
  private:
   void moveFrom(DescriptorSetLayout& rhs);
 

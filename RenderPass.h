@@ -23,6 +23,8 @@ class RenderPass {
 
   operator VkRenderPass() const { return _renderPass; }
 
+  [[nodiscard]] bool isCreated() const { return _renderPass != VK_NULL_HANDLE; }
+
 private:
   void moveFrom(RenderPass& rhs);
 

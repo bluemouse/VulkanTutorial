@@ -9,7 +9,7 @@ RenderPass::RenderPass(const Device& device, VkFormat format) {
 }
 
 RenderPass::~RenderPass() {
-  if (_renderPass != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -25,8 +25,17 @@ RenderPass& RenderPass::operator=(RenderPass&& rhs) noexcept(false) {
   return *this;
 }
 
+void RenderPass::moveFrom(RenderPass& rhs) {
+  MI_VERIFY(!isCreated());
+  _renderPass = rhs._renderPass;
+  _device = rhs._device;
+
+  rhs._renderPass = VK_NULL_HANDLE;
+  rhs._device = nullptr;
+}
+
 void RenderPass::create(const Device& device, VkFormat format) {
-  MI_VERIFY(_renderPass == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkAttachmentDescription colorAttachment{};
@@ -69,20 +78,11 @@ void RenderPass::create(const Device& device, VkFormat format) {
 }
 
 void RenderPass::destroy() {
-  MI_VERIFY(_renderPass != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
   vkDestroyRenderPass(*_device, _renderPass, nullptr);
 
   _renderPass = VK_NULL_HANDLE;
   _device = nullptr;
-}
-
-void RenderPass::moveFrom(RenderPass& rhs) {
-  MI_VERIFY(_renderPass == VK_NULL_HANDLE);
-  _renderPass = rhs._renderPass;
-  _device = rhs._device;
-
-  rhs._renderPass = VK_NULL_HANDLE;
-  rhs._device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

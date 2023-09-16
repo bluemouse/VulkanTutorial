@@ -18,7 +18,7 @@ Swapchain::Swapchain(
 }
 
 Swapchain::~Swapchain() {
-  if (_swapchain != VK_NULL_HANDLE) {
+  if (isCreated()) {
     destroy();
   }
 }
@@ -30,9 +30,7 @@ void Swapchain::create(
     const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
         chooseSwapPresentMode,
     const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
-  if (_swapchain != VK_NULL_HANDLE) {
-    throw std::runtime_error("Vulkan swap chain has been initialized already!");
-  }
+  MI_VERIFY(!isCreated());
   _device = &device;
 
   VkSurfaceKHR surface = device.instance().surface();
@@ -100,7 +98,7 @@ void Swapchain::create(
 }
 
 void Swapchain::createFramebuffers(const RenderPass& renderPass) {
-  MI_VERIFY(_swapchain != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
 
   // Reserve enough space to avoid resizing that can trigger destructing
   _framebuffers.reserve(_imageViews.size());
@@ -110,7 +108,7 @@ void Swapchain::createFramebuffers(const RenderPass& renderPass) {
 }
 
 void Swapchain::destroy() {
-  MI_VERIFY(_swapchain != VK_NULL_HANDLE);
+  MI_VERIFY(isCreated());
 
   // Be careful about changing the release order.
   _framebuffers.clear();

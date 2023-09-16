@@ -50,12 +50,13 @@ class Buffer {
 
   operator VkBuffer() const { return _buffer; }
   [[nodiscard]] const DeviceMemory& memory() const { return *_memory.get(); }
-
   [[nodiscard]] VkDeviceSize size() const { return _size; }
+
+  [[nodiscard]] bool isCreated() const { return _buffer != VK_NULL_HANDLE; }
   [[nodiscard]] bool isAllocated() const {
-    return _buffer != VK_NULL_HANDLE && (_memory && _memory->isAllocated());
+    return isCreated() && (_memory && _memory->isAllocated());
   }
-  [[nodiscard]] bool isMapped() const { return _memory->isMapped(); }
+  [[nodiscard]] bool isMapped() const { return isAllocated() && _memory->isMapped(); }
 
  private:
   void moveFrom(Buffer& rhs);

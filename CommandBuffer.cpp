@@ -14,7 +14,7 @@ CommandBuffer::CommandBuffer(const CommandPool& commandPool) {
 }
 
 CommandBuffer::~CommandBuffer() {
-  if (_buffer != VK_NULL_HANDLE) {
+  if (isAllocated()) {
     free();
   }
 }
@@ -22,6 +22,7 @@ CommandBuffer::~CommandBuffer() {
 CommandBuffer::CommandBuffer(CommandBuffer&& rhs) noexcept {
   moveFrom(rhs);
 }
+
 CommandBuffer& CommandBuffer::operator=(CommandBuffer&& rhs) noexcept(false) {
   if (this != &rhs) {
     moveFrom(rhs);
@@ -29,8 +30,17 @@ CommandBuffer& CommandBuffer::operator=(CommandBuffer&& rhs) noexcept(false) {
   return *this;
 }
 
+void CommandBuffer::moveFrom(CommandBuffer& rhs) {
+  MI_VERIFY(!isAllocated());
+  _buffer = rhs._buffer;
+  _pool = rhs._pool;
+
+  rhs._buffer = VK_NULL_HANDLE;
+  rhs._pool = nullptr;
+}
+
 void CommandBuffer::allocate(const CommandPool& commandPool) {
-  MI_VERIFY(_buffer == VK_NULL_HANDLE);
+  MI_VERIFY(!isAllocated());
   _pool = &commandPool;
 
   VkCommandBufferAllocateInfo allocInfo{};
@@ -47,7 +57,7 @@ void CommandBuffer::reset() {
 }
 
 void CommandBuffer::free() {
-  MI_VERIFY(_buffer != VK_NULL_HANDLE);
+  MI_VERIFY(isAllocated());
 
   vkFreeCommandBuffers(_pool->device(), *_pool, 1, &_buffer);
 
@@ -121,15 +131,6 @@ void CommandBuffer::executeCommand(const std::vector<Semaphore*>& waits,
   }
   VkQueue queue = _pool->queue();
   MI_VERIFY_VKCMD(vkQueueSubmit(queue, 1, &submitInfo, fence));
-}
-
-void CommandBuffer::moveFrom(CommandBuffer& rhs) {
-  MI_VERIFY(_buffer == VK_NULL_HANDLE);
-  _buffer = rhs._buffer;
-  _pool = rhs._pool;
-
-  rhs._buffer = VK_NULL_HANDLE;
-  rhs._pool = nullptr;
 }
 
 NAMESPACE_VULKAN_END
