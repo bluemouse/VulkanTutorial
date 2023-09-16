@@ -116,15 +116,18 @@ void Buffer::bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset) {
   vkBindBufferMemory(*_device, _buffer, *_memory.get(), offset);
 }
 
+void* Buffer::map() {
+  MI_VERIFY(isAllocated());
+  return _memory->map();
+}
+
 void* Buffer::map(VkDeviceSize offset, VkDeviceSize size) {
   MI_VERIFY(isAllocated());
-  MI_VERIFY(!isMapped());
-
   return _memory->map(offset, size);
 }
 
 void Buffer::unmap() {
-  MI_VERIFY(isMapped());
+  MI_VERIFY(isAllocated());
   _memory->unmap();
 }
 

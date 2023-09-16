@@ -134,4 +134,22 @@ void Image::bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset) {
   vkBindImageMemory(*_device, _image, *_memory.get(), offset);
 }
 
+void* Image::map() {
+  MI_VERIFY(!isExternal());
+  MI_VERIFY(isAllocated());
+  return _memory->map();
+}
+
+void* Image::map(VkDeviceSize offset, VkDeviceSize size) {
+  MI_VERIFY(!isExternal());
+  MI_VERIFY(isAllocated());
+  return _memory->map(offset, size);
+}
+
+void Image::unmap() {
+  MI_VERIFY(!isExternal());
+  MI_VERIFY(isAllocated());
+  _memory->unmap();
+}
+
 NAMESPACE_VULKAN_END

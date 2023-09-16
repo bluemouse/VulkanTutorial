@@ -43,6 +43,10 @@ class Image {
 
   void bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset = 0);
 
+  void* map();
+  void* map(VkDeviceSize offset, VkDeviceSize size);
+  void unmap();
+
   operator VkImage() const { return _image; }
 
   [[nodiscard]] VkFormat format() const { return _format; }
@@ -58,7 +62,6 @@ class Image {
   [[nodiscard]] bool isMapped() const { return isAllocated() && _memory->isMapped(); }
 
  private:
-  uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
   void moveFrom(Image& rhs);
 
   bool isExternal() const { return _external; }

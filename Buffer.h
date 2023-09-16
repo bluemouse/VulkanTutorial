@@ -44,7 +44,7 @@ class Buffer {
 
   void bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset = 0);
 
-  void* map() { return map(0, _size); }
+  void* map();
   void* map(VkDeviceSize offset, VkDeviceSize size);
   void unmap();
 

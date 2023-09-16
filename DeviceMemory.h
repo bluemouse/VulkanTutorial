@@ -42,6 +42,7 @@ class DeviceMemory {
   [[nodiscard]] VkDeviceSize size() const { return _size; }
   [[nodiscard]] bool isAllocated() const { return _memory != VK_NULL_HANDLE; }
   [[nodiscard]] bool isMapped() const { return _mappedMemory != nullptr; }
+  [[nodiscard]] bool isHostVisible() const { return _hostVisible; }
 
  private:
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
@@ -51,6 +52,8 @@ class DeviceMemory {
   VkDeviceMemory _memory = VK_NULL_HANDLE;
 
   VkDeviceSize _size = 0; // in bytes
+
+  bool _hostVisible = false;
   void* _mappedMemory = nullptr;
 
   const Device* _device = nullptr;

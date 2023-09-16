@@ -32,11 +32,13 @@ void DeviceMemory::moveFrom(DeviceMemory& rhs) {
   MI_VERIFY(!isAllocated());
   _memory = rhs._memory;
   _size = rhs._size;
+  _hostVisible = rhs._hostVisible;
   _mappedMemory = rhs._mappedMemory;
   _device = rhs._device;
 
   rhs._memory = VK_NULL_HANDLE;
   rhs._size = 0;
+  rhs._hostVisible = false;
   rhs._mappedMemory = nullptr;
   rhs._device = nullptr;
 }
@@ -54,6 +56,8 @@ void DeviceMemory::allocate(const Device& device,
   allocInfo.memoryTypeIndex = findMemoryType(requirements.memoryTypeBits, properties);
 
   MI_VERIFY_VKCMD(vkAllocateMemory(*_device, &allocInfo, nullptr, &_memory));
+
+  _hostVisible = (properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0;
 }
 
 void DeviceMemory::free() {
@@ -63,12 +67,14 @@ void DeviceMemory::free() {
 
   _memory = VK_NULL_HANDLE;
   _size = 0;
+  _hostVisible = false;
   _mappedMemory = nullptr;
   _device = nullptr;
 }
 
 void* DeviceMemory::map(VkDeviceSize offset, VkDeviceSize size) {
   MI_VERIFY(isAllocated());
+  MI_VERIFY(isHostVisible());
   MI_VERIFY(!isMapped());
 
   vkMapMemory(*_device, _memory, offset, size, 0, &_mappedMemory);
