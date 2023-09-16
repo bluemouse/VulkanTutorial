@@ -79,6 +79,8 @@ set(MYVULKAN_SRC_FILES
   IndexBuffer.h
   UniformBuffer.cpp
   UniformBuffer.h
+  DeviceMemory.cpp
+  DeviceMemory.h
   Semaphore.cpp
   Semaphore.h
   Fence.cpp
