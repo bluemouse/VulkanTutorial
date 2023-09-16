@@ -11,10 +11,8 @@ StagingBuffer::StagingBuffer(const Device& device, VkDeviceSize size) {
 }
 
 void StagingBuffer::create(const Device& device, VkDeviceSize size) {
-  Buffer::create(device,
-                 size,
-                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+  Buffer::create(device, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+  Buffer::allocate(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 
 void StagingBuffer::copyFromHost(const void* src, VkDeviceSize size) {

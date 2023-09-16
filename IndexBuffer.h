@@ -20,6 +20,9 @@ class IndexBuffer : private Buffer {
   void create(const Device& device, VkDeviceSize size);
   using Buffer::destroy;
 
+  using Buffer::allocate;
+  using Buffer::free;
+
   using Buffer::operator VkBuffer;
   using Buffer::size;
 };

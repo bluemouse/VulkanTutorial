@@ -20,6 +20,9 @@ class StagingBuffer : private Buffer {
   void create(const Device& device, VkDeviceSize size);
   using Buffer::destroy;
 
+  using Buffer::allocate;
+
+
   using Buffer::map;
   using Buffer::unmap;
   using Buffer::isMapped;

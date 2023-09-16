@@ -217,7 +217,7 @@ class HelloTriangleApplication {
 
     _textureSampler.destroy();
     _textureImageView.destroy();
-    _textureImage.free();
+    _textureImage.destroy();
 
     _descriptorSetLayout.destroy();
 
@@ -345,9 +345,10 @@ class HelloTriangleApplication {
 
     stbi_image_free(pixels);
 
-    _textureImage.allocate(_device,
-                           VK_FORMAT_R8G8B8A8_SRGB,
-                           {static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)});
+    _textureImage.create(_device,
+                         VK_FORMAT_R8G8B8A8_SRGB,
+                         {static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight)});
+    _textureImage.allocate();
 
     transitionImageLayout(_textureImage,
                           VK_FORMAT_R8G8B8A8_SRGB,

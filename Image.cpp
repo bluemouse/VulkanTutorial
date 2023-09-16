@@ -4,18 +4,30 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-Image::Image(const Device& device, VkFormat format, VkExtent2D extent) {
-  allocate(device, format, extent);
+Image::Image(const Device& device,
+             VkFormat format,
+             VkExtent2D extent,
+             const ImageCreateInfoOverride& override) {
+  create(device, format, extent, override);
 }
 
-Image::Image(VkImage image, VkFormat format, VkExtent2D extent)
-    : _image(image), _format(format), _extent(extent) {
+Image::Image(const Device& device,
+             VkFormat format,
+             VkExtent2D extent,
+             VkMemoryPropertyFlags properties,
+             const ImageCreateInfoOverride& override)
+    : Image(device, format, extent, override) {
+  allocate(properties);
 }
 
 Image::~Image() noexcept(false) {
   if (isAllocated()) {
     free();
   }
+}
+
+Image::Image(VkImage image, VkFormat format, VkExtent2D extent)
+    : _image(image), _format(format), _extent(extent), _external(true) {
 }
 
 Image::Image(Image&& rhs) noexcept {
@@ -29,7 +41,11 @@ Image& Image::operator=(Image&& rhs) noexcept(false) {
   return *this;
 }
 
-void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
+void Image::create(const Device& device,
+                   VkFormat format,
+                   VkExtent2D extent,
+                   const ImageCreateInfoOverride& override) {
+  MI_VERIFY(!isExternal());
   MI_VERIFY(_image == VK_NULL_HANDLE);
   _device = &device;
   _format = format;
@@ -50,30 +66,57 @@ void Image::allocate(const Device& device, VkFormat format, VkExtent2D extent) {
   imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
   imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+  if (override) {
+    override(&imageInfo);
+  }
+
   MI_VERIFY_VKCMD(vkCreateImage(device, &imageInfo, nullptr, &_image));
+}
 
-  VkMemoryRequirements memRequirements;
-  vkGetImageMemoryRequirements(device, _image, &memRequirements);
+void Image::destroy() {
+  MI_VERIFY(!isExternal());
+  MI_VERIFY(_image != VK_NULL_HANDLE);
 
-  VkMemoryAllocateInfo allocInfo{};
-  allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-  allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex =
-      findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+  if (isAllocated()) {
+    free();
+  }
+  vkDestroyImage(*_device, _image, nullptr);
 
-  MI_VERIFY_VKCMD(vkAllocateMemory(device, &allocInfo, nullptr, &_memory));
+  _image = VK_NULL_HANDLE;
+  _format = VK_FORMAT_UNDEFINED;
+  _extent = {0, 0};
+  _device = nullptr;
+}
 
-  vkBindImageMemory(device, _image, _memory, 0);
+void Image::allocate(VkMemoryPropertyFlags properties) {
+  MI_VERIFY(!isExternal());
+  MI_VERIFY(_image != VK_NULL_HANDLE);
+  MI_VERIFY(!isAllocated());
+  _memory = DeviceMemory::make();
+
+  VkMemoryRequirements requirements;
+  vkGetImageMemoryRequirements(*_device, _image, &requirements);
+  _memory->allocate(*_device, properties, requirements);
+
+  vkBindImageMemory(*_device, _image, *_memory.get(), 0);
 }
 
 void Image::free() {
+  MI_VERIFY(!isExternal());
   MI_VERIFY(isAllocated());
-  vkDestroyImage(*_device, _image, nullptr);
-  vkFreeMemory(*_device, _memory, nullptr);
+  _memory = nullptr;
+}
 
-  _image = VK_NULL_HANDLE;
-  _memory = VK_NULL_HANDLE;
-  _device = nullptr;
+void Image::bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset) {
+  MI_VERIFY(!isExternal());
+  MI_VERIFY(_image != VK_NULL_HANDLE);
+  MI_VERIFY(!isAllocated());
+  MI_VERIFY(memory != _memory);
+  if (isAllocated()) {
+    free();
+  }
+  _memory = memory;
+  vkBindImageMemory(*_device, _image, *_memory.get(), offset);
 }
 
 void Image::moveFrom(Image& rhs) {
@@ -83,26 +126,14 @@ void Image::moveFrom(Image& rhs) {
   _format = rhs._format;
   _extent = rhs._extent;
   _device = rhs._device;
+  _external = rhs._external;
 
   rhs._image = VK_NULL_HANDLE;
   rhs._memory = VK_NULL_HANDLE;
   rhs._format = VK_FORMAT_UNDEFINED;
   rhs._extent = {0, 0};
   rhs._device = nullptr;
-}
-
-uint32_t Image::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const {
-  VkPhysicalDeviceMemoryProperties memProperties;
-  vkGetPhysicalDeviceMemoryProperties(_device->physicalDevice(), &memProperties);
-
-  uint32_t idx = 0;
-  for (auto& memType : memProperties.memoryTypes) {
-    if (((typeFilter & (1 << idx)) != 0u) && (memType.propertyFlags & properties) == properties) {
-      return idx;
-    }
-    ++idx;
-  }
-  throw std::runtime_error("Failed to find suitable memory type!");
+  rhs._external = false;
 }
 
 NAMESPACE_VULKAN_END

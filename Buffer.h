@@ -13,34 +13,36 @@ class Device;
 
 class Buffer {
  public:
+  using BufferCreateInfoOverride = std::function<void(VkBufferCreateInfo*)>;
+
+ public:
   Buffer() = default;
-  Buffer(const Device& device, VkDeviceSize size, VkBufferUsageFlags usage);
   Buffer(const Device& device,
          VkDeviceSize size,
          VkBufferUsageFlags usage,
-         VkMemoryPropertyFlags properties);
+         const BufferCreateInfoOverride& override = {});
+  Buffer(const Device& device,
+         VkDeviceSize size,
+         VkBufferUsageFlags usage,
+         VkMemoryPropertyFlags properties,
+         const BufferCreateInfoOverride& override = {});
+
   virtual ~Buffer();
 
   // Transfer the ownership from `rhs` to `this`
   Buffer(Buffer&& rhs) noexcept;
   Buffer& operator=(Buffer&& rhs) noexcept(false);
 
-  using BufferCreateInfoOverride = std::function<void(VkBufferCreateInfo*)>;
   void create(const Device& device,
               VkDeviceSize size,
               VkBufferUsageFlags usage,
-              const BufferCreateInfoOverride& override = {});
-  void create(const Device& device,
-              VkDeviceSize size,
-              VkBufferUsageFlags usage,
-              VkMemoryPropertyFlags properties,
               const BufferCreateInfoOverride& override = {});
   void destroy();
 
   void allocate(VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
   void free();
 
-  void bind(DeviceMemory::Ptr memory, VkDeviceSize offset = 0);
+  void bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset = 0);
 
   void* map() { return map(0, _size); }
   void* map(VkDeviceSize offset, VkDeviceSize size);

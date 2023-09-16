@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "DeviceMemory.h"
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
@@ -10,17 +11,37 @@ class Device;
 
 class Image {
  public:
+  using ImageCreateInfoOverride = std::function<void(VkImageCreateInfo*)>;
+
+ public:
   Image() = default;
-  Image(const Device& device, VkFormat format, VkExtent2D extent);
-  Image(VkImage image, VkFormat format, VkExtent2D extent);
+  Image(const Device& device,
+        VkFormat format,
+        VkExtent2D extent,
+        const ImageCreateInfoOverride& override = {});
+  Image(const Device& device,
+        VkFormat format,
+        VkExtent2D extent,
+        VkMemoryPropertyFlags properties,
+        const ImageCreateInfoOverride& override = {});
   ~Image() noexcept(false);
+
+  Image(VkImage image, VkFormat format, VkExtent2D extent); // special use by Swapchain
 
   // Transfer the ownership from `rhs` to `this`
   Image(Image&& rhs) noexcept;
   Image& operator=(Image&& rhs) noexcept(false);
 
-  void allocate(const Device& device, VkFormat format, VkExtent2D extent);
+  void create(const Device& device,
+              VkFormat format,
+              VkExtent2D extent,
+              const ImageCreateInfoOverride& override = {});
+  void destroy();
+
+  void allocate(VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
   void free();
+
+  void bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset = 0);
 
   operator VkImage() const { return _image; }
 
@@ -34,17 +55,22 @@ class Image {
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
   void moveFrom(Image& rhs);
 
-  bool isOwner() const { return _memory != VK_NULL_HANDLE; }
-  bool isAllocated() const { return isOwner() && _image != VK_NULL_HANDLE; }
+  bool isAllocated() const {
+    return _image != VK_NULL_HANDLE && (_memory && _memory->isAllocated());
+  }
+  bool isExternal() const { return _external; }
 
  private:
   VkImage _image = VK_NULL_HANDLE;
-  VkDeviceMemory _memory = VK_NULL_HANDLE;
 
   VkFormat _format = VK_FORMAT_UNDEFINED;
   VkExtent2D _extent = {0, 0};
 
+  DeviceMemory::Ptr _memory;
+
   const Device* _device = nullptr;
+
+  bool _external = false;
 };
 
 NAMESPACE_VULKAN_END

@@ -8,15 +8,18 @@ namespace Vulkan {
 
 Buffer::Buffer(const Device& device,
                VkDeviceSize size,
-               VkBufferUsageFlags usage) {
-  create(device, size, usage);
+               VkBufferUsageFlags usage,
+               const BufferCreateInfoOverride& override) {
+  create(device, size, usage, override);
 }
 
 Buffer::Buffer(const Device& device,
                VkDeviceSize size,
                VkBufferUsageFlags usage,
-               VkMemoryPropertyFlags properties) {
-  create(device, size, usage, properties);
+               VkMemoryPropertyFlags properties,
+               const BufferCreateInfoOverride& override)
+    : Buffer(device, size, usage, override) {
+  allocate(properties);
 }
 
 Buffer::~Buffer() {
@@ -55,7 +58,6 @@ void Buffer::create(const Device& device,
                     const BufferCreateInfoOverride& override) {
   MI_VERIFY(!isAllocated());
   _device = &device;
-
   _size = size;
 
   VkBufferCreateInfo bufferInfo{};
@@ -73,15 +75,6 @@ void Buffer::create(const Device& device,
   }
 
   MI_VERIFY_VKCMD(vkCreateBuffer(device, &bufferInfo, nullptr, &_buffer));
-}
-
-void Buffer::create(const Device& device,
-                    VkDeviceSize size,
-                    VkBufferUsageFlags usage,
-                    VkMemoryPropertyFlags properties,
-                    const BufferCreateInfoOverride& override) {
-  create(device, size, usage, override);
-  allocate(properties);
 }
 
 void Buffer::destroy() {
@@ -113,8 +106,8 @@ void Buffer::free() {
   _memory = nullptr;
 }
 
-void Buffer::bind(DeviceMemory::Ptr memory, VkDeviceSize offset) {
-  MI_VERIFY(*memory != *_memory);
+void Buffer::bind(const DeviceMemory::Ptr& memory, VkDeviceSize offset) {
+  MI_VERIFY(memory != _memory);
   if (isAllocated()) {
     free();
   }
