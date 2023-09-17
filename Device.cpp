@@ -7,8 +7,11 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-Device::Device(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
-  create(physicalDevice, std::move(extensions));
+Device::Device(const PhysicalDevice& physicalDevice,
+               const std::vector<uint32_t>& queueFamilies,
+               const std::vector<const char*>& extensions,
+               const DeviceCreateInfoOverride& override) {
+  create(physicalDevice, queueFamilies, extensions, override);
 }
 
 Device::~Device() {
@@ -31,25 +34,23 @@ Device& Device::operator=(Device&& rhs) noexcept(false) {
 void Device::moveFrom(Device& rhs) {
   MI_VERIFY(!isCreated());
   _device = rhs._device;
-  _graphicsQueue = rhs._graphicsQueue;
-  _presentQueue = rhs._presentQueue;
+  _queues = std::move(rhs._queues);
   _physicalDevice = rhs._physicalDevice;
 
   rhs._device = VK_NULL_HANDLE;
-  rhs._graphicsQueue = VK_NULL_HANDLE;
-  rhs._presentQueue = VK_NULL_HANDLE;
   rhs._physicalDevice = nullptr;
 }
 
-void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char*> extensions) {
+void Device::create(const PhysicalDevice& physicalDevice,
+                    const std::vector<uint32_t>& queueFamilies,
+                    const std::vector<const char*>& extensions,
+                    const DeviceCreateInfoOverride& override) {
   MI_VERIFY(!isCreated());
   _physicalDevice = &physicalDevice;
 
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   float queuePriority = 1.0f;
-
-  std::set<uint32_t> uniqueQueueFamilies = {physicalDevice.queueFamilies().graphicsIndex(),
-                                            physicalDevice.queueFamilies().presentIndex()};
+  std::set<uint32_t> uniqueQueueFamilies{queueFamilies.begin(), queueFamilies.end()};
   for (uint32_t queueFamily : uniqueQueueFamilies) {
     VkDeviceQueueCreateInfo queueCreateInfo{};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -81,16 +82,31 @@ void Device::create(const PhysicalDevice& physicalDevice, std::vector<const char
     createInfo.enabledLayerCount = 0;
   }
 
-  MI_VERIFY_VKCMD(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
+  if (override) {
+    override(&createInfo, &deviceFeatures, &queueCreateInfos);
+  }
 
-  vkGetDeviceQueue(_device, physicalDevice.queueFamilies().graphicsIndex(), 0, &_graphicsQueue);
-  vkGetDeviceQueue(_device, physicalDevice.queueFamilies().presentIndex(), 0, &_presentQueue);
+  MI_VERIFY_VKCMD(vkCreateDevice(physicalDevice, &createInfo, nullptr, &_device));
+}
+
+void Device::initQueue(std::string queueName, uint32_t queueFamilyIndex) {
+  MI_VERIFY(isCreated());
+  VkQueue queue;
+  vkGetDeviceQueue(_device, queueFamilyIndex, 0, &queue);
+  _queues[queueName] = queue;
+}
+
+VkQueue Device::queue(const std::string& queueName) const {
+  MI_VERIFY(isCreated());
+  return _queues.at(queueName);
 }
 
 void Device::destroy() {
   MI_VERIFY(isCreated());
   vkDestroyDevice(_device, nullptr);
+
   _device = VK_NULL_HANDLE;
+  _queues.clear();
   _physicalDevice = nullptr;
 }
 

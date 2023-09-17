@@ -273,7 +273,15 @@ class HelloTriangleApplication {
                                 [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
   }
 
-  void createLogicalDevice() { _device.create(_physicalDevice, deviceExtensions); }
+  void createLogicalDevice() {
+    std::vector<uint32_t> queueFamilies = {_physicalDevice.queueFamilies().graphicsIndex(),
+                                           _physicalDevice.queueFamilies().presentIndex()};
+
+    _device.create(_physicalDevice, queueFamilies, deviceExtensions);
+
+    _device.initQueue("graphics", _physicalDevice.queueFamilies().graphicsIndex());
+    _device.initQueue("present", _physicalDevice.queueFamilies().presentIndex());
+  }
 
   void createSwapChain() {
     auto chooseSwapSurfaceFormatFuc =
@@ -667,7 +675,7 @@ class HelloTriangleApplication {
 
     presentInfo.pImageIndices = &imageIndex;
 
-    result = vkQueuePresentKHR(_device.presentQueue(), &presentInfo);
+    result = vkQueuePresentKHR(_device.queue("present"), &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
       framebufferResized = false;
