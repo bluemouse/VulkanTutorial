@@ -11,14 +11,14 @@ class Device;
 class Fence {
  public:
   Fence() = default;
-  explicit Fence(const Device& device);
+  explicit Fence(const Device& device, bool signaled = false);
   ~Fence();
 
   // Transfer the ownership from `rhs` to `this`
   Fence(Fence&& rhs) noexcept;
   Fence& operator=(Fence&& rhs) noexcept(false);
 
-  void create(const Device& device);
+  void create(const Device& device, bool signaled = false);
   void destroy();
 
   operator VkFence() const { return _fence; }

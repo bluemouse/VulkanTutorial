@@ -120,7 +120,6 @@ void* Buffer::map() {
   MI_VERIFY(isAllocated());
   return _memory->map();
 }
-
 void* Buffer::map(VkDeviceSize offset, VkDeviceSize size) {
   MI_VERIFY(isAllocated());
   return _memory->map(offset, size);

@@ -4,8 +4,8 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-Fence::Fence(const Device& device) {
-  create(device);
+Fence::Fence(const Device& device, bool signaled) {
+  create(device, signaled);
 }
 
 Fence::~Fence() {
@@ -34,13 +34,15 @@ void Fence::moveFrom(Fence& rhs) {
   rhs._device = nullptr;
 }
 
-void Fence::create(const Device& device) {
+void Fence::create(const Device& device, bool signaled) {
   MI_VERIFY(!isCreated());
   _device = &device;
 
   VkFenceCreateInfo fenceInfo{};
   fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+  if (signaled) {
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+  }
 
   MI_VERIFY_VKCMD(vkCreateFence(device, &fenceInfo, nullptr, &_fence));
 }

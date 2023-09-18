@@ -567,7 +567,7 @@ class HelloTriangleApplication {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
       _imageAvailableSemaphores[i].create(_device);
       _renderFinishedSemaphores[i].create(_device);
-      _inFlightFences[i].create(_device);
+      _inFlightFences[i].create(_device, true);
     }
   }
 
