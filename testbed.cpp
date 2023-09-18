@@ -20,28 +20,29 @@
 #include <stdexcept>
 #include <vector>
 
-#include "Buffer.h"
+#include "Instance.h"
+#include "PhysicalDevice.h"
+#include "Surface.h"
+#include "Swapchain.h"
+#include "Device.h"
+#include "Pipeline.h"
+#include "RenderPass.h"
 #include "CommandBuffer.h"
 #include "CommandPool.h"
+#include "ShaderModule.h"
 #include "DescriptorPool.h"
 #include "DescriptorSet.h"
 #include "DescriptorSetLayout.h"
-#include "Device.h"
-#include "Fence.h"
-#include "Image.h"
-#include "ImageView.h"
-#include "IndexBuffer.h"
-#include "Instance.h"
-#include "PhysicalDevice.h"
-#include "Pipeline.h"
-#include "RenderPass.h"
-#include "Sampler.h"
-#include "Semaphore.h"
-#include "ShaderModule.h"
-#include "StagingBuffer.h"
-#include "Swapchain.h"
+#include "Buffer.h"
 #include "UniformBuffer.h"
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "StagingBuffer.h"
+#include "Image.h"
+#include "ImageView.h"
+#include "Sampler.h"
+#include "Semaphore.h"
+#include "Fence.h"
 #include "helpers_vulkan.h"
 
 const uint32_t WIDTH = 800;
@@ -127,6 +128,7 @@ class HelloTriangleApplication {
   Vulkan::Instance _instance;
 
   Vulkan::PhysicalDevice _physicalDevice;
+  Vulkan::Surface _surface;
   Vulkan::Device _device;
   Vulkan::Swapchain _swapchain;
 
@@ -232,6 +234,7 @@ class HelloTriangleApplication {
     _commandPool.destroy();
     _device.destroy();
     _physicalDevice.reset();
+    _surface.destroy();
     _instance.destroy();
 
     glfwDestroyWindow(window);
@@ -264,13 +267,13 @@ class HelloTriangleApplication {
 
     VkSurfaceKHR surface;
     MI_VERIFY_VKCMD(glfwCreateWindowSurface(_instance, window, nullptr, &surface));
-
-    _instance.setSurface(surface);
+    _surface.create(_instance, surface);
   }
 
   void pickPhysicalDevice() {
     _physicalDevice.instantiate(_instance,
                                 [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
+    _physicalDevice.initQueueFamilies(_surface);
   }
 
   void createLogicalDevice() {
@@ -295,8 +298,11 @@ class HelloTriangleApplication {
     auto chooseSwapExtentFuc = [this](const VkSurfaceCapabilitiesKHR &caps) -> VkExtent2D {
       return chooseSwapExtent(caps);
     };
-    _swapchain.create(
-        _device, chooseSwapSurfaceFormatFuc, chooseSwapPresentModeFunc, chooseSwapExtentFuc);
+    _swapchain.create(_device,
+                      _surface,
+                      chooseSwapSurfaceFormatFuc,
+                      chooseSwapPresentModeFunc,
+                      chooseSwapExtentFuc);
   }
 
   void createRenderPass() { _renderPass.create(_device, _swapchain.imageFormat()); }
@@ -730,33 +736,32 @@ class HelloTriangleApplication {
   }
 
   SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
-    auto surface = _instance.surface();
     SwapChainSupportDetails details;
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface, &details.capabilities);
 
     uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, nullptr);
 
     if (formatCount != 0) {
       details.formats.resize(formatCount);
-      vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+      vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, details.formats.data());
     }
 
     uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, nullptr);
 
     if (presentModeCount != 0) {
       details.presentModes.resize(presentModeCount);
       vkGetPhysicalDeviceSurfacePresentModesKHR(
-          device, surface, &presentModeCount, details.presentModes.data());
+          device, _surface, &presentModeCount, details.presentModes.data());
     }
 
     return details;
   }
 
   bool isDeviceSuitable(VkPhysicalDevice device) {
-    auto queueFamilies = Vulkan::PhysicalDevice::findQueueFamilies(device, _instance.surface());
+    auto queueFamilies = Vulkan::PhysicalDevice::findQueueFamilies(device, _surface);
     bool isQueueFamiliesComplete = queueFamilies.graphics && queueFamilies.present;
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);

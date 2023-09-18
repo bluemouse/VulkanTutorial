@@ -11,6 +11,7 @@
 NAMESPACE_VULKAN_BEGIN
 
 class Instance;
+class Surface;
 
 class PhysicalDevice {
  public:
@@ -41,6 +42,8 @@ class PhysicalDevice {
 
   void instantiate(const Instance& instance, const IsDeviceSuitablePredicate& isDeviceSuitable);
   void reset();
+
+  void initQueueFamilies(const Surface& surface);
 
   operator VkPhysicalDevice() const { return _device; }
 

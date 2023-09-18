@@ -12,11 +12,13 @@
 NAMESPACE_VULKAN_BEGIN
 
 class Device;
+class Surface;
 class RenderPass;
 class Swapchain {
  public:
   Swapchain() = default;
   Swapchain(const Device& device,
+            const Surface& surface,
             const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
                 chooseSwapSurfaceFormat,
             const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
@@ -29,6 +31,7 @@ class Swapchain {
   Swapchain& operator=(const Swapchain&) = delete;
 
   void create(const Device& device,
+              const Surface& surface,
               const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
                   chooseSwapSurfaceFormat,
               const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&

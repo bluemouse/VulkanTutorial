@@ -41,6 +41,8 @@ set(MYVULKAN_SRC_FILES
   Instance.h
   PhysicalDevice.cpp
   PhysicalDevice.h
+  Surface.cpp
+  Surface.h
   Device.cpp
   Device.h
   Swapchain.cpp

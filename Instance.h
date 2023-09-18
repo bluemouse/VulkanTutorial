@@ -33,23 +33,17 @@ class Instance {
               int versionMinor,
               std::vector<const char*> extensions,
               bool enableValidation = false);
-  // TODO we should be able to create the surface using functions such
-  //      as vkCreateWin32SurfaceKHR, vkCreateWin32SurfaceKHR and
-  //      vkCreateXcbSurfaceKHR. For now, we'll just take the surface
-  //      created by the caller.
-  void setSurface(VkSurfaceKHR surface) { _surface = surface; }
 
   void destroy();
 
   operator VkInstance() const { return _instance; }
-  [[nodiscard]] VkSurfaceKHR surface() const { return _surface; }
 
   bool isValidationLayersEnabled() const { return !_layers.empty(); }
   const std::vector<const char*>& layers() const { return _layers; }
 
   using ValidationCallback = std::function<VkBool32(VkDebugUtilsMessageSeverityFlagBitsEXT,
-                                               VkDebugUtilsMessageTypeFlagsEXT,
-                                               const VkDebugUtilsMessengerCallbackDataEXT*)>;
+                                                    VkDebugUtilsMessageTypeFlagsEXT,
+                                                    const VkDebugUtilsMessengerCallbackDataEXT*)>;
   void setValidationCallback(const ValidationCallback& callback);
 
   [[nodiscard]] bool isCreated() const { return _instance != VK_NULL_HANDLE; }
@@ -70,7 +64,6 @@ class Instance {
 
  private:
   VkInstance _instance = VK_NULL_HANDLE;
-  VkSurfaceKHR _surface = VK_NULL_HANDLE;
 
   VkDebugUtilsMessengerEXT _debugMessenger = VK_NULL_HANDLE;
 

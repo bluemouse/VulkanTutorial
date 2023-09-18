@@ -1,6 +1,7 @@
 #include "Swapchain.h"
 
 #include "Device.h"
+#include "Surface.h"
 #include "Instance.h"
 #include "PhysicalDevice.h"
 #include "RenderPass.h"
@@ -9,12 +10,13 @@ NAMESPACE_VULKAN_BEGIN
 
 Swapchain::Swapchain(
     const Device& device,
+    const Surface& surface,
     const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
         chooseSwapSurfaceFormat,
     const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
         chooseSwapPresentMode,
     const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
-  create(device, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
+  create(device, surface, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
 }
 
 Swapchain::~Swapchain() {
@@ -25,6 +27,7 @@ Swapchain::~Swapchain() {
 
 void Swapchain::create(
     const Device& device,
+    const Surface& surface,
     const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
         chooseSwapSurfaceFormat,
     const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
@@ -32,8 +35,6 @@ void Swapchain::create(
     const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
   MI_VERIFY(!isCreated());
   _device = &device;
-
-  VkSurfaceKHR surface = device.instance().surface();
 
   const auto& physicalDevice = device.physicalDevice();
   PhysicalDevice::SwapChainSupportDetails swapChainSupport =

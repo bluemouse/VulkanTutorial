@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Instance.h"
+#include "Surface.h"
 
 NAMESPACE_VULKAN_BEGIN
 
@@ -37,14 +38,16 @@ void PhysicalDevice::instantiate(const Instance& instance,
   }
 
   MI_VERIFY_VKHANDLE(_device);
-
-  _queueFamilies = findQueueFamilies(_device, _instance->surface());
 }
 
 void PhysicalDevice::reset() {
   _device = VK_NULL_HANDLE;
   _queueFamilies = {};
   _instance = nullptr;
+}
+
+void PhysicalDevice::initQueueFamilies(const Surface& surface) {
+  _queueFamilies = findQueueFamilies(_device, surface);
 }
 
 PhysicalDevice::QueueFamilies PhysicalDevice::findQueueFamilies(VkPhysicalDevice device,

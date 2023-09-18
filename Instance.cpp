@@ -120,10 +120,6 @@ void Instance::create(int versionMajor,
 void Instance::destroy() {
   MI_VERIFY(isCreated());
 
-  if (_surface != VK_NULL_HANDLE) {
-    vkDestroySurfaceKHR(_instance, _surface, nullptr);
-  }
-
   if (_debugMessenger != VK_NULL_HANDLE) {
     MI_INIT_VKPROC(vkDestroyDebugUtilsMessengerEXT);
     vkDestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
@@ -132,7 +128,6 @@ void Instance::destroy() {
   vkDestroyInstance(_instance, nullptr);
 
   _instance = VK_NULL_HANDLE;
-  _surface = VK_NULL_HANDLE;
   _debugMessenger = VK_NULL_HANDLE;
 }
 
