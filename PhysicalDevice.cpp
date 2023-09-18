@@ -84,10 +84,10 @@ PhysicalDevice::QueueFamilies PhysicalDevice::findQueueFamilies(VkPhysicalDevice
   return queueFamilies;
 }
 
-PhysicalDevice::SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(
+PhysicalDevice::SwapchainSupportDetails PhysicalDevice::querySwapChainSupport(
     VkPhysicalDevice device,
     VkSurfaceKHR surface) {
-  SwapChainSupportDetails details;
+  SwapchainSupportDetails details;
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
   uint32_t formatCount = 0;

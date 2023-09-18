@@ -22,7 +22,6 @@ class StagingBuffer : private Buffer {
 
   using Buffer::allocate;
 
-
   using Buffer::map;
   using Buffer::unmap;
   using Buffer::isMapped;

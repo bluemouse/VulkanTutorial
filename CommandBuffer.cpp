@@ -2,7 +2,6 @@
 
 #include "CommandPool.h"
 #include "Device.h"
-#include "Framebuffer.h"
 #include "Pipeline.h"
 #include "RenderPass.h"
 #include "helpers_vulkan.h"

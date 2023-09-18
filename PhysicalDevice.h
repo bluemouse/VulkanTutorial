@@ -27,7 +27,7 @@ class PhysicalDevice {
     uint32_t presentIndex() const { return present.value(); }
   };
 
-  struct SwapChainSupportDetails {
+  struct SwapchainSupportDetails {
     VkSurfaceCapabilitiesKHR capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
@@ -53,7 +53,7 @@ class PhysicalDevice {
 
   [[nodiscard]] static QueueFamilies findQueueFamilies(VkPhysicalDevice device,
                                                        VkSurfaceKHR surface);
-  [[nodiscard]] static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
+  [[nodiscard]] static SwapchainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
                                                                      VkSurfaceKHR surface);
 
   // Disable copy and assignment operators

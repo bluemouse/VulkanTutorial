@@ -9,15 +9,35 @@ NAMESPACE_VULKAN_BEGIN
 
 Framebuffer::Framebuffer(const Device& device,
                          const RenderPass& renderPass,
-                         const ImageView& imageView)
-    : _device(&device), _renderPass(&renderPass), _imageView(&imageView) {
-  std::array<VkImageView, 1> attachments = {imageView};
+                         const ImageView& imageView) {
+  create(device, renderPass, imageView);
+}
+
+Framebuffer::~Framebuffer() {
+  if (isCreated()) {
+    destroy();
+  }
+}
+
+Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept {
+  moveFrom(rhs);
+}
+
+void Framebuffer::create(const Device& device,
+                         const RenderPass& renderPass,
+                         const ImageView& imageView) {
+  MI_VERIFY(!isCreated());
+  _device = &device;
+  _renderPass = &renderPass;
+  _imageView = &imageView;
+
+  VkImageView attachments[] = {imageView};
 
   VkFramebufferCreateInfo framebufferInfo{};
   framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
   framebufferInfo.renderPass = renderPass;
   framebufferInfo.attachmentCount = 1;
-  framebufferInfo.pAttachments = attachments.data();
+  framebufferInfo.pAttachments = attachments;
   framebufferInfo.width = imageView.image().width();
   framebufferInfo.height = imageView.image().height();
   framebufferInfo.layers = 1;
@@ -25,12 +45,14 @@ Framebuffer::Framebuffer(const Device& device,
   MI_VERIFY_VKCMD(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &_buffer));
 }
 
-Framebuffer::~Framebuffer() {
+void Framebuffer::destroy() {
+  MI_VERIFY(isCreated());
   vkDestroyFramebuffer(*_device, _buffer, nullptr);
-}
 
-Framebuffer::Framebuffer(Framebuffer&& rhs) noexcept {
-  moveFrom(rhs);
+  _buffer = VK_NULL_HANDLE;
+  _device = nullptr;
+  _renderPass = nullptr;
+  _imageView = nullptr;
 }
 
 Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept(false) {
@@ -41,7 +63,8 @@ Framebuffer& Framebuffer::operator=(Framebuffer&& rhs) noexcept(false) {
 }
 
 VkExtent2D Framebuffer::extent() const {
-  return _imageView->image().extent();
+  auto imageExtent = _imageView->image().extent();
+  return {imageExtent.width, imageExtent.height};
 }
 
 void Framebuffer::moveFrom(Framebuffer& rhs) {

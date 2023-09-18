@@ -16,14 +16,20 @@ class Surface;
 class RenderPass;
 class Swapchain {
  public:
+  using SwapchainCreateInfoOverride = std::function<void(VkSwapchainCreateInfoKHR*)>;
+  using ChooseSurfaceFormat =
+      std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>;
+  using ChoosePresentMode =
+      std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>;
+  using ChooseExtent = std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>;
+
+ public:
   Swapchain() = default;
   Swapchain(const Device& device,
             const Surface& surface,
-            const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
-                chooseSwapSurfaceFormat,
-            const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
-                chooseSwapPresentMode,
-            const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);
+            const ChooseSurfaceFormat& chooseSurfaceFormat,
+            const ChoosePresentMode& choosePresentMode,
+            const ChooseExtent& chooseSwapExtent);
   ~Swapchain();
 
   // Disable copy and assignment operators
@@ -32,11 +38,9 @@ class Swapchain {
 
   void create(const Device& device,
               const Surface& surface,
-              const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
-                  chooseSwapSurfaceFormat,
-              const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
-                  chooseSwapPresentMode,
-              const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent);
+              const ChooseSurfaceFormat& chooseSurfaceFormat,
+              const ChoosePresentMode& choosePresentMode,
+              const ChooseExtent& chooseSwapExtent);
   void createFramebuffers(const RenderPass& renderPass);
   void destroy();
 
@@ -44,7 +48,7 @@ class Swapchain {
 
   [[nodiscard]] const std::vector<Image>& images() const { return _images; }
   [[nodiscard]] VkFormat imageFormat() const { return _images[0].format(); }
-  [[nodiscard]] VkExtent2D imageExtent() const { return _images[0].extent(); }
+  [[nodiscard]] VkExtent2D imageExtent() const { return {_images[0].width(), _images[0].height()}; }
 
   [[nodiscard]] const std::vector<ImageView>& imageViews() const { return _imageViews; }
   [[nodiscard]] const ImageView& imageView(size_t i) const { return _imageViews[i]; }

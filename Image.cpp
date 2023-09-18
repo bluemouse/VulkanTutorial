@@ -27,7 +27,7 @@ Image::~Image() noexcept(false) {
 }
 
 Image::Image(VkImage image, VkFormat format, VkExtent2D extent)
-    : _image(image), _format(format), _extent(extent), _external(true) {
+    : _image(image), _format(format), _extent{extent.width, extent.height, 1}, _external(true) {
 }
 
 Image::Image(Image&& rhs) noexcept {
@@ -53,7 +53,7 @@ void Image::moveFrom(Image& rhs) {
   rhs._image = VK_NULL_HANDLE;
   rhs._memory = VK_NULL_HANDLE;
   rhs._format = VK_FORMAT_UNDEFINED;
-  rhs._extent = {0, 0};
+  rhs._extent = {0, 0, 0};
   rhs._device = nullptr;
   rhs._external = false;
 }
@@ -65,12 +65,10 @@ void Image::create(const Device& device,
   MI_VERIFY(!isExternal());
   MI_VERIFY(!isCreated());
   _device = &device;
-  _format = format;
-  _extent = extent;
 
   VkImageCreateInfo imageInfo{};
   imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  imageInfo.imageType = VK_IMAGE_TYPE_2D;
+  imageInfo.imageType = VK_IMAGE_TYPE_2D; // Implied by extent
   imageInfo.extent.width = extent.width;
   imageInfo.extent.height = extent.height;
   imageInfo.extent.depth = 1;
@@ -88,6 +86,10 @@ void Image::create(const Device& device,
   }
 
   MI_VERIFY_VKCMD(vkCreateImage(device, &imageInfo, nullptr, &_image));
+
+  _type = imageInfo.imageType;
+  _format = imageInfo.format;
+  _extent = imageInfo.extent;
 }
 
 void Image::destroy() {
@@ -150,6 +152,20 @@ void Image::unmap() {
   MI_VERIFY(!isExternal());
   MI_VERIFY(isAllocated());
   _memory->unmap();
+}
+
+VkImageViewType Image::imageViewType() const {
+  switch (_type) {
+    case VK_IMAGE_TYPE_1D:
+      return VK_IMAGE_VIEW_TYPE_1D;
+    case VK_IMAGE_TYPE_2D:
+      return VK_IMAGE_VIEW_TYPE_2D;
+    case VK_IMAGE_TYPE_3D:
+      return VK_IMAGE_VIEW_TYPE_3D;
+    default:
+      MI_ASSERT(!"Invalid image type (VkImageType)");
+      return VK_IMAGE_VIEW_TYPE_2D;
+  }
 }
 
 NAMESPACE_VULKAN_END

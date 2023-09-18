@@ -19,9 +19,14 @@ class Framebuffer {
   Framebuffer(Framebuffer&& rhs) noexcept;
   Framebuffer& operator=(Framebuffer&& rhs) noexcept(false);
 
+  void create(const Device& device, const RenderPass& renderPass, const ImageView& imageView);
+  void destroy();
+
   operator VkFramebuffer() const { return _buffer; }
 
   [[nodiscard]] VkExtent2D extent() const;
+
+  [[nodiscard]] bool isCreated() const { return _buffer != VK_NULL_HANDLE; }
 
  private:
   void moveFrom(Framebuffer& rhs);

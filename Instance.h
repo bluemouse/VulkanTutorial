@@ -11,13 +11,13 @@ NAMESPACE_VULKAN_BEGIN
 
 class Instance {
  public:
-  using AppInfoOverride = std::function<void(VkApplicationInfo*)>;
+  using ApplicationInfoOverride = std::function<void(VkApplicationInfo*)>;
   using InstanceCreateInfoOverride = std::function<void(VkInstanceCreateInfo*)>;
   using DebugUtilsMessengerCreateInfoOverride =
       std::function<void(VkDebugUtilsMessengerCreateInfoEXT*)>;
 
   Instance() = default;
-  Instance(const AppInfoOverride& appInfoOverride,
+  Instance(const ApplicationInfoOverride& appInfoOverride,
            const InstanceCreateInfoOverride& instanceCreateInfoOverride,
            const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride = {});
   Instance(int versionMajor,
@@ -26,7 +26,7 @@ class Instance {
            bool enableValidation = false);
   ~Instance();
 
-  void create(const AppInfoOverride& appInfoOverride = {},
+  void create(const ApplicationInfoOverride& appInfoOverride = {},
               const InstanceCreateInfoOverride& instanceCreateInfoOverride = {},
               const DebugUtilsMessengerCreateInfoOverride& messengerCreateInfoOverride = {});
   void create(int versionMajor,

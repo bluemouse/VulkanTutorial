@@ -8,15 +8,12 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-Swapchain::Swapchain(
-    const Device& device,
-    const Surface& surface,
-    const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
-        chooseSwapSurfaceFormat,
-    const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
-        chooseSwapPresentMode,
-    const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
-  create(device, surface, chooseSwapSurfaceFormat, chooseSwapPresentMode, chooseSwapExtent);
+Swapchain::Swapchain(const Device& device,
+                     const Surface& surface,
+                     const ChooseSurfaceFormat& chooseSurfaceFormat,
+                     const ChoosePresentMode& choosePresentMode,
+                     const ChooseExtent& chooseExtent) {
+  create(device, surface, chooseSurfaceFormat, choosePresentMode, chooseExtent);
 }
 
 Swapchain::~Swapchain() {
@@ -25,24 +22,21 @@ Swapchain::~Swapchain() {
   }
 }
 
-void Swapchain::create(
-    const Device& device,
-    const Surface& surface,
-    const std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>&
-        chooseSwapSurfaceFormat,
-    const std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>&
-        chooseSwapPresentMode,
-    const std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>& chooseSwapExtent) {
+void Swapchain::create(const Device& device,
+                       const Surface& surface,
+                       const ChooseSurfaceFormat& chooseSurfaceFormat,
+                       const ChoosePresentMode& choosePresentMode,
+                       const ChooseExtent& chooseExtent) {
   MI_VERIFY(!isCreated());
   _device = &device;
 
   const auto& physicalDevice = device.physicalDevice();
-  PhysicalDevice::SwapChainSupportDetails swapChainSupport =
+  PhysicalDevice::SwapchainSupportDetails swapChainSupport =
       PhysicalDevice::querySwapChainSupport(physicalDevice, surface);
 
-  VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-  VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-  VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+  VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(swapChainSupport.formats);
+  VkPresentModeKHR presentMode = choosePresentMode(swapChainSupport.presentModes);
+  VkExtent2D extent = chooseExtent(swapChainSupport.capabilities);
 
   uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
   if (swapChainSupport.capabilities.maxImageCount > 0 &&

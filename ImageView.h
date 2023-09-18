@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <functional>
+
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
@@ -11,15 +13,22 @@ class Image;
 
 class ImageView {
  public:
+  using ImageViewCreateInfoOverride = std::function<void(VkImageViewCreateInfo&)>;
+
+ public:
   ImageView() = default;
-  ImageView(const Device& device, const Image& image);
+  ImageView(const Device& device,
+            const Image& image,
+            ImageViewCreateInfoOverride createInfoOverride = {});
   ~ImageView();
 
   // Transfer the ownership from `rhs` to `this`
   ImageView(ImageView&& rhs) noexcept;
   ImageView& operator=(ImageView&& rhs) noexcept(false);
 
-  void create(const Device& device, const Image& image);
+  void create(const Device& device,
+              const Image& image,
+              ImageViewCreateInfoOverride createInfoOverride = {});
   void destroy();
 
   operator VkImageView() const { return _view; }

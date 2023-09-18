@@ -49,17 +49,21 @@ class Image {
 
   operator VkImage() const { return _image; }
 
+  [[nodiscard]] VkImageType type() const { return _type; }
   [[nodiscard]] VkFormat format() const { return _format; }
+  [[nodiscard]] VkExtent3D extent() const { return _extent; }
 
-  [[nodiscard]] VkExtent2D extent() const { return _extent; }
   [[nodiscard]] uint32_t width() const { return _extent.width; }
   [[nodiscard]] uint32_t height() const { return _extent.height; }
+  [[nodiscard]] uint32_t depth() const { return _extent.depth; }
 
   [[nodiscard]] bool isCreated() const { return _image != VK_NULL_HANDLE; }
   [[nodiscard]] bool isAllocated() const {
     return isCreated() && (_memory && _memory->isAllocated());
   }
   [[nodiscard]] bool isMapped() const { return isAllocated() && _memory->isMapped(); }
+
+  [[nodiscard]] VkImageViewType imageViewType() const;
 
  private:
   void moveFrom(Image& rhs);
@@ -69,8 +73,9 @@ class Image {
  private:
   VkImage _image = VK_NULL_HANDLE;
 
+  VkImageType _type = VK_IMAGE_TYPE_2D;
   VkFormat _format = VK_FORMAT_UNDEFINED;
-  VkExtent2D _extent = {0, 0};
+  VkExtent3D _extent = {0, 0, 0};
 
   DeviceMemory::Ptr _memory;
 

@@ -7,7 +7,7 @@
 NAMESPACE_VULKAN_BEGIN
 
 Instance::Instance(
-    const AppInfoOverride& appInfoOverride,
+    const ApplicationInfoOverride& appInfoOverride,
     const InstanceCreateInfoOverride& instanceCreateInfoOverride,
     const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride) {
   create(appInfoOverride, instanceCreateInfoOverride, debugUtilsMessengerCreateInfoOverride);
@@ -27,7 +27,7 @@ Instance::~Instance() {
 }
 
 void Instance::create(
-    const AppInfoOverride& appInfoOverride,
+    const ApplicationInfoOverride& appInfoOverride,
     const InstanceCreateInfoOverride& instanceCreateInfoOverride,
     const DebugUtilsMessengerCreateInfoOverride& debugUtilsMessengerCreateInfoOverride) {
   MI_VERIFY(!isCreated());

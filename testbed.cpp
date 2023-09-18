@@ -58,7 +58,7 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-struct SwapChainSupportDetails {
+struct SwapchainSupportDetails {
   VkSurfaceCapabilitiesKHR capabilities;
   std::vector<VkSurfaceFormatKHR> formats;
   std::vector<VkPresentModeKHR> presentModes;
@@ -735,8 +735,8 @@ class HelloTriangleApplication {
     }
   }
 
-  SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
-    SwapChainSupportDetails details;
+  SwapchainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
+    SwapchainSupportDetails details;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface, &details.capabilities);
 
@@ -768,7 +768,7 @@ class HelloTriangleApplication {
 
     bool swapChainAdequate = false;
     if (extensionsSupported) {
-      SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+      SwapchainSupportDetails swapChainSupport = querySwapChainSupport(device);
       swapChainAdequate =
           !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
