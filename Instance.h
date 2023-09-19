@@ -5,9 +5,12 @@
 #include <functional>
 #include <vector>
 
+#include "PhysicalDevice.h"
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
+
+class Surface;
 
 class Instance {
  public:
@@ -36,10 +39,15 @@ class Instance {
 
   void destroy();
 
-  operator VkInstance() const { return _instance; }
+  using IsDeviceSuitablePredicate = PhysicalDevice::IsDeviceSuitablePredicate;
+  void pickPhysicalDevice(const Surface& surface,
+                          const IsDeviceSuitablePredicate& isDeviceSuitable);
 
-  bool isValidationLayersEnabled() const { return !_layers.empty(); }
-  const std::vector<const char*>& layers() const { return _layers; }
+  operator VkInstance() const { return _instance; }
+  [[nodiscard]] const PhysicalDevice& physicalDevice() const { return _physicalDevice; }
+
+  [[nodiscard]] bool isValidationLayersEnabled() const { return !_layers.empty(); }
+  [[nodiscard]] const std::vector<const char*>& layers() const { return _layers; }
 
   using ValidationCallback = std::function<VkBool32(VkDebugUtilsMessageSeverityFlagBitsEXT,
                                                     VkDebugUtilsMessageTypeFlagsEXT,
@@ -64,6 +72,7 @@ class Instance {
 
  private:
   VkInstance _instance = VK_NULL_HANDLE;
+  PhysicalDevice _physicalDevice;
 
   VkDebugUtilsMessengerEXT _debugMessenger = VK_NULL_HANDLE;
 

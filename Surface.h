@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <vector>
+
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
@@ -9,6 +11,13 @@ NAMESPACE_VULKAN_BEGIN
 class Instance;
 
 class Surface {
+public:
+  struct Supports {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+  };
+
  public:
   Surface() = default;
   Surface(const Instance& instance, VkSurfaceKHR surface);
@@ -24,6 +33,9 @@ class Surface {
   operator VkSurfaceKHR() const { return _surface; }
 
   [[nodiscard]] bool isCreated() const { return _surface != VK_NULL_HANDLE; }
+
+  [[nodiscard]] Supports querySupports(VkPhysicalDevice physicalDevice) const;
+  [[nodiscard]] Supports querySupports() const;
 
   // Disable copy and assignment operators
   Surface(const Surface&) = delete;

@@ -12,6 +12,7 @@
 NAMESPACE_VULKAN_BEGIN
 
 class Device;
+class PhysicalDevice;
 class Surface;
 class RenderPass;
 class Swapchain {
@@ -19,8 +20,7 @@ class Swapchain {
   using SwapchainCreateInfoOverride = std::function<void(VkSwapchainCreateInfoKHR*)>;
   using ChooseSurfaceFormat =
       std::function<VkSurfaceFormatKHR(const std::vector<VkSurfaceFormatKHR>&)>;
-  using ChoosePresentMode =
-      std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>;
+  using ChoosePresentMode = std::function<VkPresentModeKHR(const std::vector<VkPresentModeKHR>&)>;
   using ChooseExtent = std::function<VkExtent2D(const VkSurfaceCapabilitiesKHR&)>;
 
  public:

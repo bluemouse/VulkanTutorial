@@ -4,6 +4,8 @@
 #include <iostream>
 #include <utility>
 
+#include "Surface.h"
+
 NAMESPACE_VULKAN_BEGIN
 
 Instance::Instance(
@@ -120,6 +122,8 @@ void Instance::create(int versionMajor,
 void Instance::destroy() {
   MI_VERIFY(isCreated());
 
+  _physicalDevice.reset();
+
   if (_debugMessenger != VK_NULL_HANDLE) {
     MI_INIT_VKPROC(vkDestroyDebugUtilsMessengerEXT);
     vkDestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
@@ -129,6 +133,12 @@ void Instance::destroy() {
 
   _instance = VK_NULL_HANDLE;
   _debugMessenger = VK_NULL_HANDLE;
+}
+
+void Instance::pickPhysicalDevice(const Surface& surface,
+                                  const IsDeviceSuitablePredicate& isDeviceSuitable) {
+  _physicalDevice.instantiate(*this, isDeviceSuitable);
+  _physicalDevice.initQueueFamilies(surface);
 }
 
 bool Instance::checkLayerSupport(const std::vector<const char*>& layers) {

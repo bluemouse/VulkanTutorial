@@ -58,12 +58,6 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-struct SwapchainSupportDetails {
-  VkSurfaceCapabilitiesKHR capabilities;
-  std::vector<VkSurfaceFormatKHR> formats;
-  std::vector<VkPresentModeKHR> presentModes;
-};
-
 struct Vertex {
   glm::vec2 pos;
   glm::vec3 color;
@@ -127,7 +121,6 @@ class HelloTriangleApplication {
 
   Vulkan::Instance _instance;
 
-  Vulkan::PhysicalDevice _physicalDevice;
   Vulkan::Surface _surface;
   Vulkan::Device _device;
   Vulkan::Swapchain _swapchain;
@@ -233,7 +226,6 @@ class HelloTriangleApplication {
     _commandBuffers.clear();
     _commandPool.destroy();
     _device.destroy();
-    _physicalDevice.reset();
     _surface.destroy();
     _instance.destroy();
 
@@ -271,19 +263,19 @@ class HelloTriangleApplication {
   }
 
   void pickPhysicalDevice() {
-    _physicalDevice.instantiate(_instance,
-                                [this](VkPhysicalDevice d) -> bool { return isDeviceSuitable(d); });
-    _physicalDevice.initQueueFamilies(_surface);
+    _instance.pickPhysicalDevice(_surface,
+                                 [this](VkPhysicalDevice d) { return isDeviceSuitable(d); });
   }
 
   void createLogicalDevice() {
-    std::vector<uint32_t> queueFamilies = {_physicalDevice.queueFamilies().graphicsIndex(),
-                                           _physicalDevice.queueFamilies().presentIndex()};
+    const auto& queueFamilies = _instance.physicalDevice().queueFamilies();
 
-    _device.create(_physicalDevice, queueFamilies, deviceExtensions);
+    _device.create(_instance.physicalDevice(),
+                   {queueFamilies.graphicsIndex(), queueFamilies.presentIndex()},
+                   deviceExtensions);
 
-    _device.initQueue("graphics", _physicalDevice.queueFamilies().graphicsIndex());
-    _device.initQueue("present", _physicalDevice.queueFamilies().presentIndex());
+    _device.initQueue("graphics", queueFamilies.graphicsIndex());
+    _device.initQueue("present", queueFamilies.presentIndex());
   }
 
   void createSwapChain() {
@@ -341,7 +333,7 @@ class HelloTriangleApplication {
   void createFramebuffers() { _swapchain.createFramebuffers(_renderPass); }
 
   void createCommandPool() {
-    _commandPool.create(_device, _physicalDevice.queueFamilies().graphicsIndex());
+    _commandPool.create(_device, _instance.physicalDevice().queueFamilies().graphicsIndex());
   }
 
   void createTextureImage() {
@@ -735,31 +727,6 @@ class HelloTriangleApplication {
     }
   }
 
-  SwapchainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
-    SwapchainSupportDetails details;
-
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface, &details.capabilities);
-
-    uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, nullptr);
-
-    if (formatCount != 0) {
-      details.formats.resize(formatCount);
-      vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, details.formats.data());
-    }
-
-    uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, nullptr);
-
-    if (presentModeCount != 0) {
-      details.presentModes.resize(presentModeCount);
-      vkGetPhysicalDeviceSurfacePresentModesKHR(
-          device, _surface, &presentModeCount, details.presentModes.data());
-    }
-
-    return details;
-  }
-
   bool isDeviceSuitable(VkPhysicalDevice device) {
     auto queueFamilies = Vulkan::PhysicalDevice::findQueueFamilies(device, _surface);
     bool isQueueFamiliesComplete = queueFamilies.graphics && queueFamilies.present;
@@ -768,7 +735,7 @@ class HelloTriangleApplication {
 
     bool swapChainAdequate = false;
     if (extensionsSupported) {
-      SwapchainSupportDetails swapChainSupport = querySwapChainSupport(device);
+      auto swapChainSupport = _surface.querySupports(device);
       swapChainAdequate =
           !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }

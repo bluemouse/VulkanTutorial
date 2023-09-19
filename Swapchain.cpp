@@ -31,17 +31,15 @@ void Swapchain::create(const Device& device,
   _device = &device;
 
   const auto& physicalDevice = device.physicalDevice();
-  PhysicalDevice::SwapchainSupportDetails swapChainSupport =
-      PhysicalDevice::querySwapChainSupport(physicalDevice, surface);
+  const auto [capabilities, formats, presentModes] = surface.querySupports();
 
-  VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(swapChainSupport.formats);
-  VkPresentModeKHR presentMode = choosePresentMode(swapChainSupport.presentModes);
-  VkExtent2D extent = chooseExtent(swapChainSupport.capabilities);
+  VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(formats);
+  VkPresentModeKHR presentMode = choosePresentMode(presentModes);
+  VkExtent2D extent = chooseExtent(capabilities);
 
-  uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-  if (swapChainSupport.capabilities.maxImageCount > 0 &&
-      imageCount > swapChainSupport.capabilities.maxImageCount) {
-    imageCount = swapChainSupport.capabilities.maxImageCount;
+  uint32_t imageCount = capabilities.minImageCount + 1;
+  if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
+    imageCount = capabilities.maxImageCount;
   }
 
   VkSwapchainCreateInfoKHR createInfo{};
@@ -68,7 +66,7 @@ void Swapchain::create(const Device& device,
     createInfo.pQueueFamilyIndices = nullptr; // Optional
   }
 
-  createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+  createInfo.preTransform = capabilities.currentTransform;
   createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;

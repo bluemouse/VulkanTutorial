@@ -30,4 +30,31 @@ void Surface::destroy() {
   _instance = nullptr;
 }
 
+Surface::Supports Surface::querySupports(VkPhysicalDevice physicalDevice) const {
+  Supports supports;
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, _surface, &supports.capabilities);
+
+  uint32_t formatCount = 0;
+  vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, _surface, &formatCount, nullptr);
+  if (formatCount > 0) {
+    supports.formats.resize(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(
+        physicalDevice, _surface, &formatCount, supports.formats.data());
+  }
+
+  uint32_t presentModeCount = 0;
+  vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, _surface, &presentModeCount, nullptr);
+  if (presentModeCount > 0) {
+    supports.presentModes.resize(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(
+        physicalDevice, _surface, &presentModeCount, supports.presentModes.data());
+  }
+
+  return supports;
+}
+
+Surface::Supports Surface::querySupports() const {
+  return querySupports(_instance->physicalDevice());
+}
+
 NAMESPACE_VULKAN_END
