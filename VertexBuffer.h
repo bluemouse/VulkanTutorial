@@ -8,7 +8,7 @@ NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
-class VertexBuffer : private Buffer {
+class VertexBuffer : public Buffer {
  public:
   VertexBuffer() = default;
   VertexBuffer(const Device& device, VkDeviceSize size);
@@ -18,13 +18,6 @@ class VertexBuffer : private Buffer {
   VertexBuffer& operator=(VertexBuffer&& rhs) noexcept(false) = default;
 
   void create(const Device& device, VkDeviceSize size);
-  using Buffer::destroy;
-
-  using Buffer::allocate;
-  using Buffer::free;
-
-  using Buffer::operator VkBuffer;
-  using Buffer::size;
 };
 
 NAMESPACE_VULKAN_END

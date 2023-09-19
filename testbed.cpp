@@ -268,7 +268,7 @@ class HelloTriangleApplication {
   }
 
   void createLogicalDevice() {
-    const auto& queueFamilies = _instance.physicalDevice().queueFamilies();
+    const auto &queueFamilies = _instance.physicalDevice().queueFamilies();
 
     _device.create(_instance.physicalDevice(),
                    {queueFamilies.graphicsIndex(), queueFamilies.presentIndex()},
@@ -360,10 +360,10 @@ class HelloTriangleApplication {
                           VK_FORMAT_R8G8B8A8_SRGB,
                           VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    copyBufferToImage(stagingBuffer,
-                      _textureImage,
-                      static_cast<uint32_t>(texWidth),
-                      static_cast<uint32_t>(texHeight));
+    stagingBuffer.copyToImage(Vulkan::CommandBuffer{_commandPool},
+                              _textureImage,
+                              static_cast<uint32_t>(texWidth),
+                              static_cast<uint32_t>(texHeight));
     transitionImageLayout(_textureImage,
                           VK_FORMAT_R8G8B8A8_SRGB,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -425,28 +425,6 @@ class HelloTriangleApplication {
     commandBuffer.waitIdle();
   }
 
-  void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
-    using Vulkan::CommandBuffer;
-    CommandBuffer commandBuffer{_commandPool};
-    commandBuffer.executeSingleTimeCommand(
-        [buffer, image, width, height](const CommandBuffer &commandBuffer) {
-          VkBufferImageCopy region{};
-          region.bufferOffset = 0;
-          region.bufferRowLength = 0;
-          region.bufferImageHeight = 0;
-          region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-          region.imageSubresource.mipLevel = 0;
-          region.imageSubresource.baseArrayLayer = 0;
-          region.imageSubresource.layerCount = 1;
-          region.imageOffset = {0, 0, 0};
-          region.imageExtent = {width, height, 1};
-
-          vkCmdCopyBufferToImage(
-              commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-        });
-    commandBuffer.waitIdle();
-  }
-
   void createVertexBuffer() {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -455,7 +433,7 @@ class HelloTriangleApplication {
 
     _vertexBuffer.create(_device, bufferSize);
 
-    copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
+    stagingBuffer.copyToBuffer(Vulkan::CommandBuffer{_commandPool}, _vertexBuffer, bufferSize);
   }
 
   void createIndexBuffer() {
@@ -466,7 +444,7 @@ class HelloTriangleApplication {
 
     _indexBuffer.create(_device, bufferSize);
 
-    copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
+    stagingBuffer.copyToBuffer(Vulkan::CommandBuffer{_commandPool}, _indexBuffer, bufferSize);
   }
 
   void createUniformBuffers() {
@@ -530,18 +508,6 @@ class HelloTriangleApplication {
                              0,
                              nullptr);
     }
-  }
-
-  void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-    using Vulkan::CommandBuffer;
-    CommandBuffer commandBuffer{_commandPool};
-    commandBuffer.executeSingleTimeCommand(
-        [srcBuffer, dstBuffer, size](const CommandBuffer &buffer) {
-          VkBufferCopy copyRegion{};
-          copyRegion.size = size;
-          vkCmdCopyBuffer(buffer, srcBuffer, dstBuffer, 1, &copyRegion);
-        });
-    commandBuffer.waitIdle();
   }
 
   void createCommandBuffers() {

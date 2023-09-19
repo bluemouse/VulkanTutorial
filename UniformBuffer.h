@@ -8,7 +8,7 @@ NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
-class UniformBuffer : private Buffer {
+class UniformBuffer : public Buffer {
  public:
   UniformBuffer() = default;
   UniformBuffer(const Device& device, VkDeviceSize size);
@@ -18,20 +18,6 @@ class UniformBuffer : private Buffer {
   UniformBuffer& operator=(UniformBuffer&& rhs) noexcept(false) = default;
 
   void create(const Device& device, VkDeviceSize size);
-  using Buffer::destroy;
-
-  using Buffer::allocate;
-  using Buffer::free;
-
-  using Buffer::map;
-  using Buffer::unmap;
-  using Buffer::isMapped;
-
-  using Buffer::operator VkBuffer;
-  using Buffer::memory;
-
-  using Buffer::isAllocated;
-  using Buffer::size;
 };
 
 NAMESPACE_VULKAN_END

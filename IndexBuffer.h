@@ -8,7 +8,7 @@ NAMESPACE_VULKAN_BEGIN
 
 class Device;
 
-class IndexBuffer : private Buffer {
+class IndexBuffer : public Buffer {
  public:
   IndexBuffer() = default;
   IndexBuffer(const Device& device, VkDeviceSize size);
@@ -18,13 +18,6 @@ class IndexBuffer : private Buffer {
   IndexBuffer& operator=(IndexBuffer&& rhs) noexcept(false) = default;
 
   void create(const Device& device, VkDeviceSize size);
-  using Buffer::destroy;
-
-  using Buffer::allocate;
-  using Buffer::free;
-
-  using Buffer::operator VkBuffer;
-  using Buffer::size;
 };
 
 NAMESPACE_VULKAN_END
