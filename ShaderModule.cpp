@@ -27,19 +27,43 @@ std::vector<char> readFile(const std::string& filename) {
 
 NAMESPACE_VULKAN_BEGIN
 
-ShaderModule::ShaderModule(const Device& device, const char* shaderFile) : _device(&device) {
-  auto code = readFile(shaderFile);
+ShaderModule::ShaderModule(const Device& device, size_t codeSize, const char* codes) {
+  create(device, codeSize, codes);
+}
+
+ShaderModule::ShaderModule(const Device& device, const char* shaderFile) {
+  create(device, shaderFile);
+}
+
+ShaderModule::~ShaderModule() {
+  if (isCreated()) {
+    destroy();
+  }
+}
+
+void ShaderModule::create(const Device& device, size_t codeSize, const char* codes) {
+  MI_VERIFY(!isCreated());
+  _device = &device;
 
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+  createInfo.codeSize = codeSize;
+  createInfo.pCode = reinterpret_cast<const uint32_t*>(codes);
 
   MI_VERIFY_VKCMD(vkCreateShaderModule(device, &createInfo, nullptr, &_shader));
 }
 
-ShaderModule::~ShaderModule() {
+void ShaderModule::create(const Device& device, const char* shaderFile) {
+  auto code = readFile(shaderFile);
+  create(device, code.size(), code.data());
+}
+
+void ShaderModule::destroy() {
+  MI_VERIFY(isCreated());
   vkDestroyShaderModule(*_device, _shader, nullptr);
+
+  _shader = VK_NULL_HANDLE;
+  _device = nullptr;
 }
 
 ShaderModule::ShaderModule(ShaderModule&& rhs) noexcept {
@@ -54,7 +78,7 @@ ShaderModule& ShaderModule::operator=(ShaderModule&& rhs) noexcept(false) {
 }
 
 void ShaderModule::moveFrom(ShaderModule& rhs) {
-  MI_VERIFY(_shader == VK_NULL_HANDLE);
+  MI_VERIFY(!isCreated());
   _shader = rhs._shader;
   _device = rhs._device;
 

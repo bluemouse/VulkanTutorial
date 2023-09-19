@@ -10,14 +10,22 @@ class Device;
 
 class ShaderModule {
  public:
+  ShaderModule() = default;
+  ShaderModule(const Device& device, size_t codeSize, const char* codes);
   ShaderModule(const Device& device, const char* shaderFile);
   ~ShaderModule();
+
+  void create(const Device& device, size_t codeSize, const char* codes);
+  void create(const Device& device, const char* shaderFile);
+  void destroy();
 
   // Transfer the ownership from `rhs` to `this`
   ShaderModule(ShaderModule&& rhs) noexcept;
   ShaderModule& operator=(ShaderModule&& rhs) noexcept(false);
 
   operator VkShaderModule() const { return _shader; }
+
+  [[nodiscard]] bool isCreated() const { return _shader != VK_NULL_HANDLE; }
 
 private:
   void moveFrom(ShaderModule& rhs);
