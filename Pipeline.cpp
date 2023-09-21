@@ -5,23 +5,16 @@
 #include "Device.h"
 #include "RenderPass.h"
 #include "ShaderModule.h"
+#include "VertexShader.h"
+#include "FragmentShader.h"
 
 NAMESPACE_VULKAN_BEGIN
 
 Pipeline::Pipeline(const Device &device,
                    const RenderPass &renderPass,
-                   const Shader &vertShader,
-                   const Shader &fragShader,
-                   VkVertexInputBindingDescription bindingDescription,
-                   std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-                   VkDescriptorSetLayout descriptorSetLayout) {
-  create(device,
-         renderPass,
-         vertShader,
-         fragShader,
-         bindingDescription,
-         std::move(attributeDescriptions),
-         descriptorSetLayout);
+                   const VertexShader &vertShader,
+                   const FragmentShader &fragShader) {
+  create(device, renderPass, vertShader, fragShader);
 }
 
 Pipeline::~Pipeline() {
@@ -54,37 +47,34 @@ void Pipeline::moveFrom(Pipeline &rhs) {
 
 void Pipeline::create(const Device &device,
                       const RenderPass &renderPass,
-                      const Shader &vertShader,
-                      const Shader &fragShader,
-                      VkVertexInputBindingDescription bindingDescription,
-                      std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-                      VkDescriptorSetLayout descriptorSetLayout) {
+                      const VertexShader &vertShader,
+                      const FragmentShader &fragShader) {
   MI_VERIFY(!isCreated());
   _device = &device;
 
   VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
   vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-  vertShaderStageInfo.module = vertShader.module;
-  vertShaderStageInfo.pName = vertShader.entry;
+  vertShaderStageInfo.module = vertShader;
+  vertShaderStageInfo.pName = vertShader.entry();
 
   VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
   fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-  fragShaderStageInfo.module = fragShader.module;
-  fragShaderStageInfo.pName = fragShader.entry;
+  fragShaderStageInfo.module = fragShader;
+  fragShaderStageInfo.pName = fragShader.entry();
 
   std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {vertShaderStageInfo,
                                                                  fragShaderStageInfo};
 
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-  vertexInputInfo.vertexBindingDescriptionCount = 1;
-  vertexInputInfo.vertexAttributeDescriptionCount =
-      static_cast<uint32_t>(attributeDescriptions.size());
-  vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-  vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+  const auto &vertexBindings = vertShader.vertexInputBindings();
+  vertexInputInfo.vertexBindingDescriptionCount = vertexBindings.size();
+  vertexInputInfo.pVertexBindingDescriptions = vertexBindings.data();
+  const auto &vertexAttributes = vertShader.vertexInputAttributes();
+  vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributes.size();
+  vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes.data();
 
   VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
   inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -133,10 +123,13 @@ void Pipeline::create(const Device &device,
   dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
   dynamicState.pDynamicStates = dynamicStates.data();
 
+  MI_VERIFY(!_descriptorSetLayout.isCreated());
+  _descriptorSetLayout.create(device, {(ShaderModule*) &vertShader, (ShaderModule*) &fragShader});
+
   VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
   pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   pipelineLayoutInfo.setLayoutCount = 1;
-  pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+  pipelineLayoutInfo.pSetLayouts = _descriptorSetLayout;
 
   MI_VERIFY_VKCMD(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &_layout));
 
@@ -164,6 +157,7 @@ void Pipeline::destroy() {
   MI_VERIFY(isCreated());
   vkDestroyPipeline(*_device, _pipeline, nullptr);
   vkDestroyPipelineLayout(*_device, _layout, nullptr);
+  _descriptorSetLayout.destroy();
 
   _device = nullptr;
   _pipeline = VK_NULL_HANDLE;

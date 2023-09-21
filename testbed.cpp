@@ -29,7 +29,8 @@
 #include "RenderPass.h"
 #include "CommandBuffer.h"
 #include "CommandPool.h"
-#include "ShaderModule.h"
+#include "VertexShader.h"
+#include "FragmentShader.h"
 #include "DescriptorPool.h"
 #include "DescriptorSet.h"
 #include "DescriptorSetLayout.h"
@@ -62,36 +63,6 @@ struct Vertex {
   glm::vec2 pos;
   glm::vec3 color;
   glm::vec2 texCoord;
-
-  static VkVertexInputBindingDescription getBindingDescription() {
-    VkVertexInputBindingDescription bindingDescription{};
-    bindingDescription.binding = 0;
-    bindingDescription.stride = sizeof(Vertex);
-    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-    return bindingDescription;
-  }
-
-  static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
-
-    attributeDescriptions[0].binding = 0;
-    attributeDescriptions[0].location = 0;
-    attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-    attributeDescriptions[1].binding = 0;
-    attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-    attributeDescriptions[2].binding = 0;
-    attributeDescriptions[2].location = 2;
-    attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-    return attributeDescriptions;
-  }
 };
 
 struct UniformBufferObject {
@@ -126,7 +97,6 @@ class HelloTriangleApplication {
   Vulkan::Swapchain _swapchain;
 
   Vulkan::RenderPass _renderPass;
-  Vulkan::DescriptorSetLayout _descriptorSetLayout;
   Vulkan::Pipeline _graphicsPipeline;
 
   Vulkan::CommandPool _commandPool;
@@ -174,7 +144,6 @@ class HelloTriangleApplication {
     createLogicalDevice();
     createSwapChain();
     createRenderPass();
-    createDescriptorSetLayout();
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
@@ -213,8 +182,6 @@ class HelloTriangleApplication {
     _textureSampler.destroy();
     _textureImageView.destroy();
     _textureImage.destroy();
-
-    _descriptorSetLayout.destroy();
 
     _indexBuffer.destroy();
     _vertexBuffer.destroy();
@@ -299,35 +266,18 @@ class HelloTriangleApplication {
 
   void createRenderPass() { _renderPass.create(_device, _swapchain.imageFormat()); }
 
-  void createDescriptorSetLayout() {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    _descriptorSetLayout.create(_device, {uboLayoutBinding, samplerLayoutBinding});
-  }
-
   void createGraphicsPipeline() {
-    Vulkan::ShaderModule vertShaderModule{_device, "shaders/vert.spv"};
-    Vulkan::ShaderModule fragShaderModule{_device, "shaders/frag.spv"};
+    Vulkan::VertexShader vertShader{_device, "main", "shaders/vert.spv"};
+    vertShader.addVertexInputBinding(0, sizeof(Vertex));
+    vertShader.addVertexInputAttribute(0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, pos));
+    vertShader.addVertexInputAttribute(1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color));
+    vertShader.addVertexInputAttribute(2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, texCoord));
+    vertShader.addDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
-    _graphicsPipeline.create(_device,
-                             _renderPass,
-                             {vertShaderModule, "main"},
-                             {fragShaderModule, "main"},
-                             Vertex::getBindingDescription(),
-                             Vertex::getAttributeDescriptions(),
-                             _descriptorSetLayout);
+    Vulkan::FragmentShader fragShader{_device, "main", "shaders/frag.spv"};
+    fragShader.addDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
+    _graphicsPipeline.create(_device, _renderPass, vertShader, fragShader);
   }
 
   void createFramebuffers() { _swapchain.createFramebuffers(_renderPass); }
@@ -472,7 +422,7 @@ class HelloTriangleApplication {
   void createDescriptorSets() {
     _descriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      _descriptorSets.emplace_back(_descriptorPool, _descriptorSetLayout);
+      _descriptorSets.emplace_back(_descriptorPool, _graphicsPipeline.descriptorSetLayout());
 
       VkDescriptorBufferInfo bufferInfo{};
       bufferInfo.buffer = _uniformBuffers[i];

@@ -1,13 +1,13 @@
 #include "DescriptorSetLayout.h"
 
 #include "Device.h"
+#include "ShaderModule.h"
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
 
-DescriptorSetLayout::DescriptorSetLayout(const Device& device,
-                                         std::vector<VkDescriptorSetLayoutBinding> bindings) {
-  create(device, std::move(bindings));
+DescriptorSetLayout::DescriptorSetLayout(const Device& device, std::vector<ShaderModule*> shaders) {
+  create(device, std::move(shaders));
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {
@@ -36,10 +36,22 @@ void DescriptorSetLayout::moveFrom(DescriptorSetLayout& rhs) {
   rhs._device = nullptr;
 }
 
-void DescriptorSetLayout::create(const Device& device,
-                                 std::vector<VkDescriptorSetLayoutBinding> bindings) {
+void DescriptorSetLayout::create(const Device& device, std::vector<ShaderModule*> shaders) {
   MI_VERIFY(!isCreated());
   _device = &device;
+
+  size_t numBindings = 0;
+  for (auto* shader : shaders) {
+    numBindings += shader->descriptorSetLayoutBindings().size();
+  }
+
+  std::vector<VkDescriptorSetLayoutBinding> bindings;
+  bindings.reserve(numBindings);
+  for (auto* shader : shaders) {
+    for (const auto& binding : shader->descriptorSetLayoutBindings()) {
+      bindings.push_back(binding);
+    }
+  }
 
   VkDescriptorSetLayoutCreateInfo layoutInfo{};
   layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

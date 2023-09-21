@@ -9,18 +9,19 @@
 NAMESPACE_VULKAN_BEGIN
 
 class Device;
+class ShaderModule;
 
 class DescriptorSetLayout {
  public:
   DescriptorSetLayout() = default;
-  DescriptorSetLayout(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
+  DescriptorSetLayout(const Device& device, std::vector<ShaderModule*> shaders);
   ~DescriptorSetLayout();
 
   // Transfer the ownership from `rhs` to `this`
   DescriptorSetLayout(DescriptorSetLayout&& rhs) noexcept;
   DescriptorSetLayout& operator=(DescriptorSetLayout&& rhs) noexcept(false);
 
-  void create(const Device& device, std::vector<VkDescriptorSetLayoutBinding> bindings);
+  void create(const Device& device, std::vector<ShaderModule*> shaders);
   void destroy();
 
   operator VkDescriptorSetLayout() const { return _layout; }

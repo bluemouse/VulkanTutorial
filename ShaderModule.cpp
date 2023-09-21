@@ -27,12 +27,12 @@ std::vector<char> readFile(const std::string& filename) {
 
 NAMESPACE_VULKAN_BEGIN
 
-ShaderModule::ShaderModule(const Device& device, size_t codeSize, const char* codes) {
-  create(device, codeSize, codes);
+ShaderModule::ShaderModule(const Device& device, const char* entry, size_t codeSize, const char* codes) {
+  create(device, entry, codeSize, codes);
 }
 
-ShaderModule::ShaderModule(const Device& device, const char* shaderFile) {
-  create(device, shaderFile);
+ShaderModule::ShaderModule(const Device& device, const char* entry, const char* shaderFile) {
+  create(device, entry, shaderFile);
 }
 
 ShaderModule::~ShaderModule() {
@@ -41,9 +41,10 @@ ShaderModule::~ShaderModule() {
   }
 }
 
-void ShaderModule::create(const Device& device, size_t codeSize, const char* codes) {
+void ShaderModule::create(const Device& device, const char* entry, size_t codeSize, const char* codes) {
   MI_VERIFY(!isCreated());
   _device = &device;
+  _entry = entry;
 
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -53,9 +54,9 @@ void ShaderModule::create(const Device& device, size_t codeSize, const char* cod
   MI_VERIFY_VKCMD(vkCreateShaderModule(device, &createInfo, nullptr, &_shader));
 }
 
-void ShaderModule::create(const Device& device, const char* shaderFile) {
+void ShaderModule::create(const Device& device, const char* entry, const char* shaderFile) {
   auto code = readFile(shaderFile);
-  create(device, code.size(), code.data());
+  create(device, entry, code.size(), code.data());
 }
 
 void ShaderModule::destroy() {
@@ -80,9 +81,20 @@ ShaderModule& ShaderModule::operator=(ShaderModule&& rhs) noexcept(false) {
 void ShaderModule::moveFrom(ShaderModule& rhs) {
   MI_VERIFY(!isCreated());
   _shader = rhs._shader;
+  _entry = rhs._entry;
+  _descriptorSetLayoutBindings = std::move(rhs._descriptorSetLayoutBindings);
   _device = rhs._device;
 
   rhs._shader = VK_NULL_HANDLE;
+  rhs._entry = nullptr;
+  rhs._descriptorSetLayoutBindings.clear();
   rhs._device = nullptr;
 }
+
+void ShaderModule::addDescriptorSetLayoutBinding(uint32_t binding,
+                                                 VkDescriptorType descriptorType,
+                                                 VkShaderStageFlags stageFlags) {
+  _descriptorSetLayoutBindings.push_back({binding, descriptorType, 1, stageFlags, nullptr});
+}
+
 NAMESPACE_VULKAN_END

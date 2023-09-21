@@ -4,30 +4,23 @@
 
 #include <vector>
 
+#include "DescriptorSetLayout.h"
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
 
 class Device;
 class RenderPass;
-class ShaderModule;
+class VertexShader;
+class FragmentShader;
 
 class Pipeline {
- public:
-  struct Shader {
-    const ShaderModule& module;
-    const char* entry;
-  };
-
  public:
   Pipeline() = default;
   Pipeline(const Device& device,
            const RenderPass& renderPass,
-           const Shader& vertShader,
-           const Shader& fragShader,
-           VkVertexInputBindingDescription bindingDescription,
-           std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-           VkDescriptorSetLayout descriptorSetLayout);
+           const VertexShader& vertShader,
+           const FragmentShader& fragShader);
   ~Pipeline();
 
   // Transfer the ownership from `rhs` to `this`
@@ -36,11 +29,8 @@ class Pipeline {
 
   void create(const Device& device,
               const RenderPass& renderPass,
-              const Shader& vertShader,
-              const Shader& fragShader,
-              VkVertexInputBindingDescription bindingDescription,
-              std::vector<VkVertexInputAttributeDescription> attributeDescriptions,
-              VkDescriptorSetLayout descriptorSetLayout);
+              const VertexShader& vertShader,
+              const FragmentShader& fragShader);
   void destroy();
 
   operator VkPipeline() const { return _pipeline; }
@@ -48,12 +38,18 @@ class Pipeline {
 
   [[nodiscard]] bool isCreated() const { return _pipeline != VK_NULL_HANDLE; }
 
+  [[nodiscard]] const DescriptorSetLayout& descriptorSetLayout() const {
+    return _descriptorSetLayout;
+  }
+
  private:
   void moveFrom(Pipeline& rhs);
 
  private:
   VkPipeline _pipeline = VK_NULL_HANDLE;
   VkPipelineLayout _layout = VK_NULL_HANDLE;
+
+  DescriptorSetLayout _descriptorSetLayout;
 
   const Device* _device = nullptr;
 };

@@ -59,6 +59,10 @@ set(MYVULKAN_SRC_FILES
   Framebuffer.h
   ShaderModule.cpp
   ShaderModule.h
+  VertexShader.cpp
+  VertexShader.h
+  FragmentShader.cpp
+  FragmentShader.h
   Pipeline.cpp
   Pipeline.h
   CommandPool.cpp
