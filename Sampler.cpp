@@ -4,8 +4,11 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-Sampler::Sampler(const Device& device, VkSamplerAddressMode addressMode, Filter filter) {
-  create(device, addressMode, filter);
+Sampler::Sampler(const Device& device,
+                 Filter filter,
+                 AddressMode addressMode,
+                 const SamplerCreateInfoOverride& createInfoOverride) {
+  create(device, filter, addressMode, createInfoOverride);
 }
 
 Sampler::~Sampler() {
@@ -34,7 +37,10 @@ void Sampler::moveFrom(Sampler& rhs) {
   rhs._device = nullptr;
 }
 
-void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Filter filter) {
+void Sampler::create(const Device& device,
+                     Filter filter,
+                     AddressMode addressMode,
+                     const SamplerCreateInfoOverride& createInfoOverride) {
   MI_VERIFY(!isCreated());
   _device = &device;
 
@@ -45,9 +51,9 @@ void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Fil
   samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
   samplerInfo.magFilter = filter.mag;
   samplerInfo.minFilter = filter.min;
-  samplerInfo.addressModeU = addressMode;
-  samplerInfo.addressModeV = addressMode;
-  samplerInfo.addressModeW = addressMode;
+  samplerInfo.addressModeU = addressMode.u;
+  samplerInfo.addressModeV = addressMode.v;
+  samplerInfo.addressModeW = addressMode.w;
   samplerInfo.anisotropyEnable = VK_TRUE;
   samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
   samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
@@ -56,6 +62,10 @@ void Sampler::create(const Device& device, VkSamplerAddressMode addressMode, Fil
   samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
   samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
+  if (createInfoOverride) {
+    createInfoOverride(&samplerInfo);
+  }
+
   MI_VERIFY_VKCMD(vkCreateSampler(device, &samplerInfo, nullptr, &_sampler));
 }
 
@@ -63,8 +73,8 @@ void Sampler::destroy() {
   MI_VERIFY(isCreated());
   vkDestroySampler(*_device, _sampler, nullptr);
 
-  _device = nullptr;
   _sampler = VK_NULL_HANDLE;
+  _device = nullptr;
 }
 
 NAMESPACE_VULKAN_END

@@ -323,8 +323,7 @@ class HelloTriangleApplication {
   void createTextureImageView() { _textureImageView.create(_device, _textureImage); }
 
   void createTextureSampler() {
-    _textureSampler.create(
-        _device, VK_SAMPLER_ADDRESS_MODE_REPEAT, {VK_FILTER_LINEAR, VK_FILTER_LINEAR});
+    _textureSampler.create(_device, {VK_FILTER_LINEAR}, {VK_SAMPLER_ADDRESS_MODE_REPEAT});
   }
 
   void transitionImageLayout(VkImage image,
