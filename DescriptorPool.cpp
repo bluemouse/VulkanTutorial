@@ -3,9 +3,14 @@
 #include <utility>
 
 #include "Device.h"
+#include "DescriptorSetLayout.h"
 #include "helpers_vulkan.h"
 
 NAMESPACE_VULKAN_BEGIN
+
+DescriptorPool::DescriptorPool(const DescriptorSetLayout& layout, uint32_t maxSets) {
+  create(layout, maxSets);
+}
 
 DescriptorPool::DescriptorPool(const Device& device,
                                std::vector<VkDescriptorPoolSize> poolSizes,
@@ -45,6 +50,10 @@ void DescriptorPool::create(const Device& device,
   MI_VERIFY(!isCreated());
   _device = &device;
 
+  for (auto& poolSize : poolSizes) {
+    poolSize.descriptorCount *= maxSets;
+  }
+
   VkDescriptorPoolCreateInfo poolInfo{};
   poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
   poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
@@ -52,6 +61,10 @@ void DescriptorPool::create(const Device& device,
   poolInfo.maxSets = maxSets;
 
   MI_VERIFY_VKCMD(vkCreateDescriptorPool(device, &poolInfo, nullptr, &_pool));
+}
+
+void DescriptorPool::create(const DescriptorSetLayout& layout, uint32_t maxSets) {
+  create(layout.device(), layout.poolSizes(), maxSets);
 }
 
 void DescriptorPool::destroy() {

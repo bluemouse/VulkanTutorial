@@ -7,8 +7,10 @@
 
 NAMESPACE_VULKAN_BEGIN
 
-DescriptorSet::DescriptorSet(const DescriptorPool& pool, const DescriptorSetLayout& layout) {
-  allocate(pool, layout);
+DescriptorSet::DescriptorSet(const DescriptorPool& pool,
+                             const DescriptorSetLayout& layout,
+                             const std::vector<Binding>& bindings) {
+  allocate(pool, layout, bindings);
 }
 
 DescriptorSet::~DescriptorSet() {
@@ -37,7 +39,9 @@ void DescriptorSet::moveFrom(DescriptorSet& rhs) {
   rhs._pool = nullptr;
 }
 
-void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayout& layout) {
+void DescriptorSet::allocate(const DescriptorPool& pool,
+                             const DescriptorSetLayout& layout,
+                             const std::vector<Binding>& bindings) {
   MI_VERIFY(!isAllocated());
   _pool = &pool;
 
@@ -48,6 +52,35 @@ void DescriptorSet::allocate(const DescriptorPool& pool, const DescriptorSetLayo
   allocInfo.pSetLayouts = layout;
 
   MI_VERIFY_VKCMD(vkAllocateDescriptorSets(pool.device(), &allocInfo, &_set));
+
+  const auto& layoutBindings = layout.bindings();
+  MI_VERIFY(bindings.size() == layoutBindings.size());
+
+  std::vector<VkWriteDescriptorSet> writes{bindings.size()};
+
+  for (size_t i = 0; i < writes.size(); ++i) {
+    writes[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writes[i].dstSet = *this;
+    writes[i].dstBinding = layoutBindings[i].binding;
+    writes[i].dstArrayElement = 0;
+    writes[i].descriptorType = layoutBindings[i].descriptorType;
+    writes[i].descriptorCount = 1;
+    if (layoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
+      MI_VERIFY(bindings[i].bufferInfo != nullptr);
+      writes[i].pBufferInfo = bindings[i].bufferInfo;
+    }
+    if (layoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+      MI_VERIFY(bindings[i].imageInfo != nullptr);
+      writes[i].pImageInfo = bindings[i].imageInfo;
+    }
+
+    // We only support these two types for now.
+    // TODO: support other types.
+    MI_ASSERT(layoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
+              layoutBindings[i].descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+  }
+
+  vkUpdateDescriptorSets(_pool->device(), writes.size(), writes.data(), 0, nullptr);
 }
 
 void DescriptorSet::free() {

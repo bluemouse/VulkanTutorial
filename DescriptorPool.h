@@ -9,10 +9,12 @@
 NAMESPACE_VULKAN_BEGIN
 
 class Device;
+class DescriptorSetLayout;
 
 class DescriptorPool {
  public:
   DescriptorPool() = default;
+  DescriptorPool(const DescriptorSetLayout& layout, uint32_t maxSets);
   DescriptorPool(const Device& device,
                  std::vector<VkDescriptorPoolSize> poolSizes,
                  uint32_t maxSets);
@@ -22,6 +24,7 @@ class DescriptorPool {
   DescriptorPool(DescriptorPool&& rhs) noexcept;
   DescriptorPool& operator=(DescriptorPool&& rhs) noexcept(false);
 
+  void create(const DescriptorSetLayout& layout, uint32_t maxSets);
   void create(const Device& device, std::vector<VkDescriptorPoolSize> poolSizes, uint32_t maxSets);
   void destroy();
 

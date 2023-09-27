@@ -29,11 +29,21 @@ class DescriptorSetLayout {
 
   [[nodiscard]] bool isCreated() const { return _layout != VK_NULL_HANDLE; }
 
+  [[nodiscard]] const Device& device() const { return *_device; }
+
+  [[nodiscard]] const std::vector<VkDescriptorPoolSize>& poolSizes() const { return _poolSizes; }
+  [[nodiscard]] const std::vector<VkDescriptorSetLayoutBinding>& bindings() const {
+    return _bindings;
+  }
+
  private:
   void moveFrom(DescriptorSetLayout& rhs);
 
  private:
   VkDescriptorSetLayout _layout = VK_NULL_HANDLE;
+
+  std::vector<VkDescriptorSetLayoutBinding> _bindings;
+  std::vector<VkDescriptorPoolSize> _poolSizes;
 
   const Device* _device = nullptr;
 };

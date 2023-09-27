@@ -4,6 +4,8 @@
 
 #include "helpers_vulkan.h"
 
+#include <vector>
+
 NAMESPACE_VULKAN_BEGIN
 
 class DescriptorPool;
@@ -11,15 +13,28 @@ class DescriptorSetLayout;
 
 class DescriptorSet {
  public:
+  struct Binding {
+    VkDescriptorBufferInfo* bufferInfo = nullptr;
+    VkDescriptorImageInfo* imageInfo = nullptr;
+
+    Binding(VkDescriptorBufferInfo* bufferInfo) : bufferInfo(bufferInfo) {}
+    Binding(VkDescriptorImageInfo* imageInfo) : imageInfo(imageInfo) {}
+  };
+
+ public:
   DescriptorSet() = default;
-  DescriptorSet(const DescriptorPool& pool, const DescriptorSetLayout& layout);
+  DescriptorSet(const DescriptorPool& pool,
+                const DescriptorSetLayout& layout,
+                const std::vector<Binding>& bindings);
   ~DescriptorSet();
 
   // Transfer the ownership from `rhs` to `this`
   DescriptorSet(DescriptorSet&& rhs) noexcept;
   DescriptorSet& operator=(DescriptorSet&& rhs) noexcept(false);
 
-  void allocate(const DescriptorPool& pool, const DescriptorSetLayout& layout);
+  void allocate(const DescriptorPool& pool,
+                const DescriptorSetLayout& layout,
+                const std::vector<Binding>& bindings);
   void free();
 
   operator VkDescriptorSet() const { return _set; }

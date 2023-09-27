@@ -97,7 +97,7 @@ class HelloTriangleApplication {
   Vulkan::Swapchain _swapchain;
 
   Vulkan::RenderPass _renderPass;
-  Vulkan::Pipeline _graphicsPipeline;
+  Vulkan::Pipeline _pipeline;
 
   Vulkan::CommandPool _commandPool;
 
@@ -119,6 +119,7 @@ class HelloTriangleApplication {
   std::vector<Vulkan::Semaphore> _imageAvailableSemaphores;
   std::vector<Vulkan::Semaphore> _renderFinishedSemaphores;
   std::vector<Vulkan::Fence> _inFlightFences;
+
   uint32_t currentFrame = 0;
 
   bool framebufferResized = false;
@@ -171,7 +172,7 @@ class HelloTriangleApplication {
   void cleanup() {
     _swapchain.destroy();
 
-    _graphicsPipeline.destroy();
+    _pipeline.destroy();
     _renderPass.destroy();
 
     _uniformBuffers.clear();
@@ -277,7 +278,7 @@ class HelloTriangleApplication {
     Vulkan::FragmentShader fragShader{_device, "main", "shaders/frag.spv"};
     fragShader.addDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    _graphicsPipeline.create(_device, _renderPass, vertShader, fragShader);
+    _pipeline.create(_device, _renderPass, vertShader, fragShader);
   }
 
   void createFramebuffers() { _swapchain.createFramebuffers(_renderPass); }
@@ -378,7 +379,7 @@ class HelloTriangleApplication {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
     Vulkan::StagingBuffer stagingBuffer(_device, bufferSize);
-    stagingBuffer.copyFromHost(vertices.data(), (size_t)bufferSize);
+    stagingBuffer.copyFromHost(vertices.data(), static_cast<size_t>(bufferSize));
 
     _vertexBuffer.create(_device, bufferSize);
 
@@ -389,7 +390,7 @@ class HelloTriangleApplication {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
     Vulkan::StagingBuffer stagingBuffer(_device, bufferSize);
-    stagingBuffer.copyFromHost(indices.data(), (size_t)bufferSize);
+    stagingBuffer.copyFromHost(indices.data(), static_cast<size_t>(bufferSize));
 
     _indexBuffer.create(_device, bufferSize);
 
@@ -409,20 +410,12 @@ class HelloTriangleApplication {
   }
 
   void createDescriptorPool() {
-    std::vector<VkDescriptorPoolSize> poolSizes{2};
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-    _descriptorPool.create(_device, poolSizes, MAX_FRAMES_IN_FLIGHT);
+    _descriptorPool.create(_pipeline.descriptorSetLayout(), MAX_FRAMES_IN_FLIGHT);
   }
 
   void createDescriptorSets() {
     _descriptorSets.reserve(MAX_FRAMES_IN_FLIGHT);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      _descriptorSets.emplace_back(_descriptorPool, _graphicsPipeline.descriptorSetLayout());
-
       VkDescriptorBufferInfo bufferInfo{};
       bufferInfo.buffer = _uniformBuffers[i];
       bufferInfo.offset = 0;
@@ -433,29 +426,8 @@ class HelloTriangleApplication {
       imageInfo.imageView = _textureImageView;
       imageInfo.sampler = _textureSampler;
 
-      std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-
-      descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      descriptorWrites[0].dstSet = _descriptorSets[i];
-      descriptorWrites[0].dstBinding = 0;
-      descriptorWrites[0].dstArrayElement = 0;
-      descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      descriptorWrites[0].descriptorCount = 1;
-      descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-      descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      descriptorWrites[1].dstSet = _descriptorSets[i];
-      descriptorWrites[1].dstBinding = 1;
-      descriptorWrites[1].dstArrayElement = 0;
-      descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-      descriptorWrites[1].descriptorCount = 1;
-      descriptorWrites[1].pImageInfo = &imageInfo;
-
-      vkUpdateDescriptorSets(_device,
-                             static_cast<uint32_t>(descriptorWrites.size()),
-                             descriptorWrites.data(),
-                             0,
-                             nullptr);
+      std::vector<Vulkan::DescriptorSet::Binding> bindings = {&bufferInfo, &imageInfo};
+      _descriptorSets.emplace_back(_descriptorPool, _pipeline.descriptorSetLayout(), bindings);
     }
   }
 
@@ -539,7 +511,7 @@ class HelloTriangleApplication {
           renderPassInfo.pClearValues = &clearColor;
 
           vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-          vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
+          vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline);
 
           VkViewport viewport{};
           viewport.x = 0.0f;
@@ -561,7 +533,7 @@ class HelloTriangleApplication {
           vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
           vkCmdBindDescriptorSets(commandBuffer,
                                   VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                  _graphicsPipeline.layout(),
+                                  _pipeline.layout(),
                                   0,
                                   1,
                                   _descriptorSets[currentFrame],

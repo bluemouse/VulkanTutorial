@@ -4,6 +4,8 @@
 #include "ShaderModule.h"
 #include "helpers_vulkan.h"
 
+#include <map>
+
 NAMESPACE_VULKAN_BEGIN
 
 DescriptorSetLayout::DescriptorSetLayout(const Device& device, std::vector<ShaderModule*> shaders) {
@@ -30,9 +32,13 @@ DescriptorSetLayout& DescriptorSetLayout::operator=(DescriptorSetLayout&& rhs) n
 void DescriptorSetLayout::moveFrom(DescriptorSetLayout& rhs) {
   MI_VERIFY(!isCreated());
   _layout = rhs._layout;
+  _bindings = std::move(rhs._bindings);
+  _poolSizes = std::move(rhs._poolSizes);
   _device = rhs._device;
 
   rhs._layout = VK_NULL_HANDLE;
+  rhs._bindings.clear();
+  rhs._poolSizes.clear();
   rhs._device = nullptr;
 }
 
@@ -45,18 +51,24 @@ void DescriptorSetLayout::create(const Device& device, std::vector<ShaderModule*
     numBindings += shader->descriptorSetLayoutBindings().size();
   }
 
-  std::vector<VkDescriptorSetLayoutBinding> bindings;
-  bindings.reserve(numBindings);
+  std::map<VkDescriptorType, int> types;
+  _bindings.reserve(numBindings);
   for (auto* shader : shaders) {
     for (const auto& binding : shader->descriptorSetLayoutBindings()) {
-      bindings.push_back(binding);
+      _bindings.push_back(binding);
+      types[binding.descriptorType] += 1;
     }
+  }
+
+  _poolSizes.reserve(types.size());
+  for (const auto& [type, count] : types) {
+    _poolSizes.push_back({type, static_cast<uint32_t>(count)});
   }
 
   VkDescriptorSetLayoutCreateInfo layoutInfo{};
   layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-  layoutInfo.pBindings = bindings.data();
+  layoutInfo.bindingCount = static_cast<uint32_t>(_bindings.size());
+  layoutInfo.pBindings = _bindings.data();
 
   MI_VERIFY_VKCMD(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &_layout));
 }
@@ -66,6 +78,8 @@ void DescriptorSetLayout::destroy() {
 
   vkDestroyDescriptorSetLayout(*_device, _layout, nullptr);
   _layout = VK_NULL_HANDLE;
+  _bindings.clear();
+  _poolSizes.clear();
   _device = nullptr;
 }
 
